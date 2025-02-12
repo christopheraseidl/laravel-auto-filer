@@ -15,6 +15,12 @@ abstract class BaseUploadHandler
 
     protected string $disk;
 
+    abstract protected function getAllJobs(Model $model): array;
+
+    abstract protected function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array;
+
+    abstract protected function getBatchDescription(): string;
+
     public function __construct(
         protected UploadService $uploadService,
         protected JobFactory $jobFactory,
@@ -39,10 +45,4 @@ abstract class BaseUploadHandler
             $this->getBatchDescription()
         );
     }
-
-    abstract protected function getAllJobs(Model $model): array;
-
-    abstract protected function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array;
-
-    abstract protected function getBatchDescription(): string;
 }

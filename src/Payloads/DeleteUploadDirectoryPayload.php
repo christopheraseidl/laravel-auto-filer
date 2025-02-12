@@ -53,7 +53,7 @@ final class DeleteUploadDirectoryPayload implements DeleteUploadDirectoryPayload
         ];
     }
 
-    public function getModel(): string
+    public function getModelClass(): string
     {
         return $this->modelClass;
     }

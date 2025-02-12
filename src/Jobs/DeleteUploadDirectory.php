@@ -5,8 +5,8 @@ namespace christopheraseidl\HasUploads\Jobs;
 use christopheraseidl\HasUploads\Contracts\DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Facades\UploadService;
 use christopheraseidl\HasUploads\Support\FileOperationType;
+use Illuminate\Support\Facades\Storage;
 
 final class DeleteUploadDirectory extends BaseUploadJob
 {
@@ -14,10 +14,15 @@ final class DeleteUploadDirectory extends BaseUploadJob
         private readonly DeleteUploadDirectoryPayload $payload
     ) {}
 
+    public function make(DeleteUploadDirectoryPayload $payload): ?static
+    {
+        return new self($payload);
+    }
+
     public function handle(): void
     {
         $this->handleJob(function () {
-            UploadService::deleteDirectory($this->payload->getPath());
+            Storage::deleteDirectory($this->payload->getPath());
         });
     }
 
