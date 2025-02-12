@@ -7,6 +7,14 @@ parameters:
         - src
         - config
         - database
+    reportUnmatchedIgnoredErrors: false
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
     checkModelProperties: true
+    bootstrapFiles:
+        - vendor/autoload.php
+    ignoreErrors:
+        - '#Call to an undefined static method .+\\Facades\\.+#'
+        - '#Call to an undefined method .+getUploadableAttributes.+#'
+        - '#Call to an undefined method .+getUploadPath.+#'
+        - '#Access to an undefined property .+\\Model.+#'

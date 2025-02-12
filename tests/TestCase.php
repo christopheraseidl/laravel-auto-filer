@@ -1,10 +1,10 @@
 <?php
 
-namespace VendorName\Skeleton\Tests;
+namespace christopheraseidl\HasUploads\Tests;
 
+use christopheraseidl\HasUploads\HasUploadsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use VendorName\Skeleton\SkeletonServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -13,24 +13,42 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'VendorName\\Skeleton\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'christopheraseidl\\HasUploads\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
     }
 
     protected function getPackageProviders($app)
     {
         return [
-            SkeletonServiceProvider::class,
+            HasUploadsServiceProvider::class,
         ];
     }
 
     public function getEnvironmentSetUp($app)
     {
+        // Set the database up for testing.
         config()->set('database.default', 'testing');
 
-        /*
-        $migration = include __DIR__.'/../database/migrations/create_skeleton_table.php.stub';
-        $migration->up();
-        */
+        // Ensure that the database runs in memory.
+        config()->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+
+        // Force job batches to use the testing connection.
+        config()->set('queue.batching.database', 'testing');
+
+        // Run jobs synchronously.
+        config()->set('queue.default', 'sync');
+        config()->set('queue.connections.sync', [
+            'driver' => 'sync',
+        ]);
+
+        // Don't actually broadcast events.
+        config()->set('broadcasting.default', 'null');
+        config()->set('broadcasting.connections.null', [
+            'driver' => 'null',
+        ]);
     }
 }
