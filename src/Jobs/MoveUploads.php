@@ -18,7 +18,7 @@ final class MoveUploads extends BaseUploadJob
 
     public static function make(ModelAwarePayload $payload): ?static
     {
-        return new static($payload);
+        return new self($payload);
     }
 
     public function handle(): void

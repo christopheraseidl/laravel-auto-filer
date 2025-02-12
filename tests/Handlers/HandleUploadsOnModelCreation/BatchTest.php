@@ -12,10 +12,10 @@ uses(DatabaseTransactions::class);
 
 beforeEach(function () {
     Bus::fake();
-    
+
     $this->stringFillableName = 'my-image.png';
     $this->arrayFillableName = 'important-document.pdf';
-    
+
     $this->model = TestModel::factory()
         ->withStringFillable($this->stringFillableName)
         ->withArrayFillable([$this->arrayFillableName])

@@ -17,7 +17,7 @@ uses(DatabaseTransactions::class);
 beforeEach(function () {
     $this->stringFillableName = 'my-image.png';
     $this->arrayFillableName = 'important-document.pdf';
-    
+
     $this->model = TestModel::factory()
         ->withStringFillable($this->stringFillableName)
         ->withArrayFillable([$this->arrayFillableName])
@@ -50,7 +50,7 @@ it('creates jobs from attribute correctly', function () {
 
 it('returns null when creating jobs for null attribute', function () {
     $model = TestModel::factory()->create(['string' => null]);
-    
+
     $jobs = $this->handler->createJobsFromAttribute($model, 'string', 'images');
 
     expect($jobs)->toBeNull();
