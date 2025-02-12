@@ -16,6 +16,11 @@ final class MoveUploads extends BaseUploadJob
         private readonly ModelAwarePayload $payload
     ) {}
 
+    public static function make(ModelAwarePayload $payload): ?static
+    {
+        return new static($payload);
+    }
+
     public function handle(): void
     {
         $model = $this->getPayload()->resolveModel();

@@ -28,13 +28,13 @@ class HandleUploadsOnModelCreation extends BaseUploadHandler
             return null;
         }
 
-        $job = $this->createMoveJob($model, $attribute, $type, $newFiles);
+        $job = $this->createMoveJob($model, $attribute, $type, Arr::wrap($newFiles));
 
         return Arr::wrap($job);
     }
 
     protected function getBatchDescription(): string
     {
-        return 'Handle uploads for modal creation.';
+        return 'Handle uploads for model creation.';
     }
 }
