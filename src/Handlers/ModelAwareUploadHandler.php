@@ -2,8 +2,8 @@
 
 namespace christopheraseidl\HasUploads\Handlers;
 
-use christopheraseidl\HasUploads\Contracts\ModelAwareBatchHandler;
 use christopheraseidl\HasUploads\Contracts\JobFactory;
+use christopheraseidl\HasUploads\Contracts\ModelAwareBatchHandler;
 use christopheraseidl\HasUploads\Contracts\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Traits\GetsClassBaseName;
