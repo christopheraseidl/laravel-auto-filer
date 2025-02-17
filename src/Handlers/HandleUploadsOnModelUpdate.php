@@ -6,7 +6,7 @@ use christopheraseidl\HasUploads\Traits\CreatesDeleteJob;
 use christopheraseidl\HasUploads\Traits\CreatesMoveJob;
 use Illuminate\Database\Eloquent\Model;
 
-class HandleUploadsOnModelUpdate extends BaseUploadHandler
+class HandleUploadsOnModelUpdate extends ModelUploadEventHandler
 {
     use CreatesDeleteJob, CreatesMoveJob;
 

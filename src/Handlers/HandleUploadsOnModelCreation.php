@@ -6,7 +6,7 @@ use christopheraseidl\HasUploads\Traits\CreatesMoveJob;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
-class HandleUploadsOnModelCreation extends BaseUploadHandler
+class HandleUploadsOnModelCreation extends ModelUploadEventHandler
 {
     use CreatesMoveJob;
 

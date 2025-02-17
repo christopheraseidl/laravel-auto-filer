@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Jobs\Services;
 
-use christopheraseidl\HasUploads\Contracts\ModelAwareBatchHandler as ModelAwareBatchHandlerContract;
+use christopheraseidl\HasUploads\Contracts\BatchHandler as BatchHandlerContract;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Events\FileOperationCompleted;
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Bus;
 use Throwable;
 
-class ModelAwareBatchHandler implements ModelAwareBatchHandlerContract
+class BatchHandler implements BatchHandlerContract
 {
     use GetsClassBaseName;
 

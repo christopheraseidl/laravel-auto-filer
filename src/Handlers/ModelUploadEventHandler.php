@@ -2,14 +2,14 @@
 
 namespace christopheraseidl\HasUploads\Handlers;
 
-use christopheraseidl\HasUploads\Contracts\ModelAwareBatchHandler;
+use christopheraseidl\HasUploads\Contracts\BatchHandler;
 use christopheraseidl\HasUploads\Contracts\JobFactory;
 use christopheraseidl\HasUploads\Contracts\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Traits\GetsClassBaseName;
 use Illuminate\Database\Eloquent\Model;
 
-abstract class ModelAwareUploadHandler
+abstract class ModelUploadEventHandler
 {
     use GetsClassBaseName;
 
@@ -24,7 +24,7 @@ abstract class ModelAwareUploadHandler
     public function __construct(
         protected UploadService $uploadService,
         protected JobFactory $jobFactory,
-        protected ModelAwareBatchHandler $batch,
+        protected BatchHandler $batch,
         protected ModelFileChangeTracker $fileTracker
     ) {
         $this->disk = $uploadService->getDisk();
