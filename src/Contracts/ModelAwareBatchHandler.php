@@ -6,7 +6,7 @@ use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
 
-interface BatchHandler
+interface ModelAwareBatchHandler
 {
     public function dispatch(
         array $jobs,
