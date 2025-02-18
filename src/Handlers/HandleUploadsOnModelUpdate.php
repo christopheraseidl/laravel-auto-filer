@@ -25,9 +25,9 @@ class HandleUploadsOnModelUpdate extends ModelUploadEventHandler
         $removedFiles = $this->fileTracker->getRemovedFiles($model, $attribute);
         $newFiles = $this->fileTracker->getNewFiles($model, $attribute);
 
-        $deleteJob = $this->createDeleteJob($model, $attribute, $type, $removedFiles);
+        $deleteJob = $this->createDeleteJob($this->builder, $model, $attribute, $type, $this->disk, $removedFiles);
 
-        $moveJob = $this->createMoveJob($model, $attribute, $type, $newFiles);
+        $moveJob = $this->createMoveJob($this->builder, $model, $attribute, $type, $this->disk, $newFiles);
 
         return array_filter([$deleteJob, $moveJob]);
     }

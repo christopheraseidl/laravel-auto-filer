@@ -2,6 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Traits;
 
+use christopheraseidl\HasUploads\Contracts\JobBuilder;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Jobs\DeleteUploads;
@@ -10,13 +11,15 @@ use Illuminate\Database\Eloquent\Model;
 trait CreatesDeleteJob
 {
     protected function createDeleteJob(
+        JobBuilder $builder,
         Model $model,
         string $attribute,
         ?string $type,
-        array $removedFiles
+        string $disk,
+        array $removedFiles,
     ): ?DeleteUploads {
         return ! empty($removedFiles)
-            ? $this->builder
+            ? $builder
                 ->job(DeleteUploads::class)
                 ->modelClass(class_basename($model))
                 ->modelId($model->id)
@@ -24,7 +27,7 @@ trait CreatesDeleteJob
                 ->modelAttributeType($type)
                 ->operationType(OperationType::Delete)
                 ->operationScope(OperationScope::File)
-                ->disk($this->disk)
+                ->disk($disk)
                 ->filePaths($removedFiles)
                 ->build()
             : null;

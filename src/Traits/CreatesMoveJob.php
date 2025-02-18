@@ -2,6 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Traits;
 
+use christopheraseidl\HasUploads\Contracts\JobBuilder;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Jobs\MoveUploads;
@@ -10,13 +11,15 @@ use Illuminate\Database\Eloquent\Model;
 trait CreatesMoveJob
 {
     protected function createMoveJob(
+        JobBuilder $builder,
         Model $model,
         string $attribute,
         ?string $type,
+        string $disk,
         array $newFiles
     ): ?MoveUploads {
         return ! empty($newFiles)
-            ? $this->builder
+            ? $builder
                 ->job(MoveUploads::class)
                 ->modelClass(class_basename($model))
                 ->modelId($model->id)
@@ -24,7 +27,7 @@ trait CreatesMoveJob
                 ->modelAttributeType($type)
                 ->operationType(OperationType::Move)
                 ->operationScope(OperationScope::File)
-                ->disk($this->disk)
+                ->disk($disk)
                 ->filePaths($newFiles)
                 ->newDir($model->getUploadPath($type))
                 ->build()

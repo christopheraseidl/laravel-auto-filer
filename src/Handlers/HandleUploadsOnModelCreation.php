@@ -28,7 +28,7 @@ class HandleUploadsOnModelCreation extends ModelUploadEventHandler
             return null;
         }
 
-        $job = $this->createMoveJob($model, $attribute, $type, Arr::wrap($newFiles));
+        $job = $this->createMoveJob($this->builder, $model, $attribute, $type, $this->disk, Arr::wrap($newFiles));
 
         return Arr::wrap($job);
     }
