@@ -5,7 +5,6 @@ namespace christopheraseidl\HasUploads\Traits;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Jobs\MoveUploads;
-use christopheraseidl\HasUploads\Payloads\MoveUploadsPayload;
 use Illuminate\Database\Eloquent\Model;
 
 trait CreatesMoveJob
@@ -17,21 +16,18 @@ trait CreatesMoveJob
         array $newFiles
     ): ?MoveUploads {
         return ! empty($newFiles)
-            ? $this->jobFactory->create(
-                jobClass: MoveUploads::class,
-                payloadClass: MoveUploadsPayload::class,
-                args: [
-                    $this->getClassBaseName($model),
-                    $model->id,
-                    $attribute,
-                    $type,
-                    OperationType::Move,
-                    OperationScope::File,
-                    $this->disk,
-                    $newFiles,
-                    $model->getUploadPath($type),
-                ]
-            )
+            ? $this->builder
+                ->job(MoveUploads::class)
+                ->modelClass(class_basename($model))
+                ->modelId($model->id)
+                ->modelAttribute($attribute)
+                ->modelAttributeType($type)
+                ->operationType(OperationType::Move)
+                ->operationScope(OperationScope::File)
+                ->disk($this->disk)
+                ->filePaths($newFiles)
+                ->newDir($model->getUploadPath($type))
+                ->build()
             : null;
     }
 }
