@@ -4,7 +4,7 @@ namespace christopheraseidl\HasUploads\Contracts;
 
 use Illuminate\Contracts\Support\Arrayable;
 
-interface Payload extends Arrayable, ConstructiblePayload
+interface Payload extends Arrayable
 {
     public static function make(...$args): ?static;
 

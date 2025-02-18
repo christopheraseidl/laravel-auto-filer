@@ -8,7 +8,7 @@ use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Traits\HasDisk;
 use Illuminate\Database\Eloquent\Model;
 
-abstract class ModelAwarePayload implements ModelAwarePayloadContract
+abstract class ModelAwarePayload extends Payload implements ModelAwarePayloadContract
 {
     use HasDisk;
 

@@ -6,7 +6,7 @@ use christopheraseidl\HasUploads\Contracts\DeleteUploadDirectoryPayload as Delet
 use christopheraseidl\HasUploads\Traits\HasDisk;
 use christopheraseidl\HasUploads\Traits\HasPath;
 
-final class DeleteUploadDirectoryPayload implements DeleteUploadDirectoryPayloadContract
+final class DeleteUploadDirectoryPayload extends Payload implements DeleteUploadDirectoryPayloadContract
 {
     use HasDisk, HasPath;
 

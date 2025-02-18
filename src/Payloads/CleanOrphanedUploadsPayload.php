@@ -6,7 +6,7 @@ use christopheraseidl\HasUploads\Contracts\CleanOrphanedUploadsPayload as Contra
 use christopheraseidl\HasUploads\Traits\HasDisk;
 use christopheraseidl\HasUploads\Traits\HasPath;
 
-final class CleanOrphanedUploadsPayload implements ContractsCleanOrphanedUploadsPayload
+final class CleanOrphanedUploadsPayload extends Payload implements ContractsCleanOrphanedUploadsPayload
 {
     use HasDisk, HasPath;
 
