@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
  * @see \christopheraseidl\HasUploads\Support\UploadService For the upload path
  * configuration.
  */
-final class CleanOrphanedUploads extends BaseUploadJob
+final class CleanOrphanedUploads extends Job
 {
     use Makeable;
 

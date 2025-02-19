@@ -6,18 +6,16 @@ use christopheraseidl\HasUploads\Contracts\DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Support\FileOperationType;
+use christopheraseidl\HasUploads\Traits\Makeable;
 use Illuminate\Support\Facades\Storage;
 
-final class DeleteUploadDirectory extends BaseUploadJob
+final class DeleteUploadDirectory extends Job
 {
+    use Makeable;
+
     public function __construct(
         private readonly DeleteUploadDirectoryPayload $payload
     ) {}
-
-    public function make(DeleteUploadDirectoryPayload $payload): ?static
-    {
-        return new self($payload);
-    }
 
     public function handle(): void
     {

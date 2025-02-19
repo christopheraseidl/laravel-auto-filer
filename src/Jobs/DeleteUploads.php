@@ -4,10 +4,13 @@ namespace christopheraseidl\HasUploads\Jobs;
 
 use christopheraseidl\HasUploads\Contracts\ModelAwarePayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
+use christopheraseidl\HasUploads\Traits\Makeable;
 use Illuminate\Support\Facades\Storage;
 
-final class DeleteUploads extends BaseUploadJob
+final class DeleteUploads extends Job
 {
+    use Makeable;
+
     public function __construct(
         private readonly ModelAwarePayload $payload
     ) {}

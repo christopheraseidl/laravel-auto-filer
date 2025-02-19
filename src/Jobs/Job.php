@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Jobs;
 
-use christopheraseidl\HasUploads\Contracts\Payload;
+use christopheraseidl\HasUploads\Contracts\Job as JobContract;
 use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\HasUploads\Events\FileOperationFailed;
 use Closure;
@@ -14,17 +14,9 @@ use Illuminate\Queue\Middleware\ThrottlesExceptions;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-abstract class BaseUploadJob
+abstract class Job implements JobContract
 {
     use Batchable, Queueable;
-
-    abstract public function handle(): void;
-
-    abstract public function getOperationType(): string;
-
-    abstract public function uniqueId(): string;
-
-    abstract public function getPayload(): Payload;
 
     public function handleJob(Closure $job): void
     {
