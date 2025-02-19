@@ -24,31 +24,6 @@ abstract class ModelAwarePayload extends Payload implements ModelAwarePayloadCon
         private readonly ?string $newDir = null
     ) {}
 
-    public static function make(...$args): ?static
-    {
-        [
-            $modelClass,
-            $modelId,
-            $modelAttribute,
-            $modelAttributeType,
-            $operationType,
-            $operationScope,
-            $disk,
-            $filePaths
-        ] = $args;
-
-        return new static(
-            modelClass: $modelClass,
-            modelId: $modelId,
-            modelAttribute: $modelAttribute,
-            modelAttributeType: $modelAttributeType,
-            operationType: $operationType,
-            operationScope: $operationScope,
-            disk: $disk,
-            filePaths: $filePaths
-        );
-    }
-
     public function getKey(): string
     {
         $modelIdentifier = sprintf(

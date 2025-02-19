@@ -2,13 +2,13 @@
 
 namespace christopheraseidl\HasUploads\Jobs\Validators;
 
-use christopheraseidl\HasUploads\Contracts\JobBuilderValidator as JobBuilderValidatorContract;
+use christopheraseidl\HasUploads\Contracts\BuilderValidator as BuilderValidatorContract;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionParameter;
 
-class JobBuilderValidator implements JobBuilderValidatorContract
+class BuilderValidator implements BuilderValidatorContract
 {
     public function getValidPayloadParameter(string $jobClass): ReflectionParameter
     {

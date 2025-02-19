@@ -7,7 +7,6 @@ use christopheraseidl\HasUploads\Contracts\CleanOrphanedUploadsPayload;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Support\FileOperationType;
-use christopheraseidl\HasUploads\Traits\Makeable;
 use DateTimeInterface;
 use Illuminate\Support\Facades\Storage;
 
@@ -22,8 +21,6 @@ use Illuminate\Support\Facades\Storage;
  */
 final class CleanOrphanedUploads extends Job
 {
-    use Makeable;
-
     public function __construct(
         private readonly CleanOrphanedUploadsPayload $payload
     ) {}

@@ -17,23 +17,6 @@ final class DeleteUploadDirectoryPayload extends Payload implements DeleteUpload
         private readonly string $path
     ) {}
 
-    public static function make(...$args): ?static
-    {
-        [
-            $modelClass,
-            $id,
-            $disk,
-            $path
-        ] = $args;
-
-        return new self(
-            modelClass: $modelClass,
-            id: $id,
-            disk: $disk,
-            path: $path
-        );
-    }
-
     public function getKey(): string
     {
         return "delete_upload_directory_{$this->modelClass}_{$this->id}";

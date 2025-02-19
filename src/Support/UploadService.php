@@ -23,17 +23,12 @@ class UploadService implements UploadServiceContract
         return config('has-uploads.path', '');
     }
 
-    public function url(string $path): string
-    {
-        return Storage::disk($this->getDisk())->url($path);
-    }
-
     public function storeFile(Model $model, UploadedFile $file, string $assetType = ''): string
     {
         $this->validateUpload($file);
         $path = $model->getUploadPath($assetType);
         $fileName = $file->hashName();
-        Storage::disk(UploadService::getDisk())->putFileAs($path, $file, $fileName);
+        Storage::disk($this->getDisk())->putFileAs($path, $file, $fileName);
 
         return "{$path}/{$fileName}";
     }
@@ -52,16 +47,5 @@ class UploadService implements UploadServiceContract
     public function moveFile(string $oldPath, string $newDir): string
     {
         return $this->attemptMove($this->getDisk(), $oldPath, $newDir);
-    }
-
-    public function deleteFile(string $path): bool
-    {
-        return Storage::disk($this->getDisk())->delete($path);
-    }
-
-    public function deleteDirectory(string $path): bool
-    {
-        return Storage::disk($this->getDisk())
-            ->deleteDirectory($path);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Traits;
 
-use christopheraseidl\HasUploads\Contracts\JobBuilder;
+use christopheraseidl\HasUploads\Contracts\Builder;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Jobs\DeleteUploads;
@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 trait CreatesDeleteJob
 {
     protected function createDeleteJob(
-        JobBuilder $builder,
+        Builder $builder,
         Model $model,
         string $attribute,
         ?string $type,

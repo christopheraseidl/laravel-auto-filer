@@ -2,10 +2,13 @@
 
 namespace christopheraseidl\HasUploads\Jobs\Services;
 
-use christopheraseidl\HasUploads\Contracts\JobBuilderValidator;
+use christopheraseidl\HasUploads\Contracts\Builder as BuilderContract;
+use christopheraseidl\HasUploads\Contracts\BuilderValidator;
+use christopheraseidl\HasUploads\Contracts\Job;
+use christopheraseidl\HasUploads\Contracts\Payload;
 use ReflectionClass;
 
-class JobBuilder
+class Builder implements BuilderContract
 {
     protected array $properties = [];
 
@@ -14,7 +17,7 @@ class JobBuilder
     protected string $payloadClass;
 
     public function __construct(
-        protected JobBuilderValidator $validator
+        protected BuilderValidator $validator
     ) {}
 
     public function job(string $jobClass): self
@@ -56,19 +59,19 @@ class JobBuilder
         return $args;
     }
 
-    public function makePayload(): object
+    public function makePayload(): Payload
     {
         $args = $this->resolveConstructorArguments($this->payloadClass);
 
         return $this->payloadClass::make(...$args);
     }
 
-    public function makeJob(object $payload): object
+    public function makeJob(object $payload): Job
     {
         return $this->jobClass::make($payload);
     }
 
-    public function build(): self
+    public function build(): Job
     {
         $this->validator->validatePropertiesExistForPayload($this->properties, $this->payloadClass);
         $payload = $this->makePayload();

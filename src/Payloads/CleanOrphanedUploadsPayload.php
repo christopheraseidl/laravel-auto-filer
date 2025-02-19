@@ -16,21 +16,6 @@ final class CleanOrphanedUploadsPayload extends Payload implements ContractsClea
         private readonly int $cleanupThresholdHours = 24
     ) {}
 
-    public static function make(...$args): ?static
-    {
-        [
-            $disk,
-            $path,
-            $cleanupThresholdHours
-        ] = $args;
-
-        return new self(
-            disk: $disk,
-            path: $path,
-            cleanupThresholdHours: $cleanupThresholdHours
-        );
-    }
-
     public function getKey(): string
     {
         return 'clean_orphaned_uploads';

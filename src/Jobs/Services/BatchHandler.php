@@ -8,7 +8,6 @@ use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\HasUploads\Events\FileOperationFailed;
 use christopheraseidl\HasUploads\Payloads\BatchUpdatePayload;
-use christopheraseidl\HasUploads\Traits\GetsClassBaseName;
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Bus;
@@ -16,8 +15,6 @@ use Throwable;
 
 class BatchHandler implements BatchHandlerContract
 {
-    use GetsClassBaseName;
-
     public function dispatch(
         array $jobs,
         Model $model,
@@ -38,7 +35,7 @@ class BatchHandler implements BatchHandlerContract
     ): void {
         broadcast(new FileOperationCompleted(
             BatchUpdatePayload::make(
-                modelClass: $this->getClassBaseName($model),
+                modelClass: class_basename($model),
                 modelId: $model->id,
                 operationType: OperationType::Update,
                 operationScope: OperationScope::Batch,
@@ -55,7 +52,7 @@ class BatchHandler implements BatchHandlerContract
     ): void {
         broadcast(new FileOperationFailed(
             BatchUpdatePayload::make(
-                modelClass: $this->getClassBaseName($model),
+                modelClass: class_basename($model),
                 modelId: $model->id,
                 operationType: OperationType::Update,
                 operationScope: OperationScope::Batch,

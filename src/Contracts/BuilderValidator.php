@@ -4,7 +4,7 @@ namespace christopheraseidl\HasUploads\Contracts;
 
 use ReflectionParameter;
 
-interface JobBuilderValidator
+interface BuilderValidator
 {
     /**
      * Get a valid payload parameter from the job constructor.

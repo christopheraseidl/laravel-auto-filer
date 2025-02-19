@@ -2,9 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Contracts;
 
-interface JobBuilder
+interface Builder
 {
-    public function __construct(JobBuilderValidator $validator);
+    public function __construct(BuilderValidator $validator);
 
     public function job(string $jobClass): self;
 
@@ -14,9 +14,9 @@ interface JobBuilder
 
     public function resolveConstructorArguments(string $class): array;
 
-    public function makePayload(): object;
+    public function makePayload(): Payload;
 
-    public function makeJob(object $payload): object;
+    public function makeJob(object $payload): Job;
 
-    public function build(): self;
+    public function build(): Job;
 }

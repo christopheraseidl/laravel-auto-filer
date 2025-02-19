@@ -18,4 +18,4 @@ parameters:
         - '#Call to an undefined method .+getUploadableAttributes.+#'
         - '#Call to an undefined method .+getUploadPath.+#'
         - '#Access to an undefined property .+\\Model.+#'
-        - '#Call to an undefined method christopheraseidl\\HasUploads\\Contracts\\JobBuilder.+#'
+        - '#Call to an undefined method christopheraseidl\\HasUploads\\Contracts\\Builder.+#'

@@ -7,11 +7,10 @@ use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
-use christopheraseidl\HasUploads\Traits\Makeable;
 
 final class MoveUploads extends Job
 {
-    use AttemptsFileMoves, Makeable;
+    use AttemptsFileMoves;
 
     public function __construct(
         private readonly ModelAwarePayload $payload

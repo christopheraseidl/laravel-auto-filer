@@ -3,16 +3,13 @@
 namespace christopheraseidl\HasUploads\Handlers;
 
 use christopheraseidl\HasUploads\Contracts\BatchHandler;
-use christopheraseidl\HasUploads\Contracts\JobBuilder;
+use christopheraseidl\HasUploads\Contracts\Builder;
 use christopheraseidl\HasUploads\Contracts\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Contracts\UploadService;
-use christopheraseidl\HasUploads\Traits\GetsClassBaseName;
 use Illuminate\Database\Eloquent\Model;
 
 abstract class ModelUploadEventHandler
 {
-    use GetsClassBaseName;
-
     protected string $disk;
 
     abstract protected function getAllJobs(Model $model): array;
@@ -23,7 +20,7 @@ abstract class ModelUploadEventHandler
 
     public function __construct(
         protected UploadService $uploadService,
-        protected JobBuilder $builder,
+        protected Builder $builder,
         protected BatchHandler $batch,
         protected ModelFileChangeTracker $fileTracker
     ) {
