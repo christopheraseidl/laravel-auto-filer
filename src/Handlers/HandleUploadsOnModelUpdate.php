@@ -4,20 +4,19 @@ namespace christopheraseidl\HasUploads\Handlers;
 
 use christopheraseidl\HasUploads\Traits\CreatesDeleteJob;
 use christopheraseidl\HasUploads\Traits\CreatesMoveJob;
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 
 class HandleUploadsOnModelUpdate extends ModelUploadEventHandler
 {
     use CreatesDeleteJob, CreatesMoveJob;
 
-    protected function getAllJobs(Model $model): array
+    protected function getAllJobs(Model $model, ?Closure $filter = null): array
     {
-        return collect($model->getUploadableAttributes())
-            ->filter(fn ($type, $attribute) => $model->isDirty($attribute))
-            ->flatMap(fn ($type, $attribute) => $this->createJobsFromAttribute($model, $attribute, $type)
-            )
-            ->filter()
-            ->all();
+        return parent::getAllJobs(
+            $model,
+            $filter ?? fn ($model, $attribute) => $model->isDirty($attribute)
+        );
     }
 
     protected function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array

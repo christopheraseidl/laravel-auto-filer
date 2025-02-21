@@ -6,13 +6,24 @@ use christopheraseidl\HasUploads\Contracts\BatchHandler;
 use christopheraseidl\HasUploads\Contracts\Builder;
 use christopheraseidl\HasUploads\Contracts\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Contracts\UploadService;
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 
 abstract class ModelUploadEventHandler
 {
     protected string $disk;
 
-    abstract protected function getAllJobs(Model $model): array;
+    // abstract protected function getAllJobs(Model $model): array;
+
+    protected function getAllJobs(Model $model, ?Closure $filter = null): array
+    {
+        return collect($model->getUploadableAttributes())
+            ->filter(fn ($type, $attribute) => $filter($model, $attribute))
+            ->flatMap(fn ($type, $attribute) => $this->createJobsFromAttribute($model, $attribute, $type)
+            )
+            ->filter()
+            ->all();
+    }
 
     abstract protected function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array;
 
