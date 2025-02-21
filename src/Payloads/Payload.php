@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Payloads;
 
-use christopheraseidl\HasUploads\Contracts\Payload as PayloadContract;
+use christopheraseidl\HasUploads\Payloads\Contracts\Payload as PayloadContract;
 use ReflectionClass;
 
 abstract class Payload implements PayloadContract

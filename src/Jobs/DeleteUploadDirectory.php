@@ -2,9 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Jobs;
 
-use christopheraseidl\HasUploads\Contracts\DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use Illuminate\Support\Facades\Storage;
 

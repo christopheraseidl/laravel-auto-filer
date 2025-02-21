@@ -8,6 +8,6 @@ class UploadService extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \christopheraseidl\HasUploads\Support\UploadService::class;
+        return \christopheraseidl\HasUploads\Services\UploadService::class;
     }
 }

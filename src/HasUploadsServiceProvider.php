@@ -2,16 +2,16 @@
 
 namespace christopheraseidl\HasUploads;
 
-use christopheraseidl\HasUploads\Contracts\BatchHandler as BatchHandlerContract;
-use christopheraseidl\HasUploads\Contracts\Builder as BuilderContract;
-use christopheraseidl\HasUploads\Contracts\BuilderValidator as BuilderValidatorContract;
-use christopheraseidl\HasUploads\Contracts\ModelFileChangeTracker as ModelFileChangeTrackerContract;
 use christopheraseidl\HasUploads\Contracts\UploadService as UploadServiceContract;
-use christopheraseidl\HasUploads\Jobs\Services\BatchHandler;
+use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager as BatchManagerContract;
+use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker as ModelFileChangeTrackerContract;
+use christopheraseidl\HasUploads\Handlers\Services\BatchManager;
+use christopheraseidl\HasUploads\Handlers\Services\ModelFileChangeTracker;
+use christopheraseidl\HasUploads\Jobs\Contracts\Builder as BuilderContract;
+use christopheraseidl\HasUploads\Jobs\Contracts\BuilderValidator as BuilderValidatorContract;
 use christopheraseidl\HasUploads\Jobs\Services\Builder;
-use christopheraseidl\HasUploads\Jobs\Services\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Jobs\Validators\BuilderValidator;
-use christopheraseidl\HasUploads\Support\UploadService;
+use christopheraseidl\HasUploads\Services\UploadService;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -32,7 +32,7 @@ class HasUploadsServiceProvider extends PackageServiceProvider
 
         $this->app->bind(BuilderContract::class, Builder::class);
 
-        $this->app->bind(BatchHandlerContract::class, BatchHandler::class);
+        $this->app->bind(BatchManagerContract::class, BatchManager::class);
 
         $this->app->bind(BuilderValidatorContract::class, BuilderValidator::class);
     }

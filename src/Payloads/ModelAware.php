@@ -2,13 +2,13 @@
 
 namespace christopheraseidl\HasUploads\Payloads;
 
-use christopheraseidl\HasUploads\Contracts\ModelAwarePayload as ModelAwarePayloadContract;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\HasUploads\Payloads\Contracts\ModelAware as ModelAwareContract;
 use christopheraseidl\HasUploads\Traits\HasDisk;
 use Illuminate\Database\Eloquent\Model;
 
-abstract class ModelAwarePayload extends Payload implements ModelAwarePayloadContract
+abstract class ModelAware extends Payload implements ModelAwareContract
 {
     use HasDisk;
 

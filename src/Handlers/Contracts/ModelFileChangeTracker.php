@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Contracts;
+namespace christopheraseidl\HasUploads\Handlers\Contracts;
 
 use Illuminate\Database\Eloquent\Model;
 

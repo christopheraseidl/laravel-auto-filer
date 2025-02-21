@@ -2,10 +2,10 @@
 
 namespace christopheraseidl\HasUploads\Payloads;
 
-final class BatchUpdatePayload extends ModelAwarePayload
+final class DeleteUploads extends ModelAware
 {
     public function shouldBroadcastIndividualEvents(): bool
     {
-        return true;
+        return false;
     }
 }

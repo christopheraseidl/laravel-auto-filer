@@ -1,12 +1,12 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Contracts;
+namespace christopheraseidl\HasUploads\Payloads\Contracts;
 
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use Illuminate\Database\Eloquent\Model;
 
-interface ModelAwarePayload extends Payload
+interface ModelAware extends Payload
 {
     public function __construct(
         string $modelClass,

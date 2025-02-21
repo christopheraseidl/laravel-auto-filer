@@ -2,14 +2,14 @@
 
 namespace christopheraseidl\HasUploads\Jobs;
 
-use christopheraseidl\HasUploads\Contracts\ModelAwarePayload;
+use christopheraseidl\HasUploads\Payloads\Contracts\ModelAware;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use Illuminate\Support\Facades\Storage;
 
 final class DeleteUploads extends Job
 {
     public function __construct(
-        private readonly ModelAwarePayload $payload
+        private readonly ModelAware $payload
     ) {}
 
     public function handle(): void
@@ -35,7 +35,7 @@ final class DeleteUploads extends Job
         return $this->getPayload()->getKey();
     }
 
-    public function getPayload(): ModelAwarePayload
+    public function getPayload(): ModelAware
     {
         return $this->payload;
     }

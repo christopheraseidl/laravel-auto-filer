@@ -2,9 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Jobs;
 
-use christopheraseidl\HasUploads\Contracts\ModelAwarePayload;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\HasUploads\Payloads\Contracts\ModelAware;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
 
@@ -13,7 +13,7 @@ final class MoveUploads extends Job
     use AttemptsFileMoves;
 
     public function __construct(
-        private readonly ModelAwarePayload $payload
+        private readonly ModelAware $payload
     ) {}
 
     public function handle(): void
@@ -45,7 +45,7 @@ final class MoveUploads extends Job
         return $this->getPayload()->getKey();
     }
 
-    public function getPayload(): ModelAwarePayload
+    public function getPayload(): ModelAware
     {
         return $this->payload;
     }

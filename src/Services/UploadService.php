@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Support;
+namespace christopheraseidl\HasUploads\Services;
 
 use christopheraseidl\HasUploads\Contracts\UploadService as UploadServiceContract;
 use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;

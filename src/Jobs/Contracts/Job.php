@@ -1,7 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Contracts;
+namespace christopheraseidl\HasUploads\Jobs\Contracts;
 
+use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
 use Closure;
 use DateTime;
 use Illuminate\Contracts\Queue\ShouldBeUnique;

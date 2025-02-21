@@ -1,19 +1,19 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Services;
+namespace christopheraseidl\HasUploads\Handlers\Services;
 
-use christopheraseidl\HasUploads\Contracts\BatchHandler as BatchHandlerContract;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\HasUploads\Events\FileOperationFailed;
-use christopheraseidl\HasUploads\Payloads\BatchUpdatePayload;
+use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager as BatchManagerContract;
+use christopheraseidl\HasUploads\Payloads\BatchUpdate;
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Bus;
 use Throwable;
 
-class BatchHandler implements BatchHandlerContract
+class BatchManager implements BatchManagerContract
 {
     public function dispatch(
         array $jobs,
@@ -34,7 +34,7 @@ class BatchHandler implements BatchHandlerContract
         string $disk
     ): void {
         broadcast(new FileOperationCompleted(
-            BatchUpdatePayload::make(
+            BatchUpdate::make(
                 modelClass: class_basename($model),
                 modelId: $model->id,
                 operationType: OperationType::Update,
@@ -51,7 +51,7 @@ class BatchHandler implements BatchHandlerContract
         Throwable $e
     ): void {
         broadcast(new FileOperationFailed(
-            BatchUpdatePayload::make(
+            BatchUpdate::make(
                 modelClass: class_basename($model),
                 modelId: $model->id,
                 operationType: OperationType::Update,

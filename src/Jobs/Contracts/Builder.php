@@ -1,6 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Contracts;
+namespace christopheraseidl\HasUploads\Jobs\Contracts;
+
+use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
 
 interface Builder
 {

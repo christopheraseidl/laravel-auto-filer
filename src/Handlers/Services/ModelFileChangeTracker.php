@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Services;
+namespace christopheraseidl\HasUploads\Handlers\Services;
 
-use christopheraseidl\HasUploads\Contracts\ModelFileChangeTracker as ModelFileChangeTrackerContract;
+use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker as ModelFileChangeTrackerContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 

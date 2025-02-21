@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Payloads;
 
-final class MoveUploadsPayload extends ModelAwarePayload
+final class MoveUploads extends ModelAware
 {
     public function getKey(): string
     {

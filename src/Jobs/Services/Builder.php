@@ -2,10 +2,10 @@
 
 namespace christopheraseidl\HasUploads\Jobs\Services;
 
-use christopheraseidl\HasUploads\Contracts\Builder as BuilderContract;
-use christopheraseidl\HasUploads\Contracts\BuilderValidator;
-use christopheraseidl\HasUploads\Contracts\Job;
-use christopheraseidl\HasUploads\Contracts\Payload;
+use christopheraseidl\HasUploads\Jobs\Contracts\Builder as BuilderContract;
+use christopheraseidl\HasUploads\Jobs\Contracts\BuilderValidator;
+use christopheraseidl\HasUploads\Jobs\Contracts\Job;
+use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
 use ReflectionClass;
 
 class Builder implements BuilderContract

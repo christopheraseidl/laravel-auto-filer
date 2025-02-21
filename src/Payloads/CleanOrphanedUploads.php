@@ -2,11 +2,11 @@
 
 namespace christopheraseidl\HasUploads\Payloads;
 
-use christopheraseidl\HasUploads\Contracts\CleanOrphanedUploadsPayload as ContractsCleanOrphanedUploadsPayload;
+use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
 use christopheraseidl\HasUploads\Traits\HasDisk;
 use christopheraseidl\HasUploads\Traits\HasPath;
 
-final class CleanOrphanedUploadsPayload extends Payload implements ContractsCleanOrphanedUploadsPayload
+final class CleanOrphanedUploads extends Payload implements CleanOrphanedUploadsContract
 {
     use HasDisk, HasPath;
 

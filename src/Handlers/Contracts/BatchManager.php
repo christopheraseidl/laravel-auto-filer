@@ -1,12 +1,12 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Contracts;
+namespace christopheraseidl\HasUploads\Handlers\Contracts;
 
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
 
-interface BatchHandler
+interface BatchManager
 {
     public function dispatch(
         array $jobs,

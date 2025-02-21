@@ -1,10 +1,10 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Traits;
+namespace christopheraseidl\HasUploads\Handlers\Traits;
 
-use christopheraseidl\HasUploads\Contracts\Builder;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
 use christopheraseidl\HasUploads\Jobs\MoveUploads;
 use Illuminate\Database\Eloquent\Model;
 

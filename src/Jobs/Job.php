@@ -2,10 +2,10 @@
 
 namespace christopheraseidl\HasUploads\Jobs;
 
-use christopheraseidl\HasUploads\Contracts\Job as JobContract;
-use christopheraseidl\HasUploads\Contracts\Payload;
 use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\HasUploads\Events\FileOperationFailed;
+use christopheraseidl\HasUploads\Jobs\Contracts\Job as JobContract;
+use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
 use Closure;
 use DateTime;
 use Illuminate\Bus\Batchable;

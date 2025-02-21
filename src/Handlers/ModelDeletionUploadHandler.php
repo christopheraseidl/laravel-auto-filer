@@ -4,11 +4,11 @@ namespace christopheraseidl\HasUploads\Handlers;
 
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
-use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectoryPayload;
+use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class HandleUploadsOnModelDeletion
+class ModelDeletionUploadHandler
 {
     protected string $disk;
 

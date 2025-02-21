@@ -3,9 +3,9 @@
 namespace christopheraseidl\HasUploads\Jobs;
 
 use Carbon\Carbon;
-use christopheraseidl\HasUploads\Contracts\CleanOrphanedUploadsPayload;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use DateTimeInterface;
 use Illuminate\Support\Facades\Storage;

@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Contracts;
+namespace christopheraseidl\HasUploads\Payloads\Contracts;
 
 use Illuminate\Contracts\Support\Arrayable;
 

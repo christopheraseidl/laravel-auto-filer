@@ -2,11 +2,11 @@
 
 namespace christopheraseidl\HasUploads\Payloads;
 
-use christopheraseidl\HasUploads\Contracts\DeleteUploadDirectoryPayload as DeleteUploadDirectoryPayloadContract;
+use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
 use christopheraseidl\HasUploads\Traits\HasDisk;
 use christopheraseidl\HasUploads\Traits\HasPath;
 
-final class DeleteUploadDirectoryPayload extends Payload implements DeleteUploadDirectoryPayloadContract
+final class DeleteUploadDirectory extends Payload implements DeleteUploadDirectoryContract
 {
     use HasDisk, HasPath;
 

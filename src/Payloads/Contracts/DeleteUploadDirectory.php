@@ -1,8 +1,10 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Contracts;
+namespace christopheraseidl\HasUploads\Payloads\Contracts;
 
-interface DeleteUploadDirectoryPayload extends Payload, SinglePath
+use christopheraseidl\HasUploads\Contracts\SinglePath;
+
+interface DeleteUploadDirectory extends Payload, SinglePath
 {
     public function __construct(
         string $modelClass,

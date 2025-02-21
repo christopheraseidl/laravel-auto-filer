@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Events;
 
-use christopheraseidl\HasUploads\Contracts\Payload;
+use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;

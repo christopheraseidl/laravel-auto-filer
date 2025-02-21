@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Jobs\Validators;
 
-use christopheraseidl\HasUploads\Contracts\BuilderValidator as BuilderValidatorContract;
+use christopheraseidl\HasUploads\Jobs\Contracts\BuilderValidator as BuilderValidatorContract;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;

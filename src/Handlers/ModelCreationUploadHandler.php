@@ -2,12 +2,12 @@
 
 namespace christopheraseidl\HasUploads\Handlers;
 
-use christopheraseidl\HasUploads\Traits\CreatesMoveJob;
+use christopheraseidl\HasUploads\Handlers\Traits\CreatesMoveJob;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
-class HandleUploadsOnModelCreation extends ModelUploadEventHandler
+class ModelCreationUploadHandler extends ModelUploadEventHandler
 {
     use CreatesMoveJob;
 
