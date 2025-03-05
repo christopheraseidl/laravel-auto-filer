@@ -1,12 +1,13 @@
 <?php
 
 /**
- * Tests the CleaningService getLastModified method.
+ * Tests the CleanOrphanedUploads getLastModified method.
  *
- * @covers \christopheraseidl\HasUploads\Support\CleaningService
+ * @covers \christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads
  */
 
-use christopheraseidl\HasUploads\Support\CleaningService;
+use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
+use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -16,12 +17,20 @@ beforeEach(function () {
 
     $upload = UploadedFile::fake()->create('file1.txt', 100);
     $name = $upload->hashName();
-    $path = config('has-uploads.path');
+    $path = '/path';
     $this->file = "{$path}/{$name}";
 
     Storage::disk($this->disk)->putFileAs($path, $upload, $name);
 
-    $this->cleaner = Reflect::on(new CleaningService);
+    $payload = new CleanOrphanedUploadsPayload(
+        $this->disk,
+        $path,
+        24
+    );
+
+    $this->cleaner = Reflect::on(
+        new CleanOrphanedUploads($payload)
+    );
 });
 
 it('returns the expected last modified value', function () {
