@@ -2,11 +2,14 @@
 
 namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploads;
 
+use christopheraseidl\HasUploads\Enums\OperationScope;
+use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\HasUploads\Events\FileOperationFailed;
-use christopheraseidl\HasUploads\Facades\UploadService;
 use christopheraseidl\HasUploads\Jobs\DeleteUploads;
-use ErrorException;
+use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsPayload;
+use christopheraseidl\HasUploads\Payloads\ModelAware;
+use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +20,14 @@ use Illuminate\Support\Facades\Storage;
  *
  * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploads
  */
+class TestArrayDeleteUploadsPayload extends ModelAware implements DeleteUploadsPayload
+{
+    public function shouldBroadcastIndividualEvents(): bool
+    {
+        return true;
+    }
+}
+
 beforeEach(function () {
     Event::fake([
         FileOperationCompleted::class,
@@ -32,19 +43,27 @@ beforeEach(function () {
 
     $this->files = array_map(function ($file) {
         $name = $file->hashName();
-        $path = 'my_path/subdir';
+        $path = 'test_models/1';
         Storage::disk($this->disk)->putFileAs($path, $file, $name);
 
         return "{$path}/{$name}";
     }, $this->files);
 
-    $this->job = new DeleteUploads(
-        $this->model,
+    $payload = new TestArrayDeleteUploadsPayload(
+        TestModel::class,
+        1,
+        'array',
+        'documents',
+        OperationType::Delete,
+        OperationScope::File,
+        $this->disk,
         $this->files
     );
+
+    $this->job = new DeleteUploads($payload);
 });
 
-it('deletes an array of files and broadcasts the correct event', function () {
+it('deletes an array of files and dispatches the completion event when enabled', function () {
     foreach ($this->files as $file) {
         expect(Storage::disk($this->disk)->exists($file))->toBeTrue();
     }
@@ -58,15 +77,17 @@ it('deletes an array of files and broadcasts the correct event', function () {
     }
 });
 
-it('broadcasts failure event when deleting an array of files fails', function () {
-    UploadService::partialMock()
-        ->shouldReceive('deleteFile')
-        ->once()
-        ->andThrow(ErrorException::class);
+it('broadcasts a failure event when deleting an array of files fails', function () {
+    $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
+    $diskMock
+        ->shouldReceive('delete')
+        ->andThrow(new \Exception('File deletion failed'));
+
+    Storage::shouldReceive('disk')
+        ->with($this->disk)
+        ->andReturn($diskMock);
 
     $this->job->handle();
 
-    foreach ($this->files as $file) {
-        expect(Storage::disk($this->disk)->exists($file))->toBeTrue();
-    }
+    Event::assertDispatched(FileOperationFailed::class);
 });
