@@ -10,11 +10,7 @@ interface Builder
 
     public function job(string $jobClass): self;
 
-    public function setPayloadClass(): void;
-
     public function __call(string $method, array $arguments): self;
-
-    public function resolveConstructorArguments(string $class): array;
 
     public function makePayload(): Payload;
 
