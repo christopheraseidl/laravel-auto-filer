@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Storage;
 
 it('deletes the correct directory', function () {
     $dir = 'test_models/1';
-    $file = $dir . '/my_file.txt';
+    $file = $dir.'/my_file.txt';
     Storage::disk($this->disk)->put($file, 'content');
 
     $this->model->string = $file;
