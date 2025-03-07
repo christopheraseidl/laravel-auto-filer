@@ -21,7 +21,7 @@ trait CreatesDeleteJob
         return ! empty($removedFiles)
             ? $builder
                 ->job(DeleteUploads::class)
-                ->modelClass(class_basename($model))
+                ->modelClass(get_class($model))
                 ->modelId($model->id)
                 ->modelAttribute($attribute)
                 ->modelAttributeType($type)
