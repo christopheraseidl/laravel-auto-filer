@@ -2,13 +2,10 @@
 
 namespace christopheraseidl\HasUploads\Tests\Jobs\CleanOrphanedUploads;
 
-use christopheraseidl\HasUploads\Contracts\CleanerContract;
-use christopheraseidl\HasUploads\Events\CleanupCompleted;
-use christopheraseidl\HasUploads\Events\CleanupFailed;
-use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
-use ErrorException;
+use christopheraseidl\HasUploads\Events\FileOperationCompleted;
+use christopheraseidl\HasUploads\Events\FileOperationFailed;
 use Illuminate\Support\Facades\Event;
-use Mockery;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Tests the CleanOrphanedUploads job's handle method, including error
@@ -20,35 +17,36 @@ beforeEach(function () {
     config()->set('has-uploads.path', 'uploads');
 
     Event::fake([
-        CleanupCompleted::class,
-        CleanupFailed::class,
+        FileOperationCompleted::class,
+        FileOperationFailed::class,
     ]);
+
+    $this->oldFile = 'uploads/old_file.txt';
+    $this->newFile = 'uploads/new_file.txt';
+    Storage::disk($this->disk)->put($this->oldFile, 'content');
+    Storage::disk($this->disk)->put($this->newFile, 'content');
+
+    $storagePath = Storage::disk($this->disk)->path('');
+
+    touch($storagePath.$this->oldFile, now()->subHours(25)->timestamp);
+    touch($storagePath.$this->newFile, now()->subHours(12)->timestamp);
 });
 
-it('calls the clean method and broadcasts the job complete event', function () {
-    $mockCleaner = Mockery::mock(CleanerContract::class)
-        ->shouldReceive('clean')
-        ->once()
-        ->andReturn(null)
-        ->getMock();
+it('deletes files older than the threshold and broadcasts completion event', function () {
+    $this->cleaner->handle();
 
-    $job = new CleanOrphanedUploads($mockCleaner);
+    expect(Storage::disk($this->disk)->exists($this->oldFile))
+        ->toBeFalse()
+        ->and(Storage::disk($this->disk)->exists($this->newFile))
+        ->toBeTrue();
 
-    $job->handle();
-
-    Event::assertDispatched(CleanupCompleted::class);
+    Event::assertDispatched(FileOperationCompleted::class);
 });
 
-it('broadcasts failure event when clean method fails', function () {
-    $mockCleaner = Mockery::mock(CleanerContract::class)
-        ->shouldReceive('clean')
-        ->once()
-        ->andThrow(ErrorException::class)
-        ->getMock();
+it('broadcasts failure event when exception is thrown', function () {
+    Storage::shouldReceive($this->disk)->andThrow(new \Exception('Disk error.'));
 
-    $job = new CleanOrphanedUploads($mockCleaner);
+    $this->cleaner->handle();
 
-    $job->handle();
-
-    Event::assertDispatched(CleanupFailed::class);
+    Event::assertDispatched(FileOperationFailed::class);
 });

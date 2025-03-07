@@ -7,8 +7,6 @@
  */
 
 use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
-use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
-use christopheraseidl\Reflect\Reflect;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,20 +15,9 @@ beforeEach(function () {
 
     $upload = UploadedFile::fake()->create('file1.txt', 100);
     $name = $upload->hashName();
-    $path = '/path';
-    $this->file = "{$path}/{$name}";
+    $this->file = "{$this->path}/{$name}";
 
-    Storage::disk($this->disk)->putFileAs($path, $upload, $name);
-
-    $payload = new CleanOrphanedUploadsPayload(
-        $this->disk,
-        $path,
-        24
-    );
-
-    $this->cleaner = Reflect::on(
-        new CleanOrphanedUploads($payload)
-    );
+    Storage::disk($this->disk)->putFileAs($this->path, $upload, $name);
 });
 
 it('returns the expected last modified value', function () {

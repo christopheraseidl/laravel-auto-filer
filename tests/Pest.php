@@ -1,12 +1,16 @@
 <?php
 
 use christopheraseidl\HasUploads\Facades\UploadService;
+use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
+use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\HasUploads\Tests\TestCase;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
+use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Storage;
 
 uses(TestCase::class)->in(__DIR__);
 
+// General setup
 uses()->beforeEach(function () {
     $this->artisan('make:queue-table');
 
@@ -30,3 +34,18 @@ uses()->beforeEach(function () {
         $this->artisan('migrate:reset');
     })
     ->in('*');
+
+// CleanOrphanedUploads
+uses()->beforeEach(function () {
+    $this->path = '/uploads';
+
+    $this->payload = new CleanOrphanedUploadsPayload(
+        $this->disk,
+        $this->path,
+        24
+    );
+
+    $this->cleaner = Reflect::on(
+        new CleanOrphanedUploads($this->payload)
+    );
+})->in('Jobs/CleanOrphanedUploads');
