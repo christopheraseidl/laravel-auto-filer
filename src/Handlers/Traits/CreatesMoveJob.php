@@ -21,7 +21,7 @@ trait CreatesMoveJob
         return ! empty($newFiles)
             ? $builder
                 ->job(MoveUploads::class)
-                ->modelClass(class_basename($model))
+                ->modelClass(get_class($model))
                 ->modelId($model->id)
                 ->modelAttribute($attribute)
                 ->modelAttributeType($type)

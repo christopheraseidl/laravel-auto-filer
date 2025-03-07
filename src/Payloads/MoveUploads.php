@@ -2,7 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Payloads;
 
-final class MoveUploads extends ModelAware
+use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsContract;
+
+final class MoveUploads extends ModelAware implements MoveUploadsContract
 {
     public function getKey(): string
     {
