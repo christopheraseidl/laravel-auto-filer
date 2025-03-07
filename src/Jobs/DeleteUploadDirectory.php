@@ -7,6 +7,7 @@ use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 final class DeleteUploadDirectory extends Job
 {
@@ -17,7 +18,7 @@ final class DeleteUploadDirectory extends Job
     public function handle(): void
     {
         $this->handleJob(function () {
-            Storage::deleteDirectory($this->payload->getPath());
+            Storage::disk($this->payload->getDisk())->deleteDirectory($this->payload->getPath());
         });
     }
 
@@ -28,7 +29,7 @@ final class DeleteUploadDirectory extends Job
 
     public function uniqueId(): string
     {
-        return "delete_directory_{$this->payload->getId()}";
+        return "{$this->getOperationType()}_".Str::snake(class_basename($this->payload->getModelClass()))."_{$this->payload->getId()}";
     }
 
     public function getPayload(): DeleteUploadDirectoryPayload
