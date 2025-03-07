@@ -2,11 +2,14 @@
 
 namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploads;
 
+use christopheraseidl\HasUploads\Enums\OperationScope;
+use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\HasUploads\Events\FileOperationFailed;
-use christopheraseidl\HasUploads\Facades\UploadService;
 use christopheraseidl\HasUploads\Jobs\DeleteUploads;
-use ErrorException;
+use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsPayload;
+use christopheraseidl\HasUploads\Payloads\ModelAware;
+use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +20,14 @@ use Illuminate\Support\Facades\Storage;
  *
  * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploads
  */
+class TestStringDeleteUploadsPayload extends ModelAware implements DeleteUploadsPayload
+{
+    public function shouldBroadcastIndividualEvents(): bool
+    {
+        return true;
+    }
+}
+
 beforeEach(function () {
     Event::fake([
         FileOperationCompleted::class,
@@ -30,10 +41,18 @@ beforeEach(function () {
 
     Storage::disk($this->disk)->putFileAs($dir, $file, $name);
 
-    $this->job = new DeleteUploads(
-        $this->model,
-        $this->path
+    $payload = new TestStringDeleteUploadsPayload(
+        TestModel::class,
+        1,
+        'string',
+        'images',
+        OperationType::Delete,
+        OperationScope::File,
+        $this->disk,
+        [$this->path]
     );
+
+    $this->job = new DeleteUploads($payload);
 });
 
 it('deletes a single file and dispatches the correct event', function () {
@@ -47,10 +66,14 @@ it('deletes a single file and dispatches the correct event', function () {
 });
 
 it('broadcasts failure event when delete single file fails', function () {
-    UploadService::partialMock()
-        ->shouldReceive('deleteFile')
-        ->once()
-        ->andThrow(ErrorException::class);
+    $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
+    $diskMock
+        ->shouldReceive('delete')
+        ->andThrow(new \Exception('File deletion failed'));
+
+    Storage::shouldReceive('disk')
+        ->with($this->disk)
+        ->andReturn($diskMock);
 
     $this->job->handle();
 
