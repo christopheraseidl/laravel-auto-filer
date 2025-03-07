@@ -2,7 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Payloads;
 
-final class DeleteUploads extends ModelAware
+use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsContract;
+
+final class DeleteUploads extends ModelAware implements DeleteUploadsContract
 {
     public function shouldBroadcastIndividualEvents(): bool
     {
