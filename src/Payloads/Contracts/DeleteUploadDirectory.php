@@ -13,5 +13,11 @@ interface DeleteUploadDirectory extends Payload, SinglePath
         string $path
     );
 
+    public function getModelClass(): string;
+
     public function getId(): int;
+
+    public function getDisk(): string;
+
+    public function getPath(): string;
 }

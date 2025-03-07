@@ -2,7 +2,9 @@
 
 use christopheraseidl\HasUploads\Facades\UploadService;
 use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
+use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
 use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
+use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Tests\TestCase;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
@@ -49,3 +51,18 @@ uses()->beforeEach(function () {
         new CleanOrphanedUploads($this->payload)
     );
 })->in('Jobs/CleanOrphanedUploads');
+
+// DeleteUploadDirectory
+uses()->beforeEach(function () {
+    $this->path = 'test_models/1';
+    $this->payload = new DeleteUploadDirectoryPayload(
+        TestModel::class,
+        $this->model->id,
+        $this->disk,
+        $this->path
+    );
+
+    $this->job = Reflect::on(
+        new DeleteUploadDirectory($this->payload)
+    );
+})->in('Jobs/DeleteUploadDirectory');
