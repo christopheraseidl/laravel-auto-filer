@@ -141,6 +141,6 @@ it('throws an exception when a model attribute cast as a string is saved as an a
 
     $job = Reflect::on(new MoveUploads($payload));
 
-    expect(fn() => $job->normalizeAttributeValue($this->model, $this->string))
+    expect(fn () => $job->normalizeAttributeValue($this->model, $this->string))
         ->toThrow(\Exception::class, 'The attribute is being treated as an array but is not cast as an array in the model.');
 });

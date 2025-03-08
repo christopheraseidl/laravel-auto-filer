@@ -105,7 +105,7 @@ it('handles null array attribute gracefully', function () {
     $this->job->handle();
 
     Event::assertDispatched(FileOperationCompleted::class);
-    
+
     expect($this->model->array)->toBeNull()
         ->and(count($this->model->refresh()->array))->toBe(4);
 });
