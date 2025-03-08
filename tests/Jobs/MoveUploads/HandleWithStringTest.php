@@ -2,11 +2,14 @@
 
 namespace christopheraseidl\HasUploads\Tests\Jobs\MoveUploads;
 
+use christopheraseidl\HasUploads\Enums\OperationScope;
+use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\HasUploads\Events\FileOperationFailed;
-use christopheraseidl\HasUploads\Facades\UploadService;
 use christopheraseidl\HasUploads\Jobs\MoveUploads;
-use Exception;
+use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
+use christopheraseidl\HasUploads\Payloads\ModelAware;
+use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
@@ -17,102 +20,109 @@ use Illuminate\Support\Facades\Storage;
  *
  * @covers \christopheraseidl\HasUploads\Jobs\MoveUploads
  */
+class TestStringMoveUploadsPayload extends ModelAware implements MoveUploadsPayload
+{
+    public function shouldBroadcastIndividualEvents(): bool
+    {
+        return true;
+    }
+}
+
 beforeEach(function () {
     Event::fake([
         FileOperationCompleted::class,
         FileOperationFailed::class,
     ]);
 
-    $this->file = UploadedFile::fake()->create('image.png', 100);
-    $oldDir = 'old_path';
-    $this->oldPath = "{$oldDir}/{$this->file->hashName()}";
-    Storage::disk($this->disk)->putFileAs($oldDir, $this->file, $this->file->hashName());
+    $file = UploadedFile::fake()->create('image.png', 100);
+    $name = $file->hashName();
+    $path = 'old_path';
+    $this->oldPath = "{$path}/{$name}";
+    Storage::disk($this->disk)->putFileAs($path, $file, $name);
 
     $this->model->string = $this->oldPath;
     $this->model->saveQuietly();
+
+    $this->newDir = 'test_models/1/images';
+    $this->newPath = "{$this->newDir}/{$name}";
+
+    $payload = new TestStringMoveUploadsPayload(
+        TestModel::class,
+        1,
+        'string',
+        'images',
+        OperationType::Move,
+        OperationScope::File,
+        $this->disk,
+        [$this->oldPath],
+        $this->newDir
+    );
+
+    $this->job = new MoveUploads($payload);
 });
 
 it('moves a single file to the new path and updates the model with the new location', function () {
-    $job = new MoveUploads(
-        $this->model,
-        'string'
-    );
-
-    $newPath = "test_models/1/{$this->file->hashName()}";
-
     expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeTrue();
 
-    $job->handle();
+    $this->job->handle();
 
     Event::assertDispatched(FileOperationCompleted::class);
 
     expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeFalse()
-        ->and(Storage::disk($this->disk)->exists($newPath))->toBeTrue()
-        ->and($this->model->refresh()->string)->toBe($newPath);
+        ->and(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue()
+        ->and($this->model->refresh()->string)->toBe($this->newPath);
 });
 
 it('respects custom upload path for string from type parameter', function () {
-    $job = new MoveUploads(
-        $this->model,
-        'string',
-        'images'
-    );
-
-    $newPath = "test_models/1/images/{$this->file->hashName()}";
-
-    $job->handle();
+    $this->job->handle();
 
     Event::assertDispatched(FileOperationCompleted::class);
 
-    expect(Storage::disk($this->disk)->exists($newPath))->toBeTrue()
-        ->and($this->model->refresh()->string)->toBe($newPath);
+    expect(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue()
+        ->and($this->model->refresh()->string)->toBe($this->newPath);
 });
 
 it('handles empty model string attribute gracefully', function () {
     $this->model->string = null;
     $this->model->saveQuietly();
 
-    $job = new MoveUploads(
-        $this->model,
-        'string'
-    );
-
-    $job->handle();
+    $this->job->handle();
 
     Event::assertDispatched(FileOperationCompleted::class);
 
-    expect($this->model->refresh()->string)->toBeNull();
+    expect($this->model->refresh()->string)->toBe($this->newPath);
 });
 
 it('broadcasts failure event when single file move fails', function () {
-    $job = new MoveUploads(
-        $this->model,
-        'string'
-    );
+    $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
+    $diskMock
+        ->shouldReceive('move')
+        ->andThrow(new \Exception('File move failed.'));
 
-    UploadService::partialMock()
-        ->shouldReceive('moveFile')
-        ->once()
-        ->andThrow(new Exception('Failed to move file after {1} attempts.'));
+    Storage::shouldReceive('disk')
+        ->with($this->disk)
+        ->andReturn($diskMock);
 
-    $job->handle();
+    $this->job->handle();
 
     Event::assertDispatched(FileOperationFailed::class, function ($event) {
-        return $event->exception->getMessage() === 'Failed to move file after {1} attempts.';
+        return $event->exception->getMessage() === 'File move failed.';
     });
 });
 
 it('saves model string changes quietly', function () {
-    $modelSpy = spyModel($this->model);
+    $modelMock = \Mockery::mock($this->model)->makePartial();
 
-    $modelSpy->shouldReceive('saveQuietly')
+    $modelMock->expects('saveQuietly')
         ->once()
         ->andReturnSelf();
 
-    $job = new MoveUploads(
-        $modelSpy,
-        'string'
-    );
+    $payloadMock = \Mockery::mock($this->job->getPayload())->makePartial();
+    $payloadMock
+        ->shouldReceive('resolveModel')
+        ->andReturn($modelMock);
 
-    $job->handle();
+    $this->job = new MoveUploads($payloadMock);
+
+    $this->job->handle();
 });
