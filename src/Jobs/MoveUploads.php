@@ -39,7 +39,7 @@ final class MoveUploads extends Job
             $model->saveQuietly();
         });
     }
-    
+
     /**
      * Convert an array attribute to a string if it is not cast as an array on
      * the model.
@@ -57,7 +57,7 @@ final class MoveUploads extends Job
                 return (count($model->{$attribute}) === 1)
                     ? $model->{$attribute}[0]
                     : throw new \Exception('The attribute is being treated as an array but is not cast as an array in the model.');
-            } catch(\Throwable $e) {
+            } catch (\Throwable $e) {
                 Log::error("Array conversion failed in MoveUploads job: {$e->getMessage()}");
                 throw $e;
             }
