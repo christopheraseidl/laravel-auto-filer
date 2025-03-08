@@ -7,6 +7,8 @@ use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 final class MoveUploads extends Job
 {
@@ -21,7 +23,8 @@ final class MoveUploads extends Job
         $model = $this->getPayload()->resolveModel();
 
         $this->handleJob(function () use ($model) {
-            $model->{$this->getPayload()->getModelAttribute()} = array_map(
+            $attribute = $this->getPayload()->getModelAttribute();
+            $model->{$attribute} = array_map(
                 function ($oldPath) {
                     return $this->attemptMove(
                         $this->getPayload()->getDisk(),
@@ -31,8 +34,36 @@ final class MoveUploads extends Job
                 $this->getPayload()->getFilePaths()
             );
 
+            $model->{$attribute} = $this->normalizeAttributeValue($model, $attribute);
+
             $model->saveQuietly();
         });
+    }
+    
+    /**
+     * Convert an array attribute to a string if it is not cast as an array on
+     * the model.
+     */
+    protected function normalizeAttributeValue(Model $model, string $attribute): string|array|null
+    {
+        if (! isset($model->{$attribute}) || ! is_array($model->{$attribute})) {
+            return $model->{$attribute};
+        }
+
+        $casts = $model->getCasts();
+
+        if (! isset($casts[$attribute]) || $casts[$attribute] !== 'array') {
+            try {
+                return (count($model->{$attribute}) === 1)
+                    ? $model->{$attribute}[0]
+                    : throw new \Exception('The attribute is being treated as an array but is not cast as an array in the model.');
+            } catch(\Throwable $e) {
+                Log::error("Array conversion failed in MoveUploads job: {$e->getMessage()}");
+                throw $e;
+            }
+        }
+
+        return $model->{$attribute};
     }
 
     public function getOperationType(): string
