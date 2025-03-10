@@ -82,8 +82,19 @@ it('respects custom upload path for string from type parameter', function () {
         ->and($this->model->refresh()->string)->toBe($this->newPath);
 });
 
-it('handles empty model string attribute gracefully', function () {
+it('handles null model string attribute gracefully', function () {
     $this->model->string = null;
+    $this->model->saveQuietly();
+
+    $this->job->handle();
+
+    Event::assertDispatched(FileOperationCompleted::class);
+
+    expect($this->model->refresh()->string)->toBe($this->newPath);
+});
+
+it('handles empty model string attribute gracefully', function () {
+    $this->model->string = '';
     $this->model->saveQuietly();
 
     $this->job->handle();
