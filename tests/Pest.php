@@ -6,6 +6,8 @@ use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
 use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Tests\TestCase;
+use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
+use christopheraseidl\HasUploads\Tests\TestClasses\TestJobPayload;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Storage;
@@ -66,3 +68,11 @@ uses()->beforeEach(function () {
         new DeleteUploadDirectory($this->payload)
     );
 })->in('Jobs/DeleteUploadDirectory');
+
+// Jobs
+uses()->beforeEach(function () {
+    $this->payload = new TestJobPayload;
+
+    $this->job = new TestJob;
+    $this->job->payload = $this->payload;
+})->in('Jobs/Job');
