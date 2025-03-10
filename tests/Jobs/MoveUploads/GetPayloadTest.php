@@ -27,7 +27,7 @@ beforeEach(function () {
     $this->job = new MoveUploads($this->payload);
 });
 
-it('gets the expected payload with the correct properties', function () {
+it('gets the expected payload', function () {
     $payload = $this->job->getPayload();
     expect($payload)
         ->toBeInstanceOf(MoveUploadsPayload::class)
