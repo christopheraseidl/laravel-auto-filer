@@ -77,6 +77,60 @@ it('deletes an array of files and dispatches the completion event when enabled',
     }
 });
 
+it('deletes only the provided files and handles a sparse array gracefully', function () {
+    $files = $this->files;
+    unset($files[0]);
+    unset($files[2]);
+
+    $payload = new TestArrayDeleteUploadsPayload(
+        TestModel::class,
+        1,
+        'array',
+        'documents',
+        OperationType::Delete,
+        OperationScope::File,
+        $this->disk,
+        $files
+    );
+
+    $job = new DeleteUploads($payload);
+
+    $job->handle();
+
+    Event::assertDispatched(FileOperationCompleted::class);
+
+    expect(Storage::disk($this->disk)->exists($this->files[0]))->toBeTrue()
+        ->and(Storage::disk($this->disk)->exists($this->files[2]))->toBeTrue()
+        ->and(Storage::disk($this->disk)->exists($this->files[1]))->toBeFalse()
+        ->and(Storage::disk($this->disk)->exists($this->files[3]))->toBeFalse();
+});
+
+it('handles null array attribute gracefully', function () {
+    $this->model->array = null;
+    $this->model->saveQuietly();
+
+    $this->job->handle();
+
+    Event::assertDispatched(FileOperationCompleted::class);
+
+    foreach ($this->files as $file) {
+        expect(Storage::disk($this->disk)->exists($file))->toBeFalse();
+    }
+});
+
+it('handles empty array attribute gracefully', function () {
+    $this->model->array = [];
+    $this->model->saveQuietly();
+
+    $this->job->handle();
+
+    Event::assertDispatched(FileOperationCompleted::class);
+
+    foreach ($this->files as $file) {
+        expect(Storage::disk($this->disk)->exists($file))->toBeFalse();
+    }
+});
+
 it('broadcasts a failure event when deleting an array of files fails', function () {
     $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
     $diskMock
@@ -90,4 +144,20 @@ it('broadcasts a failure event when deleting an array of files fails', function 
     $this->job->handle();
 
     Event::assertDispatched(FileOperationFailed::class);
+});
+
+it('saves model array changes quietly', function () {
+    $modelMock = \Mockery::mock($this->model)->makePartial();
+    $modelMock->expects('saveQuietly')
+        ->once()
+        ->andReturnSelf();
+
+    $payloadMock = \Mockery::mock($this->job->getPayload())->makePartial();
+    $payloadMock
+        ->shouldReceive('resolveModel')
+        ->andReturn($modelMock);
+
+    $this->job = new DeleteUploads($payloadMock);
+
+    $this->job->handle();
 });

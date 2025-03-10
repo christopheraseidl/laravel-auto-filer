@@ -55,8 +55,30 @@ beforeEach(function () {
     $this->job = new DeleteUploads($payload);
 });
 
-it('deletes a single file and dispatches the correct event', function () {
+it('deletes a single file and dispatches the completion event when enabled', function () {
     expect(Storage::disk($this->disk)->exists($this->path))->toBeTrue();
+
+    $this->job->handle();
+
+    Event::assertDispatched(FileOperationCompleted::class);
+
+    expect(Storage::disk($this->disk)->exists($this->path))->toBeFalse();
+});
+
+it('handles null string attribute gracefully', function () {
+    $this->model->string = null;
+    $this->model->saveQuietly();
+
+    $this->job->handle();
+
+    Event::assertDispatched(FileOperationCompleted::class);
+
+    expect(Storage::disk($this->disk)->exists($this->path))->toBeFalse();
+});
+
+it('handles empty string attribute gracefully', function () {
+    $this->model->string = '';
+    $this->model->saveQuietly();
 
     $this->job->handle();
 
@@ -78,4 +100,21 @@ it('broadcasts failure event when delete single file fails', function () {
     $this->job->handle();
 
     expect(Storage::disk($this->disk)->exists($this->path))->toBeTrue();
+});
+
+it('saves model string changes quietly', function () {
+    $modelMock = \Mockery::mock($this->model)->makePartial();
+
+    $modelMock->expects('saveQuietly')
+        ->once()
+        ->andReturnSelf();
+
+    $payloadMock = \Mockery::mock($this->job->getPayload())->makePartial();
+    $payloadMock
+        ->shouldReceive('resolveModel')
+        ->andReturn($modelMock);
+
+    $this->job = new DeleteUploads($payloadMock);
+
+    $this->job->handle();
 });
