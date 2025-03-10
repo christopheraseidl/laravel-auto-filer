@@ -6,15 +6,11 @@ use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\HasUploads\Events\FileOperationFailed;
 use christopheraseidl\HasUploads\Jobs\Contracts\Job as JobContract;
 use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
-use Closure;
-use DateTime;
 use Illuminate\Bus\Batchable;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
 use Illuminate\Support\Facades\Log;
-use ReflectionClass;
-use Throwable;
 
 abstract class Job implements JobContract
 {
@@ -23,7 +19,7 @@ abstract class Job implements JobContract
     public static function make(Payload $payload): ?static
     {
         $class = static::class;
-        $reflection = new ReflectionClass($class);
+        $reflection = new \ReflectionClass($class);
 
         if ($reflection->isAbstract()) {
             return null;
@@ -37,7 +33,7 @@ abstract class Job implements JobContract
         return new $class($payload);
     }
 
-    public function handleJob(Closure $job): void
+    public function handleJob(\Closure $job): void
     {
         try {
             $job();
@@ -47,7 +43,7 @@ abstract class Job implements JobContract
                     $this->getPayload()
                 ));
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             if ($this->getPayload()->shouldBroadcastIndividualEvents()) {
                 broadcast(new FileOperationFailed(
                     $this->getPayload(),
@@ -57,12 +53,12 @@ abstract class Job implements JobContract
         }
     }
 
-    public function retryUntil(): DateTime
+    public function retryUntil(): \DateTime
     {
         return now()->addMinutes(5);
     }
 
-    public function failed(Throwable $exception): void
+    public function failed(\Throwable $exception): void
     {
         Log::error("Job failed: {$this->getOperationType()}.", $this->getPayload()->toArray());
     }
