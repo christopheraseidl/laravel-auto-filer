@@ -19,7 +19,7 @@ beforeEach(function () {
 it('returns an empty array when creating jobs for unchanged attributes', function () {
     $stringJobs = $this->handler->createJobsFromAttribute($this->model, 'string', 'images');
     $arrayJobs = $this->handler->createJobsFromAttribute($this->model, 'array', 'documents');
-    
+
     expect($stringJobs)->toBeEmpty()
         ->and($arrayJobs)->toBeEmpty();
 });

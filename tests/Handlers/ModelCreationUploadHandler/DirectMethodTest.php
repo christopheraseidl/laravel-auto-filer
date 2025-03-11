@@ -45,7 +45,7 @@ it('dispatches the correct move upload jobs when handle() is called', function (
 
 it('configures the move upload jobs with correct attributes and types when handle() is called', function () {
     $this->handler->handle($this->model);
-    
+
     Bus::assertBatched(function ($batch) {
         $attributes = $batch->jobs->map(
             fn ($job) => $job->getPayload()->getModelAttribute()

@@ -65,7 +65,7 @@ it('dispatches the correct move and delete jobs when handle() is called', functi
 
 it('configures jobs with the correct model attributes and types when handle() is called', function () {
     $this->handler->handle($this->model);
-    
+
     Bus::assertBatched(function ($batch) {
         $attributes = $batch->jobs->map(
             fn ($job) => $job->getPayload()->getModelAttribute()
@@ -86,10 +86,9 @@ it('configures jobs with the correct model attributes and types when handle() is
     });
 });
 
-
 it('gets all jobs for a model with uploadable attributes', function () {
     $jobs = $this->handler->getAllJobs($this->model);
-    
+
     expect($jobs)->toHaveCount(4)
         ->and(array_filter($jobs, fn ($job) => $job instanceof DeleteUploads))->toHaveCount(2)
         ->and(array_filter($jobs, fn ($job) => $job instanceof MoveUploads))->toHaveCount(2);
