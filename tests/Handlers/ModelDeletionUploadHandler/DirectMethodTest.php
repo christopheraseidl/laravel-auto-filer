@@ -3,7 +3,7 @@
 namespace christopheraseidl\HasUploads\Tests\Handlers;
 
 use christopheraseidl\HasUploads\Contracts\UploadService;
-use christopheraseidl\HasUploads\Handlers\ModelDeletionUploadHandler;
+use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
 use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
@@ -21,7 +21,7 @@ beforeEach(function () {
 
     $this->path = $this->model->getUploadPath();
 
-    $this->handler = new ModelDeletionUploadHandler(app(UploadService::class));
+    $this->handler = new ModelDeletionHandler(app(UploadService::class));
 });
 
 it('dispatches the correctly configured delete upload directory job when handle() is called', function () {

@@ -3,9 +3,9 @@
 namespace christopheraseidl\HasUploads;
 
 use christopheraseidl\HasUploads\Contracts\UploadService;
-use christopheraseidl\HasUploads\Handlers\ModelCreationUploadHandler;
-use christopheraseidl\HasUploads\Handlers\ModelDeletionUploadHandler;
-use christopheraseidl\HasUploads\Handlers\ModelUpdateUploadHandler;
+use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
+use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
+use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -19,15 +19,15 @@ trait HasUploads
         static::$uploadService = app(UploadService::class);
 
         static::created(function (Model $model) {
-            app(ModelCreationUploadHandler::class)->handle($model);
+            app(ModelCreationHandler::class)->handle($model);
         });
 
         static::saved(function (Model $model) {
-            app(ModelUpdateUploadHandler::class)->handle($model);
+            app(ModelUpdateHandler::class)->handle($model);
         });
 
         static::deleted(function (Model $model) {
-            app(ModelDeletionUploadHandler::class)->handle($model);
+            app(ModelDeletionHandler::class)->handle($model);
         });
     }
 

@@ -3,15 +3,14 @@
 namespace christopheraseidl\HasUploads\Handlers;
 
 use christopheraseidl\HasUploads\Handlers\Traits\CreatesMoveJob;
-use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
-class ModelCreationUploadHandler extends ModelUploadEventHandler
+class ModelCreationHandler extends BaseModelEventHandler
 {
     use CreatesMoveJob;
 
-    protected function getAllJobs(Model $model, ?Closure $filter = null): array
+    protected function getAllJobs(Model $model, ?\Closure $filter = null): array
     {
         return parent::getAllJobs(
             $model,

@@ -5,7 +5,7 @@ namespace christopheraseidl\HasUploads\Tests\Handlers;
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
 use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
-use christopheraseidl\HasUploads\Handlers\ModelCreationUploadHandler;
+use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
 use christopheraseidl\HasUploads\Jobs\MoveUploads;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
@@ -26,7 +26,7 @@ beforeEach(function () {
         ->withArrayFillable([$this->arrayFillableName])
         ->create();
 
-    $this->handler = Reflect::on(new ModelCreationUploadHandler(
+    $this->handler = Reflect::on(new ModelCreationHandler(
         app(UploadService::class),
         app(Builder::class),
         app(BatchManager::class),

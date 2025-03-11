@@ -3,12 +3,12 @@
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
 use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
-use christopheraseidl\HasUploads\Handlers\ModelUpdateUploadHandler;
+use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
 use christopheraseidl\Reflect\Reflect;
 
 beforeEach(function () {
-    $this->handler = Reflect::on(new ModelUpdateUploadHandler(
+    $this->handler = Reflect::on(new ModelUpdateHandler(
         app(UploadService::class),
         app(Builder::class),
         app(BatchManager::class),

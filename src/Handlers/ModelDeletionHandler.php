@@ -7,7 +7,7 @@ use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use Illuminate\Database\Eloquent\Model;
 
-class ModelDeletionUploadHandler
+class ModelDeletionHandler
 {
     protected string $disk;
 

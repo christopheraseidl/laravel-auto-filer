@@ -5,7 +5,7 @@ namespace christopheraseidl\HasUploads\Tests\Handlers;
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
 use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
-use christopheraseidl\HasUploads\Handlers\ModelUpdateUploadHandler;
+use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
 use christopheraseidl\HasUploads\Jobs\DeleteUploads;
 use christopheraseidl\HasUploads\Jobs\MoveUploads;
@@ -45,7 +45,7 @@ beforeEach(function () {
         'array' => [$array[1], $newArrayItem],
     ]);
 
-    $this->handler = Reflect::on(new ModelUpdateUploadHandler(
+    $this->handler = Reflect::on(new ModelUpdateHandler(
         app(UploadService::class),
         app(Builder::class),
         app(BatchManager::class),
