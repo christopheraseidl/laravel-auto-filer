@@ -5,7 +5,7 @@ namespace christopheraseidl\HasUploads\Handlers\Traits;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\HasUploads\Jobs\DeleteUploads;
+use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
 use Illuminate\Database\Eloquent\Model;
 
 trait CreatesDeleteJob

@@ -4,13 +4,14 @@ namespace christopheraseidl\HasUploads\Jobs;
 
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads as MoveUploadsContract;
 use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
-final class MoveUploads extends Job
+final class MoveUploads extends Job implements MoveUploadsContract
 {
     use AttemptsFileMoves;
 
@@ -44,7 +45,7 @@ final class MoveUploads extends Job
      * Convert an array attribute to a string if it is not cast as an array on
      * the model.
      */
-    protected function normalizeAttributeValue(Model $model, string $attribute): string|array|null
+    public function normalizeAttributeValue(Model $model, string $attribute): string|array|null
     {
         if (! isset($model->{$attribute}) || ! is_array($model->{$attribute})) {
             return $model->{$attribute};

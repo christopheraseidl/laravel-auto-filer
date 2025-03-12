@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers;
+namespace christopheraseidl\HasUploads\Tests\Handler\ModelUpdateHandler;
 
 use christopheraseidl\HasUploads\Jobs\DeleteUploads;
 use christopheraseidl\HasUploads\Jobs\MoveUploads;

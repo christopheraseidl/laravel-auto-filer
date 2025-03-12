@@ -1,5 +1,7 @@
 <?php
 
+namespace christopheraseidl\HasUploads\Tests\Handlers\ModelUpdateHandler;
+
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
 use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;

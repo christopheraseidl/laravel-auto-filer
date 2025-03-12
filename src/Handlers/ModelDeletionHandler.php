@@ -3,7 +3,7 @@
 namespace christopheraseidl\HasUploads\Handlers;
 
 use christopheraseidl\HasUploads\Contracts\UploadService;
-use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
+use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory;
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,6 +26,10 @@ class ModelDeletionHandler
             $model->getUploadPath()
         );
 
-        DeleteUploadDirectory::dispatch($payload);
+        $delete = app()->makeWith(DeleteUploadDirectory::class, [
+            'payload' => $payload,
+        ]);
+
+        dispatch($delete);
     }
 }

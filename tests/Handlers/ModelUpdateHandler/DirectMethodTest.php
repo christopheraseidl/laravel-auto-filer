@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers;
+namespace christopheraseidl\HasUploads\Tests\Handlers\ModelUpdateHandler;
 
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
 use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\HasUploads\Jobs\DeleteUploads;
-use christopheraseidl\HasUploads\Jobs\MoveUploads;
+use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
+use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;

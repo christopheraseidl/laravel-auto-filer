@@ -4,12 +4,13 @@ namespace christopheraseidl\HasUploads\Jobs;
 
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
 use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-final class DeleteUploadDirectory extends Job
+final class DeleteUploadDirectory extends Job implements DeleteUploadDirectoryContract
 {
     public function __construct(
         private readonly DeleteUploadDirectoryPayload $payload

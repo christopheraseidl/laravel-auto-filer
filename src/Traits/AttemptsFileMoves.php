@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Storage;
 
 trait AttemptsFileMoves
 {
-    protected function attemptMove(string $disk, string $oldPath, string $newDir): string
+    public function attemptMove(string $disk, string $oldPath, string $newDir): string
     {
         $newPath = "{$newDir}/".pathinfo($oldPath, PATHINFO_BASENAME);
         $attempts = 0;

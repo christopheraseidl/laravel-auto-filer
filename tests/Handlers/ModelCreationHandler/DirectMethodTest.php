@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers;
+namespace christopheraseidl\HasUploads\Tests\Handlers\ModelCreationHandler;
 
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
 use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\HasUploads\Jobs\MoveUploads;
+use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -24,7 +24,7 @@ beforeEach(function () {
     $this->model = TestModel::factory()
         ->withStringFillable($this->stringFillableName)
         ->withArrayFillable([$this->arrayFillableName])
-        ->create();
+        ->createQuietly();
 
     $this->handler = Reflect::on(new ModelCreationHandler(
         app(UploadService::class),

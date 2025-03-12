@@ -2,14 +2,15 @@
 
 namespace christopheraseidl\HasUploads\Jobs;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsContract;
+use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads as DeleteUploadsContract;
+use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use Illuminate\Support\Facades\Storage;
 
-final class DeleteUploads extends Job
+final class DeleteUploads extends Job implements DeleteUploadsContract
 {
     public function __construct(
-        private readonly DeleteUploadsContract $payload
+        private readonly DeleteUploadsPayload $payload
     ) {}
 
     public function handle(): void
@@ -35,7 +36,7 @@ final class DeleteUploads extends Job
         return $this->getPayload()->getKey();
     }
 
-    public function getPayload(): DeleteUploadsContract
+    public function getPayload(): DeleteUploadsPayload
     {
         return $this->payload;
     }

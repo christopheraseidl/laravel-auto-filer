@@ -1,9 +1,10 @@
 <?php
 
-use christopheraseidl\HasUploads\Facades\UploadService;
 use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
+use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryJobContract;
 use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
 use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
+use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayloadContract;
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Tests\TestCase;
 use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
@@ -30,7 +31,7 @@ uses()->beforeEach(function () {
 
     $this->model->save();
 
-    $this->disk = UploadService::getDisk();
+    $this->disk = config()->get('has-uploads.disk', 'public');
 
     Storage::fake($this->disk);
 })
@@ -39,7 +40,21 @@ uses()->beforeEach(function () {
     })
     ->in('*');
 
-// CleanOrphanedUploads
+// Handlers/ModelDeletionHandler
+uses()->beforeEach(function () {
+    $this->payload = app()->makeWith(DeleteUploadDirectoryPayloadContract::class, [
+        'modelClass' => get_class($this->model),
+        'id' => $this->model->id,
+        'disk' => $this->disk,
+        'path' => $this->model->getUploadPath(),
+    ]);
+
+    $this->job = app()->makeWith(DeleteUploadDirectoryJobContract::class, [
+        'payload' => $this->payload,
+    ]);
+})->in('Handlers/ModelDeletionHandler');
+
+// Jobs/CleanOrphanedUploads
 uses()->beforeEach(function () {
     $this->path = '/uploads';
 
@@ -54,7 +69,7 @@ uses()->beforeEach(function () {
     );
 })->in('Jobs/CleanOrphanedUploads');
 
-// DeleteUploadDirectory
+// Jobs/DeleteUploadDirectory
 uses()->beforeEach(function () {
     $this->path = 'test_models/1';
     $this->payload = new DeleteUploadDirectoryPayload(
@@ -69,7 +84,7 @@ uses()->beforeEach(function () {
     );
 })->in('Jobs/DeleteUploadDirectory');
 
-// Jobs
+// Jobs/Job
 uses()->beforeEach(function () {
     $this->payload = new TestJobPayload;
 

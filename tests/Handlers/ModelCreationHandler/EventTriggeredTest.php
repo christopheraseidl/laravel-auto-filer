@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers;
+namespace christopheraseidl\HasUploads\Tests\Handlers\ModelCreationHandler;
 
-use christopheraseidl\HasUploads\Jobs\MoveUploads;
+use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;

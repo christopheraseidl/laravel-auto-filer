@@ -5,7 +5,7 @@ namespace christopheraseidl\HasUploads\Handlers\Traits;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\HasUploads\Jobs\MoveUploads;
+use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
 use Illuminate\Database\Eloquent\Model;
 
 trait CreatesMoveJob

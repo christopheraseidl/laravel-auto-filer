@@ -33,7 +33,7 @@ class Builder implements BuilderContract
 
     public function makeJob(object $payload): Job
     {
-        return $this->jobClass::make($payload);
+        return app()->makeWith($this->jobClass, ['payload' => $payload]);
     }
 
     public function build(): Job

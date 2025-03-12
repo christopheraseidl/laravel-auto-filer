@@ -5,9 +5,9 @@ namespace christopheraseidl\HasUploads\Jobs;
 use Carbon\Carbon;
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\HasUploads\Jobs\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
 use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
-use DateTimeInterface;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
  * @see \christopheraseidl\HasUploads\Support\UploadService For the upload path
  * configuration.
  */
-final class CleanOrphanedUploads extends Job
+final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
 {
     public function __construct(
         private readonly CleanOrphanedUploadsPayload $payload
@@ -42,7 +42,7 @@ final class CleanOrphanedUploads extends Job
         });
     }
 
-    protected function getLastModified(string $file): DateTimeInterface
+    public function getLastModified(string $file): \DateTimeInterface
     {
         return Carbon::createFromTimestamp(
             Storage::disk($this->getPayload()->getDisk())->lastModified($file)
