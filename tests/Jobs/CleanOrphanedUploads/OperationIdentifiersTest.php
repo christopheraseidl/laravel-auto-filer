@@ -1,13 +1,12 @@
 <?php
 
+namespace christopheraseidl\HasUploads\Tests\Jobs\CleanOrphanedUploads;
+
 /**
  * Tests the CleanOrphanedUploads getOperationType method.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads
  */
-
-use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
-
 it('returns the expected operation type value', function () {
     expect($this->cleaner->getOperationType())->toBe('clean_directory');
 });

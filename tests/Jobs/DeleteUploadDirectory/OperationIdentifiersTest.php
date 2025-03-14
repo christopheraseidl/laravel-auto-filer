@@ -1,5 +1,13 @@
 <?php
 
+namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploadDirectory;
+
+/**
+ * Tests the DeleteUploadDirectory job's methods that are used for verifying
+ * the identity of the job.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory
+ */
 it('returns the expected operation type value', function () {
     expect($this->job->getOperationType())
         ->toBe('delete_directory');

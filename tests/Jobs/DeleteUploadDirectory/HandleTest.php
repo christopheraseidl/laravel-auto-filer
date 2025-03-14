@@ -1,7 +1,15 @@
 <?php
 
+namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploadDirectory;
+
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Tests the DeleteUploadDirectory job's handle method, including error
+ * conditions.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory
+ */
 it('deletes the correct directory', function () {
     $dir = 'test_models/1';
     $file = $dir.'/my_file.txt';

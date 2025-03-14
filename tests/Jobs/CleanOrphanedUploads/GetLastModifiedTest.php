@@ -1,15 +1,15 @@
 <?php
 
+namespace christopheraseidl\HasUploads\Tests\Jobs\CleanOrphanedUploads;
+
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+
 /**
  * Tests the CleanOrphanedUploads getLastModified method.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads
  */
-
-use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-
 beforeEach(function () {
     config()->set('has-uploads.path', 'uploads');
 
@@ -24,6 +24,6 @@ it('returns the expected last modified value', function () {
     $lastModifiedFromStorage = Storage::disk($this->disk)->lastModified($this->file);
     $lastModifiedFromService = $this->cleaner->getLastModified($this->file);
 
-    expect($lastModifiedFromService)->toBeInstanceOf(DateTimeInterface::class)
+    expect($lastModifiedFromService)->toBeInstanceOf(\DateTimeInterface::class)
         ->and($lastModifiedFromService->getTimestamp())->toBe($lastModifiedFromStorage);
 });

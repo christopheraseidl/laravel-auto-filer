@@ -2,20 +2,18 @@
 
 namespace christopheraseidl\HasUploads\Tests\Handlers\ModelUpdateHandler;
 
-use christopheraseidl\HasUploads\Contracts\UploadService;
-use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
-use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
-use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
-use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\Reflect\Reflect;
+use christopheraseidl\HasUploads\Tests\Traits\ModelUpdateHandlerAssertions;
 
+uses(ModelUpdateHandlerAssertions::class);
+
+/**
+ * Tests ModelUpdateHandler createJobsFromAttribute() method with an empty
+ * attribute (whether string or array).
+ *
+ * @covers \christopheraseidl\HasUploads\Handlers\ModelUpdateHandler
+ */
 beforeEach(function () {
-    $this->handler = Reflect::on(new ModelUpdateHandler(
-        app(UploadService::class),
-        app(Builder::class),
-        app(BatchManager::class),
-        app(ModelFileChangeTracker::class)
-    ));
+    $this->setHandler();
 });
 
 it('returns an empty array when creating jobs for unchanged attributes', function () {

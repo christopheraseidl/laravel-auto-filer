@@ -1,10 +1,18 @@
 <?php
 
+namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploads;
+
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Jobs\DeleteUploads;
 use christopheraseidl\HasUploads\Payloads\DeleteUploads as DeleteUploadsPayload;
 
+/**
+ * Tests the DeleteUploads job's methods that are used for verifying the
+ * identity of the job.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploads
+ */
 beforeEach(function () {
     $payload = new DeleteUploadsPayload(
         'TestModel',
