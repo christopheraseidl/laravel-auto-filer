@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Tests\UploadServiceTests;
 
-use christopheraseidl\HasUploads\Support\UploadService;
+use christopheraseidl\HasUploads\Services\UploadService;
 use christopheraseidl\Reflect\Reflect;
 use Exception;
 use Illuminate\Http\UploadedFile;

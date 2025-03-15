@@ -2,9 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Tests\HasUploads;
 
-use christopheraseidl\HasUploads\Handlers\HandleUploadsOnModelCreation;
-use christopheraseidl\HasUploads\Handlers\HandleUploadsOnModelDeletion;
-use christopheraseidl\HasUploads\Handlers\HandleUploadsOnModelUpdate;
+use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
+use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
+use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery\MockInterface;
@@ -12,15 +12,15 @@ use Mockery\MockInterface;
 uses(DatabaseTransactions::class);
 
 it('calls the handlers on model events', function () {
-    $this->mock(HandleUploadsOnModelCreation::class, function (MockInterface $mock) {
+    $this->mock(ModelCreationHandler::class, function (MockInterface $mock) {
         $mock->shouldReceive('handle')->once();
     });
 
-    $this->mock(HandleUploadsOnModelDeletion::class, function (MockInterface $mock) {
+    $this->mock(ModelDeletionHandler::class, function (MockInterface $mock) {
         $mock->shouldReceive('handle')->once();
     });
 
-    $this->mock(HandleUploadsOnModelUpdate::class, function (MockInterface $mock) {
+    $this->mock(ModelUpdateHandler::class, function (MockInterface $mock) {
         $mock->shouldReceive('handle')->once();
     });
 
