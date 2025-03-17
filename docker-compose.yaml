@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - WWWUSER=${UID:-1000}  # Use WSL2 user's UID
+      - WWWUSER=${UID:-1000}
       - WWWGROUP=${GID:-1000}
     user: "${UID:-1000}:${GID:-1000}"
     volumes:
