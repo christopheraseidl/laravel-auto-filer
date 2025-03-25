@@ -7,14 +7,17 @@ use christopheraseidl\HasUploads\Events\FileOperationFailed;
 use christopheraseidl\HasUploads\Jobs\Contracts\Job as JobContract;
 use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
 use Illuminate\Bus\Batchable;
-use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Bus\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
 abstract class Job implements JobContract
 {
-    use Batchable, Queueable;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public static function make(Payload $payload): ?static
     {

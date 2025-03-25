@@ -1,7 +1,5 @@
 <?php
 
-use Pest\PendingCalls\UsesCall;
-
 /**
  * Create a spy that maintains proper type information for Eloquent models
  *
@@ -29,7 +27,7 @@ if (! function_exists('pest')) {
             /**
              * Set the base test case.
              */
-            public function extends($testCase): UsesCall
+            public function extends($testCase)
             {
                 return uses($testCase);
             }
@@ -37,7 +35,7 @@ if (! function_exists('pest')) {
             /**
              * Set the directory for test case.
              */
-            public function in(string $path): UsesCall
+            public function in(string $path)
             {
                 return uses()->in($path);
             }
@@ -45,7 +43,7 @@ if (! function_exists('pest')) {
             /**
              * Use the given trait.
              */
-            public function use($trait): UsesCall
+            public function use($trait)
             {
                 $args = func_get_args();
 
@@ -55,7 +53,7 @@ if (! function_exists('pest')) {
             /**
              * Register a callback to be run before each test in the test file.
              */
-            public function beforeEach(callable $callback): UsesCall
+            public function beforeEach(callable $callback)
             {
                 return uses()->beforeEach($callback);
             }
@@ -63,7 +61,7 @@ if (! function_exists('pest')) {
             /**
              * Register a callback to be run after each test in the test file.
              */
-            public function afterEach(callable $callback): UsesCall
+            public function afterEach(callable $callback)
             {
                 return uses()->afterEach($callback);
             }
