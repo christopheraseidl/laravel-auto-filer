@@ -1,5 +1,7 @@
 <?php
 
+use Pest\PendingCalls\UsesCall;
+
 /**
  * Create a spy that maintains proper type information for Eloquent models
  *
@@ -11,4 +13,60 @@
 function spyModel($model)
 {
     return Mockery::spy($model);
+}
+
+/**
+ * Make pest() backwards-compatible with Pest 2.0.
+ */
+if (! function_exists('pest')) {
+    /**
+     * Creates a new Pest configuration instance.
+     */
+    function pest(): object
+    {
+        return new class
+        {
+            /**
+             * Set the base test case.
+             */
+            public function extends($testCase): UsesCall
+            {
+                return uses($testCase);
+            }
+
+            /**
+             * Set the directory for test case.
+             */
+            public function in(string $path): UsesCall
+            {
+                return uses()->in($path);
+            }
+
+            /**
+             * Use the given trait.
+             */
+            public function use($trait): UsesCall
+            {
+                $args = func_get_args();
+
+                return uses(...$args);
+            }
+
+            /**
+             * Register a callback to be run before each test in the test file.
+             */
+            public function beforeEach(callable $callback): UsesCall
+            {
+                return uses()->beforeEach($callback);
+            }
+
+            /**
+             * Register a callback to be run after each test in the test file.
+             */
+            public function afterEach(callable $callback): UsesCall
+            {
+                return uses()->afterEach($callback);
+            }
+        };
+    }
 }
