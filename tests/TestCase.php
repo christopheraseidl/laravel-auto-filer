@@ -33,7 +33,7 @@ class TestCase extends Orchestra
 
         $this->artisan('migrate');
     }
-    
+
     protected function tearDown(): void
     {
         parent::tearDown();
