@@ -4,10 +4,13 @@ namespace christopheraseidl\HasUploads\Tests;
 
 use christopheraseidl\HasUploads\HasUploadsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -15,6 +18,25 @@ class TestCase extends Orchestra
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'christopheraseidl\\HasUploads\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
+
+        $this->loadMigrationsFrom(__DIR__.'/TestMigrations/create_test_models_table.php');
+
+        if (app()->version() < 11) {
+            $this->artisan('queue:table');
+            $this->artisan('queue:batches-table');
+            $this->artisan('queue:failed-table');
+        } else {
+            $this->artisan('make:queue-table');
+            $this->artisan('make:queue-batches-table');
+            $this->artisan('make:queue-failed-table');
+        }
+
+        $this->artisan('migrate');
+    }
+    
+    protected function tearDown(): void
+    {
+        parent::tearDown();
     }
 
     protected function getPackageProviders($app)

@@ -18,16 +18,6 @@ pest()->extends(TestCase::class)->in(__DIR__);
 
 // General setup
 pest()->beforeEach(function () {
-    $this->artisan('make:queue-table');
-
-    $this->artisan('make:queue-batches-table');
-
-    $this->artisan('make:queue-failed-table');
-
-    $this->loadMigrationsFrom(__DIR__.'/TestMigrations/create_test_models_table.php');
-
-    $this->artisan('migrate');
-
     $this->model = new TestModel;
 
     $this->model->save();
@@ -36,9 +26,6 @@ pest()->beforeEach(function () {
 
     Storage::fake($this->disk);
 })
-    ->afterEach(function () {
-        $this->artisan('migrate:reset');
-    })
     ->in('*');
 
 // Handlers/ModelCreationHandler
