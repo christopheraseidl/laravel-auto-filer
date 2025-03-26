@@ -4,7 +4,6 @@ namespace christopheraseidl\HasUploads\Tests;
 
 use christopheraseidl\HasUploads\HasUploadsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
