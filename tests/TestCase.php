@@ -16,8 +16,13 @@ class TestCase extends Orchestra
             fn (string $modelName) => 'christopheraseidl\\HasUploads\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
 
+        // Rollback any migrations that might not have reset due to test error and exit.
+        $this->artisan('migrate:reset');
+
+        // Custom migration.
         $this->loadMigrationsFrom(__DIR__.'/TestMigrations/create_test_models_table.php');
 
+        // Queue table migrations.
         if (app()->version() < 11) {
             $this->artisan('queue:table');
             $this->artisan('queue:batches-table');
