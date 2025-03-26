@@ -25,7 +25,7 @@ uses()->beforeEach(function () {
     $this->disk = config()->get('has-uploads.disk', 'public');
 
     Storage::fake($this->disk);
-});
+})->in('*');
 
 // Handlers/ModelCreationHandler
 uses()->beforeEach(function () {
