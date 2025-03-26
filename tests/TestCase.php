@@ -59,7 +59,7 @@ class TestCase extends Orchestra
         config()->set('database.connections.testing', [
             'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix' => '',
+            'prefix' => uniqid(),
         ]);
 
         // Force job batches to use the testing connection.
