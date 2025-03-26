@@ -4,6 +4,7 @@ namespace christopheraseidl\HasUploads\Tests;
 
 use christopheraseidl\HasUploads\HasUploadsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -18,19 +19,15 @@ class TestCase extends Orchestra
 
         // Rollback any migrations that might not have reset due to test error and exit.
         $this->artisan('migrate:reset');
-
-        // Queue table migrations.
+        
+        // Queue migrations for Laravel versions < 11.
         if (app()->version() < 11) {
             $this->artisan('queue:table');
             $this->artisan('queue:batches-table');
             $this->artisan('queue:failed-table');
-        } else {
-            $this->artisan('make:queue-table');
-            $this->artisan('make:queue-batches-table');
-            $this->artisan('make:queue-failed-table');
-        }
 
-        $this->artisan('migrate');
+            $this->artisan('migrate');
+        }
 
         // Custom migration.
         $this->loadMigrationsFrom(__DIR__.'/TestMigrations/create_test_models_table.php');
@@ -59,7 +56,7 @@ class TestCase extends Orchestra
         config()->set('database.connections.testing', [
             'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix' => uniqid(),
+            'prefix' => '',
         ]);
 
         // Force job batches to use the testing connection.
