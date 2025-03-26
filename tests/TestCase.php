@@ -19,15 +19,34 @@ class TestCase extends Orchestra
 
         // Rollback any migrations that might not have reset due to test error and exit.
         $this->artisan('migrate:reset');
-        
-        // Queue migrations for Laravel versions < 11.
-        if (app()->version() < 11) {
-            $this->artisan('queue:table');
-            $this->artisan('queue:batches-table');
-            $this->artisan('queue:failed-table');
 
-            $this->artisan('migrate');
+        // Queue table migrations. Check to see if they exist to prevent errors on Laravel 11 prefer-lowest installations.
+        $hasJobs = Schema::hasTable('jobs');
+        $hasJobBatches = Schema::hasTable('job_batches');
+        $hasFailedJobs = Schema::hasTable('failed_jobs');
+        if (app()->version() < 11) {
+            if (! $hasJobs) {
+                $this->artisan('queue:table');
+            }
+            if (! $hasJobBatches) {
+                $this->artisan('queue:batches-table');
+            }
+            if (! $hasFailedJobs) {
+                $this->artisan('queue:failed-table');
+            }
+        } else {
+            if (! $hasJobs) {
+                $this->artisan('make:queue-table');
+            }
+            if (! $hasJobBatches) {
+                $this->artisan('make:queue-batches-table');
+            }
+            if (! $hasFailedJobs) {
+                $this->artisan('make:queue-failed-table');
+            }            
         }
+
+        $this->artisan('migrate');
 
         // Custom migration.
         $this->loadMigrationsFrom(__DIR__.'/TestMigrations/create_test_models_table.php');
