@@ -25,8 +25,7 @@ pest()->beforeEach(function () {
     $this->disk = config()->get('has-uploads.disk', 'public');
 
     Storage::fake($this->disk);
-})
-    ->in('*');
+});
 
 // Handlers/ModelCreationHandler
 pest()->beforeEach(function () {
@@ -34,7 +33,7 @@ pest()->beforeEach(function () {
 
     $this->stringFillableName = 'my-image.png';
     $this->arrayFillableName = 'important-document.pdf';
-});
+})->in('Handlers/ModelCreationHandler');
 
 // Handlers/ModelDeletionHandler
 pest()->beforeEach(function () {
