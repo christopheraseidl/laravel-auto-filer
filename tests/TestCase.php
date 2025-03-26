@@ -19,9 +19,6 @@ class TestCase extends Orchestra
         // Rollback any migrations that might not have reset due to test error and exit.
         $this->artisan('migrate:reset');
 
-        // Custom migration.
-        $this->loadMigrationsFrom(__DIR__.'/TestMigrations/create_test_models_table.php');
-
         // Queue table migrations.
         if (app()->version() < 11) {
             $this->artisan('queue:table');
@@ -33,6 +30,10 @@ class TestCase extends Orchestra
             $this->artisan('make:queue-failed-table');
         }
 
+        $this->artisan('migrate:fresh');
+
+        // Custom migration.
+        $this->loadMigrationsFrom(__DIR__.'/TestMigrations/create_test_models_table.php');
         $this->artisan('migrate');
     }
 
