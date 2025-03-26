@@ -4,7 +4,6 @@ namespace christopheraseidl\HasUploads\Tests;
 
 use christopheraseidl\HasUploads\HasUploadsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Schema;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -19,7 +18,7 @@ class TestCase extends Orchestra
 
         // Rollback any migrations that might not have reset due to test error and exit.
         $this->artisan('migrate:reset');
-        
+
         // Queue migrations for Laravel versions < 11.
         if (app()->version() < 11) {
             $this->artisan('queue:table');
