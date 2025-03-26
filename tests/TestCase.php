@@ -30,11 +30,10 @@ class TestCase extends Orchestra
             $this->artisan('make:queue-failed-table');
         }
 
-        $this->artisan('migrate:fresh');
+        $this->artisan('migrate');
 
         // Custom migration.
         $this->loadMigrationsFrom(__DIR__.'/TestMigrations/create_test_models_table.php');
-        $this->artisan('migrate');
     }
 
     protected function tearDown(): void
