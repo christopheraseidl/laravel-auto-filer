@@ -14,10 +14,10 @@ use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 
-pest()->extends(TestCase::class)->in(__DIR__);
+uses(TestCase::class)->in(__DIR__);
 
 // General setup
-pest()->beforeEach(function () {
+uses()->beforeEach(function () {
     $this->model = new TestModel;
 
     $this->model->save();
@@ -28,7 +28,7 @@ pest()->beforeEach(function () {
 });
 
 // Handlers/ModelCreationHandler
-pest()->beforeEach(function () {
+uses()->beforeEach(function () {
     Bus::fake();
 
     $this->stringFillableName = 'my-image.png';
@@ -36,7 +36,7 @@ pest()->beforeEach(function () {
 })->in('Handlers/ModelCreationHandler');
 
 // Handlers/ModelDeletionHandler
-pest()->beforeEach(function () {
+uses()->beforeEach(function () {
     $this->payload = app()->makeWith(DeleteUploadDirectoryPayloadContract::class, [
         'modelClass' => get_class($this->model),
         'id' => $this->model->id,
@@ -50,7 +50,7 @@ pest()->beforeEach(function () {
 })->in('Handlers/ModelDeletionHandler');
 
 // Handlers/ModelUpdateHandler
-pest()->beforeEach(function () {
+uses()->beforeEach(function () {
     Bus::fake();
 
     $string = 'image.jpg';
@@ -72,7 +72,7 @@ pest()->beforeEach(function () {
 })->in('Handlers/ModelUpdateHandler');
 
 // Jobs/CleanOrphanedUploads
-pest()->beforeEach(function () {
+uses()->beforeEach(function () {
     $this->path = '/uploads';
 
     $this->payload = new CleanOrphanedUploadsPayload(
@@ -87,7 +87,7 @@ pest()->beforeEach(function () {
 })->in('Jobs/CleanOrphanedUploads');
 
 // Jobs/DeleteUploadDirectory
-pest()->beforeEach(function () {
+uses()->beforeEach(function () {
     $this->path = 'test_models/1';
     $this->payload = new DeleteUploadDirectoryPayload(
         TestModel::class,
@@ -102,7 +102,7 @@ pest()->beforeEach(function () {
 })->in('Jobs/DeleteUploadDirectory');
 
 // Jobs/Job
-pest()->beforeEach(function () {
+uses()->beforeEach(function () {
     $this->payload = new TestJobPayload;
 
     $this->job = new TestJob;
