@@ -24,6 +24,7 @@ class TestCase extends Orchestra
         $hasJobs = Schema::hasTable('jobs');
         $hasJobBatches = Schema::hasTable('job_batches');
         $hasFailedJobs = Schema::hasTable('failed_jobs');
+        
         if (app()->version() < 11) {
             if (! $hasJobs) {
                 $this->artisan('queue:table');
