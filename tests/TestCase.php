@@ -4,13 +4,10 @@ namespace christopheraseidl\HasUploads\Tests;
 
 use christopheraseidl\HasUploads\HasUploadsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -36,6 +33,8 @@ class TestCase extends Orchestra
 
     protected function tearDown(): void
     {
+        $this->artisan('migrate:reset');
+
         parent::tearDown();
     }
 
