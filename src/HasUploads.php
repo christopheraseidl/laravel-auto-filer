@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 
 trait HasUploads
 {
-    private static ?UploadService $uploadService = null;
+    protected static ?UploadService $uploadService = null;
 
     public static function bootHasUploads()
     {
