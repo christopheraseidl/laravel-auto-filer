@@ -4,7 +4,7 @@ namespace christopheraseidl\HasUploads\Tests\Handlers\ModelDeletionHandler;
 
 use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
-use christopheraseidl\HasUploads\Tests\Traits\AssertsDeleteUploadDirectory;
+use christopheraseidl\HasUploads\Tests\TestTraits\AssertsDeleteUploadDirectory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 

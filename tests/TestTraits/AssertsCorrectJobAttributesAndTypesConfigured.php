@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Traits;
+namespace christopheraseidl\HasUploads\Tests\TestTraits;
 
 use Illuminate\Support\Facades\Bus;
 

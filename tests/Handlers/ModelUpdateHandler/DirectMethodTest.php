@@ -4,8 +4,8 @@ namespace christopheraseidl\HasUploads\Tests\Handlers\ModelUpdateHandler;
 
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
 use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
-use christopheraseidl\HasUploads\Tests\Traits\AssertsCorrectJobAttributesAndTypesConfigured;
-use christopheraseidl\HasUploads\Tests\Traits\ModelUpdateHandlerAssertions;
+use christopheraseidl\HasUploads\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
+use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerAssertions;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 uses(

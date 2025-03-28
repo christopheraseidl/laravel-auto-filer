@@ -2,11 +2,10 @@
 
 namespace christopheraseidl\HasUploads\Tests\Handlers\ModelCreationHandler;
 
-use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
 use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
-use christopheraseidl\HasUploads\Tests\Traits\AssertsCorrectJobAttributesAndTypesConfigured;
-use christopheraseidl\HasUploads\Tests\Traits\ModelCreationHandlerAssertions;
+use christopheraseidl\HasUploads\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
+use christopheraseidl\HasUploads\Tests\TestTraits\ModelCreationHandlerAssertions;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 

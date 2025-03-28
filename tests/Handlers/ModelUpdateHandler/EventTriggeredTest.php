@@ -2,8 +2,8 @@
 
 namespace christopheraseidl\HasUploads\Tests\Handler\ModelUpdateHandler;
 
-use christopheraseidl\HasUploads\Tests\Traits\AssertsCorrectJobAttributesAndTypesConfigured;
-use christopheraseidl\HasUploads\Tests\Traits\ModelUpdateHandlerAssertions;
+use christopheraseidl\HasUploads\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
+use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerAssertions;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 

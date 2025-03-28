@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Tests\Handlers\ModelUpdateHandler;
 
-use christopheraseidl\HasUploads\Tests\Traits\ModelUpdateHandlerAssertions;
+use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerAssertions;
 
 uses(ModelUpdateHandlerAssertions::class);
 

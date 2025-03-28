@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Traits;
+namespace christopheraseidl\HasUploads\Tests\TestTraits;
 
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory;
 use Illuminate\Support\Facades\Bus;

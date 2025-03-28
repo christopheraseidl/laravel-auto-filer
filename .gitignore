@@ -26,6 +26,7 @@ _ide_helper_models.php
 /.vscode
 
 # Misc
+.dockerignore
 phpunit.xml
 phpstan.neon
 testbench.yaml
