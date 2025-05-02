@@ -1,19 +1,17 @@
-# A simple package for automating file uploads associated with models. 
+# A simple package for automating file upload storage and locations associated with models.
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/christopheraseidl/laravel-has-uploads.svg?style=flat-square)](https://packagist.org/packages/christopheraseidl/laravel-has-uploads)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/christopheraseidl/laravel-has-uploads/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/christopheraseidl/laravel-has-uploads/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/christopheraseidl/laravel-has-uploads/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/christopheraseidl/laravel-has-uploads/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/christopheraseidl/laravel-has-uploads.svg?style=flat-square)](https://packagist.org/packages/christopheraseidl/laravel-has-uploads)
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+The idea of this package is simple:
 
-## Support us
+1. Add the `HasUploads` trait to your model.
+2. Set up your model and database for storing uploaded file paths (see **Usage** below).
+3. Your files will be stored in logical, human-readable file paths unique for each model.
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/laravel-has-uploads.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/laravel-has-uploads)
-
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+Files will be automatically deleted when their associated model is deleted. There is also a cleanup job that you can schedule called  `CleanOrphanedUploads`, which deletes orphaned uploaded files stored in the `uploads_tmp_path` directory (see **Usage**).
 
 ## Installation
 
@@ -40,20 +38,128 @@ This is the contents of the published config file:
 
 ```php
 return [
+    'disk' => 'public',
+    'path' => '',
+    'max_size' => 5120,
+    'mimes' => [
+        'jpg',
+        'jpeg',
+        'png',
+        'ico',
+        'pdf',
+        'doc',
+        'docx',
+        'txt',
+    ],
+    'cleanup' => [
+        'temp_files' => [
+            'enabled' => false,
+            'threshold_hours' => 24,
+        ],
+        'orphaned_files' => [
+            'enabled' => false,
+            'threshold_days' => 7,
+            'dry_run' => true,
+            'backup' => false,
+        ],
+    ],
 ];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="laravel-has-uploads-views"
 ```
 
 ## Usage
 
+To set up the model, add a `use` statement and the `getUploadableAttributes` method, which returns a key-value array where the keys are the attribute names and the values are the sub-directories where you want their uploaded files to be stored.
+
 ```php
-$hasUploads = new christopheraseidl\HasUploads();
-echo $hasUploads->echoPhrase('Hello, christopheraseidl!');
+use christopheraseidl\HasUploads\HasUploads;
+
+class Product extends Model
+{
+    use HasUploads;
+
+    protected $fillable = [
+        'images',
+        'current_report',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'images' => 'array',
+        ]
+    }
+
+    public function getUploadableAttributes(): array
+    {
+        return [
+            'images' => 'images',
+            'current_report' => 'report',
+        ];
+    }
+}
+```
+
+### Creating, updating, or deleting a model record
+
+- Store the uploaded file path in the model attributes &mdash; in our example, `images` and `current_report`.
+- The stored path values should be relative to the storage directory, for example `my-image.png`, which indicates that the file is stored in the root storage directory (default behavior). Upon saving the model, the path will be updated to something like `products/1/images/my-image.png`.
+- The files will be copied to the same location as the path values.
+- After the copied files are verified to exist in their new locations, the original uploaded files are automatically deleted.
+
+### Scheduling a job to clean orphaned file uploads
+
+You may schedule the `CleanOrphanedUploads` job by following [Laravel's documentation on scheduling jobs](https://laravel.com/docs/12.x/scheduling#scheduling-queued-jobs).
+
+## Settings configuration
+
+To customize settings, first publish the config file (see **Installation**) and then modify their values.
+
+### disk
+
+The name of the disk you want to use.
+
+*default* : `'public'`
+
+### uploads_tmp_path
+
+The temporary uploads directory, relative to the storage root.
+
+*default* : `''`
+
+### final_path_prefix
+
+The prefix path that you want to go before the models subdirectory.
+
+*default* : `''`
+
+### max_size
+
+The maximum file syze, in kilobytes.
+
+*default* : `'5120'`
+
+### mimes
+
+The permitted mime types.
+
+*default* : `['jpg', 'jpeg', 'png', 'ico', 'pdf', 'doc', 'docx', 'txt']`
+
+### cleanup
+
+*default* :
+```php
+[
+    'temp_files' => [
+        'enabled' => false,
+        'threshold_hours' => 24,
+    ],
+    'orphaned_files' => [
+        'enabled' => false,
+        'threshold_days' => 7,
+        'dry_run' => true,
+        'backup' => false,
+    ],
+],
 ```
 
 ## Testing
