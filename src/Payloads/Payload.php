@@ -45,8 +45,12 @@ abstract class Payload implements PayloadContract
         return new $class(...$parsedArgs);
     }
 
-    protected static function isAssociative(array $array): bool {
-        if ($array === []) return false;
+    protected static function isAssociative(array $array): bool
+    {
+        if ($array === []) {
+            return false;
+        }
+
         return array_keys($array) !== range(0, count($array) - 1);
     }
 }

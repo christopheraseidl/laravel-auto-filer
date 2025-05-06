@@ -55,8 +55,7 @@ class BatchManager implements BatchManagerContract
         Batch $batch,
         Model $model,
         string $disk
-    ): Payload
-    {
+    ): Payload {
         return BatchUpdate::make(
             modelClass: class_basename($model),
             modelId: $model->id,
