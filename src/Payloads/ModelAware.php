@@ -15,8 +15,8 @@ abstract class ModelAware extends Payload implements ModelAwareContract
     public function __construct(
         private readonly string $modelClass,
         private readonly int $modelId,
-        private readonly ?string $modelAttribute,
-        private readonly ?string $modelAttributeType,
+        private readonly ?string $modelAttribute = null,
+        private readonly ?string $modelAttributeType = null,
         private readonly OperationType $operationType,
         private readonly OperationScope $operationScope,
         private readonly string $disk,

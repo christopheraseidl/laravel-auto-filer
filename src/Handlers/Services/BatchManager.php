@@ -8,6 +8,7 @@ use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\HasUploads\Events\FileOperationFailed;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager as BatchManagerContract;
 use christopheraseidl\HasUploads\Payloads\BatchUpdate;
+use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Bus;
@@ -34,13 +35,7 @@ class BatchManager implements BatchManagerContract
         string $disk
     ): void {
         broadcast(new FileOperationCompleted(
-            BatchUpdate::make(
-                modelClass: class_basename($model),
-                modelId: $model->id,
-                operationType: OperationType::Update,
-                operationScope: OperationScope::Batch,
-                disk: $disk
-            )
+            $this->makeFileOperationPayload($batch, $model, $disk)
         ));
     }
 
@@ -51,14 +46,23 @@ class BatchManager implements BatchManagerContract
         Throwable $e
     ): void {
         broadcast(new FileOperationFailed(
-            BatchUpdate::make(
-                modelClass: class_basename($model),
-                modelId: $model->id,
-                operationType: OperationType::Update,
-                operationScope: OperationScope::Batch,
-                disk: $disk
-            ),
+            $this->makeFileOperationPayload($batch, $model, $disk),
             $e
         ));
+    }
+
+    private function makeFileOperationPayload(
+        Batch $batch,
+        Model $model,
+        string $disk
+    ): Payload
+    {
+        return BatchUpdate::make(
+            modelClass: class_basename($model),
+            modelId: $model->id,
+            operationType: OperationType::Update,
+            operationScope: OperationScope::Batch,
+            disk: $disk
+        );
     }
 }

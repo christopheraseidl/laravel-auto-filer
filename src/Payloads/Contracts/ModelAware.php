@@ -11,8 +11,8 @@ interface ModelAware extends Payload
     public function __construct(
         string $modelClass,
         int $modelId,
-        ?string $modelAttribute,
-        ?string $modelAttributeType,
+        ?string $modelAttribute = null,
+        ?string $modelAttributeType = null,
         OperationType $operationType,
         OperationScope $operationScope,
         string $disk,
