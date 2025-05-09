@@ -7,7 +7,7 @@ use christopheraseidl\HasUploads\Handlers\Services\ModelFileChangeTracker;
 /**
  * Tests behavior of ModelFileChangeTracker's getRemovedFiles() method.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\ModelUpdateHandler
+ * @covers \christopheraseidl\HasUploads\Handlers\Services\ModelFileChangeTracker
  */
 beforeEach(function () {
     $this->tracker = new ModelFileChangeTracker;
