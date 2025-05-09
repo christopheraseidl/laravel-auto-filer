@@ -5,7 +5,7 @@ namespace christopheraseidl\HasUploads\Tests\Handlers\Services\ModelFileChangeTr
 use christopheraseidl\HasUploads\Handlers\Services\ModelFileChangeTracker;
 
 /**
- * Tests behavior of ModelFileChangeTracker's getOriginalPaths() method.
+ * Tests behavior of ModelFileChangeTracker's getCurrentPaths() method.
  *
  * @covers \christopheraseidl\HasUploads\Handlers\Services\ModelFileChangeTracker
  */
@@ -14,26 +14,26 @@ beforeEach(function () {
 });
 
 it('returns the correct values for a changed model attribute', function () {
-    $originalString = $this->model->string;
-    $originalArray = $this->model->array;
-
     $this->model->fill([
         'string' => $this->newString,
         'array' => $this->newArray,
     ]);
 
-    $stringPaths = $this->tracker->getOriginalPaths($this->model, 'string');
-    $arrayPaths = $this->tracker->getOriginalPaths($this->model, 'array');
+    $currentString = $this->model->string;
+    $currentArray = $this->model->array;
+
+    $stringPaths = $this->tracker->getCurrentPaths($this->model, 'string');
+    $arrayPaths = $this->tracker->getCurrentPaths($this->model, 'array');
 
     expect($stringPaths)->toBeArray()
-        ->and($stringPaths[0])->toBe($originalString)
+        ->and($stringPaths[0])->toBe($currentString)
         ->and($arrayPaths)->toBeArray()
-        ->and($arrayPaths)->toBe($originalArray);
+        ->and($arrayPaths)->toBe($currentArray);
 });
 
-it('returns a value equal to the current path if nothing has been changed', function () {
-    $stringPaths = $this->tracker->getOriginalPaths($this->model, 'string');
-    $arrayPaths = $this->tracker->getOriginalPaths($this->model, 'array');
+it('returns the correct values if nothing has been changed', function () {
+    $stringPaths = $this->tracker->getCurrentPaths($this->model, 'string');
+    $arrayPaths = $this->tracker->getCurrentPaths($this->model, 'array');
 
     expect($stringPaths)->toBeArray()
         ->and($stringPaths[0])->toBe($this->model->string)
@@ -42,15 +42,15 @@ it('returns a value equal to the current path if nothing has been changed', func
 });
 
 it('returns a type error if $model is null', function () {
-    $files = $this->tracker->getOriginalPaths(null, 'string');
+    $files = $this->tracker->getCurrentPaths(null, 'string');
 })->throws(\TypeError::class, 'Argument #1 ($model) must be of type Illuminate\Database\Eloquent\Model, null given');
 
 it('returns a type error if $attribute is null', function () {
-    $files = $this->tracker->getOriginalPaths($this->model, null);
+    $files = $this->tracker->getCurrentPaths($this->model, null);
 })->throws(\TypeError::class, 'Argument #2 ($attribute) must be of type string, null given');
 
 it('returns an empty array if $attribute does not exist on $model', function () {
-    $files = $this->tracker->getOriginalPaths($this->model, 'nonexistent');
+    $files = $this->tracker->getCurrentPaths($this->model, 'nonexistent');
 
     expect($files)->toBeArray()
         ->and($files)->toBeEmpty();

@@ -32,13 +32,13 @@ class ModelFileChangeTracker implements ModelFileChangeTrackerContract
         );
     }
 
-    public function getOriginalPaths(Model $model, string $attribute): array
-    {
-        return $this->originalPaths[$attribute] ??= Arr::wrap($model->getOriginal($attribute));
-    }
-
     public function getCurrentPaths(Model $model, string $attribute): array
     {
         return $this->currentPaths[$attribute] ??= Arr::wrap($model->$attribute);
+    }
+
+    public function getOriginalPaths(Model $model, string $attribute): array
+    {
+        return $this->originalPaths[$attribute] ??= Arr::wrap($model->getOriginal($attribute));
     }
 }
