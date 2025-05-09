@@ -17,6 +17,11 @@ class TestJobOne {}
 
 class TestJobTwo {}
 
+/**
+ * Tests BatchManager behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Handlers\Services\BatchManager
+ */
 beforeEach(function () {
     Bus::fake();
     Event::fake();
@@ -43,8 +48,12 @@ it('dispatches batch with the correct parameters', function (array $jobs) {
             && $batch->jobs->all() === collect($jobs)->all();
     });
 })->with([
-    'with jobs' => [[new TestJobOne, new TestJobTwo]],
-    'without jobs' => [[]],
+    'with jobs' => [
+        [new TestJobOne, new TestJobTwo]
+    ],
+    'without jobs' => [
+        []
+    ],
 ]);
 
 test('handleSuccess broadcasts FileOperationCompleted with correct data', function () {
@@ -66,6 +75,17 @@ test('handleSuccess broadcasts FileOperationCompleted with correct data', functi
     });
 });
 
+test('handleSuccess throws a TypeError with null model ID', function () {
+    $model = \Mockery::mock(Model::class);
+    $model->shouldReceive('getAttribute')->with('id')->andReturn(null);
+
+    $this->batchManager->handleSuccess($this->batch, $model, $this->disk);
+})->throws(\TypeError::class, 'Argument #2 ($modelId) must be of type int, null given');
+
+test('handleSuccess throws a TypeError with null disk', function () {
+    $this->batchManager->handleSuccess($this->batch, $this->model, null);
+})->throws(\TypeError::class, 'Argument #3 ($disk) must be of type string, null given');
+
 test('handleFailure broadcasts FileOperationFailed with correct data', function () {
     $this->batchManager->handleFailure($this->batch, $this->model, $this->disk, $this->error);
 
@@ -84,3 +104,24 @@ test('handleFailure broadcasts FileOperationFailed with correct data', function 
             && $payload->newDir === null;
     });
 });
+
+test('handleFailure passes exception to FileOperationFailed event', function () {
+    $error = $this->error;
+    
+    $this->batchManager->handleFailure($this->batch, $this->model, $this->disk, $error);
+
+    Event::assertDispatched(FileOperationFailed::class, function ($event) use ($error) {
+        return $event->exception === $error;
+    });
+});
+
+test('handleFailure throws a TypeError with null model ID', function () {
+    $model = \Mockery::mock(Model::class);
+    $model->shouldReceive('getAttribute')->with('id')->andReturn(null);
+
+    $this->batchManager->handleFailure($this->batch, $model, $this->disk, $this->error);
+})->throws(\TypeError::class, 'Argument #2 ($modelId) must be of type int, null given');
+
+test('handleFailure throws a TypeError with null disk', function () {
+    $this->batchManager->handleFailure($this->batch, $this->model, null, $this->error);
+})->throws(\TypeError::class, 'Argument #3 ($disk) must be of type string, null given');
