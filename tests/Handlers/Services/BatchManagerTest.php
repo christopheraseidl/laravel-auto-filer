@@ -49,10 +49,10 @@ it('dispatches batch with the correct parameters', function (array $jobs) {
     });
 })->with([
     'with jobs' => [
-        [new TestJobOne, new TestJobTwo]
+        [new TestJobOne, new TestJobTwo],
     ],
     'without jobs' => [
-        []
+        [],
     ],
 ]);
 
@@ -107,7 +107,7 @@ test('handleFailure broadcasts FileOperationFailed with correct data', function 
 
 test('handleFailure passes exception to FileOperationFailed event', function () {
     $error = $this->error;
-    
+
     $this->batchManager->handleFailure($this->batch, $this->model, $this->disk, $error);
 
     Event::assertDispatched(FileOperationFailed::class, function ($event) use ($error) {

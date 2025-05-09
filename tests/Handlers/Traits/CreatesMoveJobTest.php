@@ -10,7 +10,8 @@ use christopheraseidl\HasUploads\Jobs\Services\Builder;
 use christopheraseidl\HasUploads\Jobs\Validators\BuilderValidator;
 use christopheraseidl\Reflect\Reflect;
 
-class CreatesMoveJobClass {
+class CreatesMoveJobClass
+{
     use CreatesMoveJob;
 }
 

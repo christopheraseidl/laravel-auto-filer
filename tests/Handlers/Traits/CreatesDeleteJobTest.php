@@ -10,7 +10,8 @@ use christopheraseidl\HasUploads\Jobs\Services\Builder;
 use christopheraseidl\HasUploads\Jobs\Validators\BuilderValidator;
 use christopheraseidl\Reflect\Reflect;
 
-class CreatesDeleteJobClass {
+class CreatesDeleteJobClass
+{
     use CreatesDeleteJob;
 }
 
