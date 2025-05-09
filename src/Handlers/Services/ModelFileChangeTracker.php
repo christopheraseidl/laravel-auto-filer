@@ -12,22 +12,22 @@ class ModelFileChangeTracker implements ModelFileChangeTrackerContract
 
     public array $currentPaths = [];
 
-    public function getRemovedFiles(Model $model, string $attribute): array
-    {
-        return array_values(
-            array_diff(
-                $this->getOriginalPaths($model, $attribute),
-                $this->getCurrentPaths($model, $attribute)
-            )
-        );
-    }
-
     public function getNewFiles(Model $model, string $attribute): array
     {
         return array_values(
             array_diff(
                 $this->getCurrentPaths($model, $attribute),
                 $this->getOriginalPaths($model, $attribute)
+            )
+        );
+    }
+
+    public function getRemovedFiles(Model $model, string $attribute): array
+    {
+        return array_values(
+            array_diff(
+                $this->getOriginalPaths($model, $attribute),
+                $this->getCurrentPaths($model, $attribute)
             )
         );
     }

@@ -49,7 +49,7 @@ uses()->beforeEach(function () {
     ]);
 })->in('Handlers/ModelDeletionHandler');
 
-// Handlers/ModelUpdateHandler
+// Handlers/ModelUpdateHandler, Handlers/Services/ModelFileChangeTracker
 uses()->beforeEach(function () {
     Bus::fake();
 
@@ -69,7 +69,7 @@ uses()->beforeEach(function () {
     $newArrayItem = 'new-doc.txt';
     $this->newArray = [$this->model->array[1], $newArrayItem];
     Storage::disk($this->disk)->put($newArrayItem, 200);
-})->in('Handlers/ModelUpdateHandler');
+})->in('Handlers/ModelUpdateHandler', 'Handlers/Services/ModelFileChangeTracker');
 
 // Jobs/CleanOrphanedUploads
 uses()->beforeEach(function () {
