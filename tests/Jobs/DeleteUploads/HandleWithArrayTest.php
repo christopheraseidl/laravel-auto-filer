@@ -133,8 +133,7 @@ it('handles empty array attribute gracefully', function () {
 
 it('broadcasts a failure event when deleting an array of files fails', function () {
     $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
-    $diskMock
-        ->shouldReceive('delete')
+    $diskMock->shouldReceive('delete')
         ->andThrow(new \Exception('File deletion failed'));
 
     Storage::shouldReceive('disk')

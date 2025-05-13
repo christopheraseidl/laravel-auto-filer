@@ -43,6 +43,8 @@ abstract class BaseModelEventHandler
 
     protected function getAllJobs(Model $model, ?\Closure $filter = null): array
     {
+        $filter = $filter ?? fn ($model, $attribute) => true;
+
         return collect($model->getUploadableAttributes())
             ->filter(fn ($type, $attribute) => $filter($model, $attribute))
             ->flatMap(fn ($type, $attribute) => $this->createJobsFromAttribute($model, $attribute, $type)
