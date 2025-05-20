@@ -6,6 +6,11 @@ use christopheraseidl\HasUploads\Payloads\Payload;
 
 class TestPayload extends Payload
 {
+    public function __construct(
+        public ?string $paramOne = '',
+        public ?array $paramTwo = []
+    ) {}
+
     public function shouldBroadcastIndividualEvents(): bool
     {
         return true;

@@ -1,14 +1,11 @@
 <?php
 
 use christopheraseidl\HasUploads\Jobs\Job;
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload as PayloadContract;
 use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
 use christopheraseidl\HasUploads\Tests\TestClasses\TestPayload;
 
 class TestJobWithConstructor extends TestJob
 {
-    public function __construct(public PayloadContract $payload) {}
-
     public function getOperationType(): string
     {
         return 'test_job_with_constructor';

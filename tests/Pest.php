@@ -3,9 +3,11 @@
 use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryJobContract;
 use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
+use christopheraseidl\HasUploads\Jobs\Validators\BuilderValidator;
 use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayloadContract;
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
+use christopheraseidl\HasUploads\Services\UploadService;
 use christopheraseidl\HasUploads\Tests\TestCase;
 use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
 use christopheraseidl\HasUploads\Tests\TestClasses\TestPayload;
@@ -111,6 +113,16 @@ uses()->beforeEach(function () {
 uses()->beforeEach(function () {
     $this->payload = new TestPayload;
 
-    $this->job = new TestJob;
-    $this->job->payload = $this->payload;
+    $this->job = new TestJob($this->payload);
 })->in('Jobs/Job');
+
+// Jobs/Services/UploadService
+uses()->beforeEach(function () {
+    $this->service = new UploadService;
+    $this->reflection = new \ReflectionClass($this->service);
+})->in('Jobs/Services/UploadService');
+
+// Jobs/Validators/BuilderValidator
+uses()->beforeEach(function () {
+    $this->validator = new BuilderValidator;
+})->in('Jobs/Validators/BuilderValidator');

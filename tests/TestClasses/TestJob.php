@@ -7,7 +7,9 @@ use christopheraseidl\HasUploads\Payloads\Contracts\Payload as PayloadContract;
 
 class TestJob extends Job
 {
-    public PayloadContract $payload;
+    public function __construct(
+        public readonly TestPayload $payload
+    ) {}
 
     public function handle(): void {}
 
