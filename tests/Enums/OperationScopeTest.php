@@ -39,5 +39,5 @@ it('has the correct cases with the correct values', function (string $case) {
 ]);
 
 it('throws an exception for an invalid value', function () {
-    $scope = constant('christopheraseidl\\HasUploads\\Enums\\OperationScope::Nonexistent');
-})->throws(\Error::class, 'Undefined constant christopheraseidl\HasUploads\Enums\OperationScope::Nonexistent');
+    OperationScope::from('nonexistent');
+})->throws(\Error::class, '"nonexistent" is not a valid backing value for enum christopheraseidl\HasUploads\Enums\OperationScope');

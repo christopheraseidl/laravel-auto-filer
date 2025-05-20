@@ -3,6 +3,7 @@
 return [
     'disk' => 'public',
     'path' => '',
+    'broadcast_channel' => 'default',
     'max_size' => 5120,
     'mimes' => [
         'jpg',
