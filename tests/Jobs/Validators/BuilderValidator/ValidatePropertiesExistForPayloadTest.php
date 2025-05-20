@@ -34,7 +34,7 @@ it('is happy when parameters are all valid', function () {
 it('returns early when payload class has no constructor', function () {
     $payloadClass = TestPayloadWithoutConstructor::class;
     $properties = [];
-    
+
     // This should not throw any exception
     $this->validator->validatePropertiesExistForPayload($properties, $payloadClass);
 })->throwsNoExceptions();

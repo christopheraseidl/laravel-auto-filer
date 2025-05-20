@@ -38,7 +38,7 @@ it('throws an exception when the parameter argument is not a class', function ()
 
 it('throws an exception when the parameter type is not a ReflectionNamedType', function () {
     $reflectionParameterMock = \Mockery::mock(\ReflectionParameter::class)->makePartial();
-    
+
     $reflectionParameterMock->shouldReceive('getType')->andReturn(
         \Mockery::mock(\ReflectionType::class)->makePartial()
     );
