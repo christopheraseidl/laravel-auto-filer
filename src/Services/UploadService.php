@@ -4,7 +4,6 @@ namespace christopheraseidl\HasUploads\Services;
 
 use christopheraseidl\HasUploads\Contracts\UploadService as UploadServiceContract;
 use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -36,11 +35,12 @@ class UploadService implements UploadServiceContract
     public function validateUpload(UploadedFile $file): void
     {
         if ($file->getSize() / 1024 > config('has-uploads.max_size')) {
-            throw new Exception("File size exceeds maximum allowed ({config('has-uploads.max_size')}KB).");
+            $maxSize = config('has-uploads.max_size');
+            throw new \Exception("File size exceeds maximum allowed ({$maxSize}KB).");
         }
 
         if (! in_array($file->getClientOriginalExtension(), config('has-uploads.mimes'))) {
-            throw new Exception('Invalid file type.');
+            throw new \Exception('Invalid file type.');
         }
     }
 

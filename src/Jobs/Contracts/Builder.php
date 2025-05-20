@@ -14,7 +14,7 @@ interface Builder
 
     public function makePayload(): Payload;
 
-    public function makeJob(object $payload): Job;
+    public function makeJob(Payload $payload): Job;
 
     public function build(): Job;
 }
