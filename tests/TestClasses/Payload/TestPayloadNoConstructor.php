@@ -1,16 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestClasses;
+namespace christopheraseidl\HasUploads\Tests\TestClasses\Payload;
 
 use christopheraseidl\HasUploads\Payloads\Payload;
 
-class TestPayload extends Payload
+class TestPayloadNoConstructor extends Payload
 {
-    public function __construct(
-        public ?string $paramOne = '',
-        public ?array $paramTwo = []
-    ) {}
-
     public function shouldBroadcastIndividualEvents(): bool
     {
         return true;

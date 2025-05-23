@@ -2,7 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Payloads;
 
-final class BatchUpdate extends ModelAware
+use christopheraseidl\HasUploads\Payloads\Contracts\BatchUpdate as BatchUpdateContract;
+
+final class BatchUpdate extends ModelAware implements BatchUpdateContract
 {
     public function shouldBroadcastIndividualEvents(): bool
     {

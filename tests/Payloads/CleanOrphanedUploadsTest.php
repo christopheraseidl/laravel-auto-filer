@@ -1,0 +1,46 @@
+<?php
+
+namespace christopheraseidl\HasUploads\Tests\Payloads;
+
+use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads;
+use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
+
+beforeEach(function () {
+    $this->payload = new CleanOrphanedUploads(
+        'test_disk',
+        'test_path',
+        12
+    );
+});
+
+it('implements the CleanOrphanedUploads contract', function () {
+    expect($this->payload)->toBeInstanceOf(CleanOrphanedUploadsContract::class);
+});
+
+test('the getKey() method returns the expected value', function () {
+    expect($this->payload->getKey())->toBe('clean_orphaned_uploads');
+});
+
+test('the shouldBroadcastIndividualEvents() method returns true', function () {
+    expect($this->payload->shouldBroadcastIndividualEvents())->toBeTrue();
+});
+
+test('the toArray() method returns the expected array', function () {
+    $array = [
+        'disk' => 'test_disk',
+        'path' => 'test_path',
+        'cleanup_threshold_hours' => 12,
+    ];
+
+    expect($this->payload->toArray())->toBe($array);
+});
+
+test('the getCleanupThresholdHours() method returns the value of the correct property', function () {
+    expect($this->payload->getCleanupThresholdHours())->toBe(12);
+});
+
+test('cleanup threshold defaults to 24 hours', function () {
+    $payload = new CleanOrphanedUploads('disk', 'path');
+
+    expect($payload->getCleanupThresholdHours())->toBe(24);
+});

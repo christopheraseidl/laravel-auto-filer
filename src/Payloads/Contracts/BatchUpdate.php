@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\HasUploads\Payloads\Contracts;
 
-interface DeleteUploads extends ModelAware
+interface BatchUpdate extends ModelAware
 {
     //
 }

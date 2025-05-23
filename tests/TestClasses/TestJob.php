@@ -4,11 +4,12 @@ namespace christopheraseidl\HasUploads\Tests\TestClasses;
 
 use christopheraseidl\HasUploads\Jobs\Job;
 use christopheraseidl\HasUploads\Payloads\Contracts\Payload as PayloadContract;
+use christopheraseidl\HasUploads\Payloads\Payload;
 
 class TestJob extends Job
 {
     public function __construct(
-        public readonly TestPayload $payload
+        public readonly Payload $payload
     ) {}
 
     public function handle(): void {}

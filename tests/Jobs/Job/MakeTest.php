@@ -1,8 +1,8 @@
 <?php
 
 use christopheraseidl\HasUploads\Jobs\Job;
+use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
 use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
-use christopheraseidl\HasUploads\Tests\TestClasses\TestPayload;
 
 class TestJobWithConstructor extends TestJob
 {
@@ -13,17 +13,17 @@ class TestJobWithConstructor extends TestJob
 }
 
 test('make() returns null when called on an abstract class', function () {
-    $result = Job::make(new TestPayload);
+    $result = Job::make(new TestPayloadNoConstructor);
     expect($result)->toBeNull();
 });
 
 test('make() returns instance of a class without a constructor', function () {
-    $result = TestJob::make(new TestPayload);
+    $result = TestJob::make(new TestPayloadNoConstructor);
     expect($result)->toBeInstanceOf(TestJob::class);
 });
 
 test('make() passes payload to concrete class constructor', function () {
-    $payload = new TestPayload;
+    $payload = new TestPayloadNoConstructor;
     $job = TestJobWithConstructor::make($payload);
     expect($job->getPayload())->toBe($payload);
 });

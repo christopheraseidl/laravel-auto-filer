@@ -9,8 +9,8 @@ use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as Del
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Services\UploadService;
 use christopheraseidl\HasUploads\Tests\TestCase;
+use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
 use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
-use christopheraseidl\HasUploads\Tests\TestClasses\TestPayload;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Bus;
@@ -32,7 +32,7 @@ uses()->beforeEach(function () {
 // Events
 uses()->beforeEach(function () {
     config()->set('has-uploads.broadcast_channel', 'test_channel');
-    $this->payload = new TestPayload;
+    $this->payload = new TestPayloadNoConstructor;
 })->in('Events');
 
 // Handlers/ModelCreationHandler
@@ -111,7 +111,7 @@ uses()->beforeEach(function () {
 
 // Jobs/Job
 uses()->beforeEach(function () {
-    $this->payload = new TestPayload;
+    $this->payload = new TestPayloadNoConstructor;
 
     $this->job = new TestJob($this->payload);
 })->in('Jobs/Job');
