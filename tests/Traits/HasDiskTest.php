@@ -4,7 +4,8 @@ namespace christopheraseidl\HasUploads\Tests\Traits;
 
 use christopheraseidl\HasUploads\Traits\HasDisk;
 
-class HasDiskTestClass {
+class HasDiskTestClass
+{
     use HasDisk;
 
     public string $disk;

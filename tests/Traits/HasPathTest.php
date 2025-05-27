@@ -4,7 +4,8 @@ namespace christopheraseidl\HasUploads\Tests\Traits;
 
 use christopheraseidl\HasUploads\Traits\HasPath;
 
-class HasPathTestClass {
+class HasPathTestClass
+{
     use HasPath;
 
     public string $path;
