@@ -6,7 +6,7 @@ use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstruc
 use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
 
 /**
- * Tests BuilderValidator getValidPayloadClassName() method.
+ * Tests BuilderValidator getValidPayloadClassName method.
  *
  * @covers \christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator
  */

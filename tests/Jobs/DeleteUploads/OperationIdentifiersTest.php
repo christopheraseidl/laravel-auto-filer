@@ -8,8 +8,7 @@ use christopheraseidl\HasUploads\Jobs\DeleteUploads;
 use christopheraseidl\HasUploads\Payloads\DeleteUploads as DeleteUploadsPayload;
 
 /**
- * Tests the DeleteUploads job's methods that are used for verifying the
- * identity of the job.
+ * Tests the DeleteUploads getOperationType and uniqueId methods.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploads
  */

@@ -4,6 +4,10 @@ namespace christopheraseidl\HasUploads\Tests\TestTraits;
 
 use Illuminate\Support\Facades\Bus;
 
+/**
+ * A trait providing re-usable methods for tests in
+ * /tests/Handlers/ModelUpdateHandler and /tests/Handlers/ModelCreationHandler.
+ */
 trait AssertsCorrectJobAttributesAndTypesConfigured
 {
     public function assertCorrectJobAttributesAndTypesConfigured(

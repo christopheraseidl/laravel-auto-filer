@@ -3,7 +3,7 @@
 namespace christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService;
 
 /**
- * Tests UploadService getPath() method.
+ * Tests UploadService getPath method.
  *
  * @covers \christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService
  */

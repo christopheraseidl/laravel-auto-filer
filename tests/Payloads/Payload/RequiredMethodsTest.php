@@ -4,6 +4,11 @@ namespace christopheraseidl\HasUploads\Tests\Payloads\Payload;
 
 use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayload;
 
+/**
+ * Tests Payload required methods behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Payloads\Payload
+ */
 beforeEach(function () {
     $this->payload = new TestPayload('test value');
 });

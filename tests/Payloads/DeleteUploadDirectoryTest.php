@@ -5,6 +5,11 @@ namespace christopheraseidl\HasUploads\Tests\Payloads;
 use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory;
 
+/**
+ * Tests DeleteUploadDirectory structure and behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory
+ */
 beforeEach(function () {
     $this->class = get_class($this->model);
 
@@ -20,15 +25,15 @@ it('implements the DeleteUploadDirectory contract', function () {
     expect($this->payload)->toBeInstanceOf(DeleteUploadDirectoryContract::class);
 });
 
-test('the getKey() method returns the expected value', function () {
+test('the getKey method returns the expected value', function () {
     expect($this->payload->getKey())->toBe("delete_upload_directory_{$this->class}_{$this->model->id}");
 });
 
-test('the shouldBroadcastIndividualEvents() method returns true', function () {
+test('the shouldBroadcastIndividualEvents method returns true', function () {
     expect($this->payload->shouldBroadcastIndividualEvents())->toBeTrue();
 });
 
-test('the toArray() method returns the expected array', function () {
+test('the toArray method returns the expected array', function () {
     $array = [
         'modelClass' => $this->class,
         'id' => $this->model->id,
@@ -38,10 +43,10 @@ test('the toArray() method returns the expected array', function () {
     expect($this->payload->toArray())->toBe($array);
 });
 
-test('the getModelClass() method returns the expected value', function () {
+test('the getModelClass method returns the expected value', function () {
     expect($this->payload->getModelClass())->toBe($this->class);
 });
 
-test('the getId() method returns the expected value', function () {
+test('the getId method returns the expected value', function () {
     expect($this->payload->getId())->toBe($this->model->id);
 });

@@ -3,7 +3,7 @@
 namespace christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService;
 
 /**
- * Tests UploadService getDisk() method.
+ * Tests UploadService getDisk method.
  *
  * @covers \christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService
  */

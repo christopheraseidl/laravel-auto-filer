@@ -5,6 +5,10 @@ namespace christopheraseidl\HasUploads\Tests\TestTraits;
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory;
 use Illuminate\Support\Facades\Bus;
 
+/**
+ * A trait providing re-usable methods for tests in
+ * /tests/Handlers/ModelDeletionHandler.
+ */
 trait AssertsDeleteUploadDirectory
 {
     public function assertDeleteUploadDirectoryJobDispatched(): void

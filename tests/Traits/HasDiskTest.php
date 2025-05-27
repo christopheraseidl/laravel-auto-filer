@@ -4,7 +4,13 @@ namespace christopheraseidl\HasUploads\Tests\Traits;
 
 use christopheraseidl\HasUploads\Traits\HasDisk;
 
-class HasDiskTestClass {
+/**
+ * Tests HasDisk and behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Traits\HasDisk
+ */
+class HasDiskTestClass
+{
     use HasDisk;
 
     public string $disk;

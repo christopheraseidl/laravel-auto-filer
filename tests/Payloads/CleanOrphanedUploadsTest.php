@@ -5,6 +5,11 @@ namespace christopheraseidl\HasUploads\Tests\Payloads;
 use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads;
 use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
 
+/**
+ * Tests CleanOrphanedUploads structure and behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads
+ */
 beforeEach(function () {
     $this->payload = new CleanOrphanedUploads(
         'test_disk',
@@ -17,15 +22,15 @@ it('implements the CleanOrphanedUploads contract', function () {
     expect($this->payload)->toBeInstanceOf(CleanOrphanedUploadsContract::class);
 });
 
-test('the getKey() method returns the expected value', function () {
+test('the getKey method returns the expected value', function () {
     expect($this->payload->getKey())->toBe('clean_orphaned_uploads');
 });
 
-test('the shouldBroadcastIndividualEvents() method returns true', function () {
+test('the shouldBroadcastIndividualEvents method returns true', function () {
     expect($this->payload->shouldBroadcastIndividualEvents())->toBeTrue();
 });
 
-test('the toArray() method returns the expected array', function () {
+test('the toArray method returns the expected array', function () {
     $array = [
         'disk' => 'test_disk',
         'path' => 'test_path',
@@ -35,7 +40,7 @@ test('the toArray() method returns the expected array', function () {
     expect($this->payload->toArray())->toBe($array);
 });
 
-test('the getCleanupThresholdHours() method returns the value of the correct property', function () {
+test('the getCleanupThresholdHours method returns the value of the correct property', function () {
     expect($this->payload->getCleanupThresholdHours())->toBe(12);
 });
 

@@ -15,8 +15,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Tests the MoveUploads job's handling of array (multiple file) attributes,
- * including batch file moves, error conditions, and array-specific model updates.
+ * Tests the MoveUploads handle method with array (multiple file) attributes.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\MoveUploads
  */

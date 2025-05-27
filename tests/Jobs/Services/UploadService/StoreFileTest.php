@@ -6,7 +6,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Tests UploadService storeFile() method.
+ * Tests UploadService storeFile method.
  *
  * @covers \christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService
  */

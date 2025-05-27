@@ -15,8 +15,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Tests the DeleteUploads job's handling of string (single file) attributes,
- * including successful deletions, error handling, and model updates.
+ * Tests the DeleteUploads handle method with string (single file) attributes.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploads
  */

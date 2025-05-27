@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Tests the CleanOrphanedUploads job's handle method, including error
- * conditions.
+ * Tests the CleanOrphanedUploads handle method.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads
  */
@@ -44,7 +43,7 @@ it('deletes files older than the threshold and broadcasts completion event', fun
 });
 
 it('broadcasts failure event when exception is thrown', function () {
-    Storage::shouldReceive($this->disk)->andThrow(new \Exception('Disk error.'));
+    Storage::shouldReceive($this->disk)->andThrow(new \Exception('Disk error'));
 
     $this->cleaner->handle();
 

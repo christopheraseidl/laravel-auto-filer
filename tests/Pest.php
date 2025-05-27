@@ -1,5 +1,6 @@
 <?php
 
+use christopheraseidl\HasUploads\Handlers\Services\BatchManager;
 use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryJobContract;
 use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
@@ -13,7 +14,10 @@ use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstruc
 use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
+use Illuminate\Bus\Batch;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 uses(TestCase::class)->in(__DIR__);
@@ -78,6 +82,23 @@ uses()->beforeEach(function () {
     $this->newArray = [$this->model->array[1], $newArrayItem];
     Storage::disk($this->disk)->put($newArrayItem, 200);
 })->in('Handlers/ModelUpdateHandler', 'Handlers/Services/ModelFileChangeTracker');
+
+// Handlers/Services/BatchManager
+uses()->beforeEach(function () {
+    Bus::fake();
+    Event::fake();
+
+    $this->batch = \Mockery::mock(Batch::class);
+
+    $this->batchManager = new BatchManager;
+
+    $this->model = \Mockery::mock(Model::class);
+    $this->model->shouldReceive('getAttribute')->with('id')->andReturn(1);
+
+    $this->disk = 'local';
+
+    $this->error = new \Exception('Test error message.');
+})->in('Handlers/Services/BatchManager');
 
 // Jobs/CleanOrphanedUploads
 uses()->beforeEach(function () {

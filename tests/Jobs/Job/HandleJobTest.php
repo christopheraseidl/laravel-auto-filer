@@ -6,6 +6,11 @@ use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstruc
 use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
 use Illuminate\Support\Facades\Event;
 
+/**
+ * Tests the Job handleJob method.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\Job
+ */
 class HandleJobTestBraodcastFalsePayload extends TestPayloadNoConstructor
 {
     public function shouldBroadcastIndividualEvents(): bool

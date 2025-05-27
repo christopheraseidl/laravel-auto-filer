@@ -4,6 +4,11 @@ namespace christopheraseidl\HasUploads\Tests\Facades;
 
 use christopheraseidl\HasUploads\Facades\UploadService;
 
+/**
+ * Tests configuration of UploadService Facade class.
+ *
+ * @covers \christopheraseidl\HasUploads\Facades\UploadService
+ */
 beforeEach(function () {
     $this->reflection = new \ReflectionClass(UploadService::class);
 });

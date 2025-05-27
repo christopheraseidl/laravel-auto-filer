@@ -9,6 +9,10 @@ use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
 use christopheraseidl\Reflect\Reflect;
 
+/**
+ * A trait providing re-usable methods for tests in
+ * /tests/Handlers/ModelCreationHandler.
+ */
 trait ModelCreationHandlerAssertions
 {
     public function setHandler(): void

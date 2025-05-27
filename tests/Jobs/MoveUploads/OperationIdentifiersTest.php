@@ -5,6 +5,11 @@ use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Jobs\MoveUploads;
 use christopheraseidl\HasUploads\Payloads\MoveUploads as MoveUploadsPayload;
 
+/**
+ * Tests the MoveUploads getOperationType and uniqueId methods.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\MoveUploads
+ */
 beforeEach(function () {
     $payload = new MoveUploadsPayload(
         'TestModel',

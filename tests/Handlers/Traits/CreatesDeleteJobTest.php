@@ -8,6 +8,7 @@ use christopheraseidl\HasUploads\Handlers\Traits\CreatesDeleteJob;
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
 use christopheraseidl\HasUploads\Jobs\Services\Builder;
 use christopheraseidl\HasUploads\Jobs\Validators\BuilderValidator;
+use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
 
 class CreatesDeleteJobClass
@@ -43,7 +44,7 @@ it('returns a DeleteJob with the correct data', function () {
     $payload = Reflect::on($payload);
 
     expect($job)->toBeInstanceOf(DeleteUploads::class)
-        ->and($payload->modelClass)->toBe('christopheraseidl\HasUploads\Tests\TestModels\TestModel')
+        ->and($payload->modelClass)->toBe(TestModel::class)
         ->and($payload->modelId)->toBe(1)
         ->and($payload->modelAttribute)->toBe('string')
         ->and($payload->modelAttributeType)->toBe('images')

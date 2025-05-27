@@ -5,7 +5,7 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator;
 use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayload;
 
 /**
- * Tests BuilderValidator validatePropertiesExistForPayload() method.
+ * Tests BuilderValidator validatePropertiesExistForPayload method.
  *
  * @covers \christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator
  */

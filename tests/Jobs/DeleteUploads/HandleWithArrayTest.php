@@ -15,8 +15,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Tests the DeleteUploads job's handling of array (multiple file) attributes,
- * including successful deletions, error handling, and model updates.
+ * Tests the DeleteUploads handle method with array (multiple file) attributes.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploads
  */

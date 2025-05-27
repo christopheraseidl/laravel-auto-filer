@@ -7,6 +7,11 @@ use christopheraseidl\HasUploads\Payloads\Payload;
 use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayload;
 use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
 
+/**
+ * Tests Payload make method behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Payloads\Payload
+ */
 beforeEach(function () {
     $this->payloadNoConstructor = new TestPayloadNoConstructor;
     $this->payloadWithConstructor = new TestPayload(

@@ -8,7 +8,7 @@ use christopheraseidl\HasUploads\Jobs\DeleteUploads;
 use christopheraseidl\HasUploads\Payloads\DeleteUploads as DeleteUploadsPayload;
 
 /**
- * Tests the DeleteUploads job's getPayload() method.
+ * Tests the DeleteUploads getPayload method.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploads
  */

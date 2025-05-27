@@ -3,7 +3,12 @@
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
 
-test('middleware() returns correct throttling and rate limiting', function () {
+/**
+ * Tests the Job middleware method.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\Job
+ */
+it('returns correct throttling and rate limiting', function () {
     $middleware = $this->job->middleware();
 
     expect($middleware)

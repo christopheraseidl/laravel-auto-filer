@@ -5,7 +5,7 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploadDirectory;
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 
 /**
- * Tests the DeleteUploadDirectory job's getPayload() method.
+ * Tests the DeleteUploadDirectory getPayload method.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory
  */

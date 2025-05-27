@@ -25,9 +25,9 @@ it('only has one static get() method with the correct parameters and return type
     expect($reflection->getMethods())->toHaveCount(1)
         ->and($parameters)->toHaveCount(2)
         ->and($type->getName())->toBe('type')
-        ->and($type->getType()->getName())->toBe('christopheraseidl\HasUploads\Enums\OperationType')
+        ->and($type->getType()->getName())->toBe(OperationType::class)
         ->and($scope->getName())->toBe('scope')
-        ->and($scope->getType()->getName())->toBe('christopheraseidl\HasUploads\Enums\OperationScope');
+        ->and($scope->getType()->getName())->toBe(OperationScope::class);
 });
 
 it('returns the expected value', function () {

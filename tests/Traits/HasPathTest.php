@@ -4,7 +4,13 @@ namespace christopheraseidl\HasUploads\Tests\Traits;
 
 use christopheraseidl\HasUploads\Traits\HasPath;
 
-class HasPathTestClass {
+/**
+ * Tests HasPath and behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Traits\HasPath
+ */
+class HasPathTestClass
+{
     use HasPath;
 
     public string $path;

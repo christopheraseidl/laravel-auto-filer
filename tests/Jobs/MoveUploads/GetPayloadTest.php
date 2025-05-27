@@ -6,6 +6,11 @@ use christopheraseidl\HasUploads\Jobs\MoveUploads;
 use christopheraseidl\HasUploads\Payloads\MoveUploads as MoveUploadsPayload;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 
+/**
+ * Tests the MoveUploads getPayload method.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\MoveUploads
+ */
 beforeEach(function () {
     $model = new TestModel;
     $this->attribute = 'string';

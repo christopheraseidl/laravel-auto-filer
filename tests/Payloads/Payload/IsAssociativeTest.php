@@ -3,12 +3,15 @@
 namespace christopheraseidl\HasUploads\Tests\Payloads\Payload;
 
 use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
+use christopheraseidl\Reflect\Reflect;
 
+/**
+ * Tests Payload isAssociative method behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Payloads\Payload
+ */
 beforeEach(function () {
     $this->payload = new TestPayloadNoConstructor;
-    $reflection = new \ReflectionClass($this->payload);
-    $this->method = $reflection->getMethod('isAssociative');
-    $this->method->setAccessible(true);
 });
 
 it('returns the expected value', function () {
@@ -18,10 +21,10 @@ it('returns the expected value', function () {
     ];
     $notAssociative = ['value3', 'value4'];
 
-    expect($this->method->invoke($this->payload, $associative))->toBeTrue()
-        ->and($this->method->invoke($this->payload, $notAssociative))->toBeFalse();
+    expect(Reflect::on($this->payload)->isAssociative($associative))->toBeTrue()
+        ->and(Reflect::on($this->payload)->isAssociative($notAssociative))->toBeFalse();
 });
 
 it('returns false if empty array parameter is provided', function () {
-    expect($this->method->invoke($this->payload, []))->toBeFalse();
+    expect(Reflect::on($this->payload)->isAssociative([]))->toBeFalse();
 });

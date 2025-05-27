@@ -5,7 +5,7 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService;
 use Illuminate\Http\UploadedFile;
 
 /**
- * Tests UploadService validateUpload() method.
+ * Tests UploadService validateUpload method.
  *
  * @covers \christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService
  */

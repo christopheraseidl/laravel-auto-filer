@@ -15,8 +15,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Tests the MoveUploads job's handling of string (single file) attributes,
- * including successful moves, custom paths, error handling, and model updates.
+ * Tests the MoveUploads handle method with string (single file) attributes.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\MoveUploads
  */

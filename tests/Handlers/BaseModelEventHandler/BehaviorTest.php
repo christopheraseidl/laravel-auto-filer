@@ -9,6 +9,7 @@ use christopheraseidl\HasUploads\Services\UploadService;
 use christopheraseidl\HasUploads\Tests\TestClasses\BaseModelEventHandlerTestClass;
 use christopheraseidl\HasUploads\Tests\TestTraits\BaseModelEventHandlerAssertions;
 use Illuminate\Support\Facades\Bus;
+use Mockery\MockInterface;
 
 uses(
     BaseModelEventHandlerAssertions::class
@@ -24,75 +25,79 @@ beforeEach(function () {
 
     $this->setHandler();
 
-    $this->uploadService = \Mockery::mock(UploadService::class);
-    $this->uploadService->shouldReceive('getDisk')->andReturn($this->diskTestValue);
+    $uploadService = $this->mock(UploadService::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getDisk')->andReturn($this->diskTestValue);
+    });
 
-    $this->builder = \Mockery::mock(Builder::class);
-    $this->fileTracker = \Mockery::mock(ModelFileChangeTracker::class);
-    $this->batchManager = \Mockery::mock(BatchManager::class);
+    $builder = $this->mock(Builder::class);
+    $this->batchManager = $this->mock(BatchManager::class);
+    $fileTracker = $this->mock(ModelFileChangeTracker::class);
 
     $this->handler = \Mockery::mock(BaseModelEventHandlerTestClass::class, [
-        $this->uploadService, $this->builder, $this->batchManager, $this->fileTracker,
+        $uploadService, $builder, $this->batchManager, $fileTracker,
     ])->makePartial();
 
     $this->handler->shouldAllowMockingProtectedMethods();
 
-    $this->jobs = ['job1', 'job2', 'task3'];
-});
+    $this->jobs = [
+        $this->mock('Job1'),
+        $this->mock('Job2'),
+    ];
 
-it('dispatches a batch of jobs for changed attributes when handling a model', function () {
-    $this->handler->shouldReceive('getAllJobs')->once()->andReturn($this->jobs);
-    $this->handler->shouldReceive('getBatchDescription')->once()->andReturn('Test batch');
+    $this->model = $this->partialMock(get_class($this->model));
 
-    $this->batchManager->shouldReceive('dispatch')
-        ->once()
-        ->with($this->jobs, $this->model, $this->diskTestValue, 'Test batch');
-
-    $this->handler->handle($this->model);
-});
-
-it('returns an array of jobs based on attributes and filter criteria', function () {
-    $this->model = \Mockery::mock($this->model)->makePartial();
     $this->model->shouldReceive('getUploadableAttributes')
         ->andReturn([
             'image' => 'image',
             'document' => 'document',
-            'video' => 'video',
         ]);
+});
 
+it('dispatches batch with jobs when handle is called', function () {
+    $this->handler->shouldReceive('getAllJobs')->once()->andReturn($this->jobs);
+    $this->handler->shouldReceive('getBatchDescription')->once()->andReturn('Test description');
+    $this->batchManager->shouldReceive('dispatch')
+        ->once()
+        ->with($this->jobs, $this->model, $this->diskTestValue, 'Test description');
+
+    $this->handler->handle($this->model);
+});
+
+it('returns all jobs when no filter is applied', function () {
     $this->handler->shouldReceive('createJobsFromAttribute')
         ->with($this->model, 'image', 'image')
-        ->andReturn(['job_image_1', 'job_image_2']);
+        ->andReturn([$this->jobs[0]]);
 
     $this->handler->shouldReceive('createJobsFromAttribute')
         ->with($this->model, 'document', 'document')
-        ->andReturn(['job_document']);
+        ->andReturn([$this->jobs[1]]);
+
+    $jobs = $this->handler->getAllJobs($this->model);
+
+    expect($jobs)->toHaveCount(2)
+        ->and($jobs)->toEqual($this->jobs);
+});
+
+it('filters jobs based on provided criteria', function (array $expectedJobIndexes, ?\Closure $filter = null) {
+    $this->handler->shouldReceive('createJobsFromAttribute')
+        ->with($this->model, 'image', 'image')
+        ->andReturn([$this->jobs[0]]);
 
     $this->handler->shouldReceive('createJobsFromAttribute')
-        ->with($this->model, 'video', 'video')
-        ->andReturn(['job_video_1', 'job_video_2', 'job_video_3']);
+        ->with($this->model, 'document', 'document')
+        ->andReturn([$this->jobs[1]]);
 
-    // Test unfiltered jobs
-    $unfilteredJobs = $this->handler->getAllJobs($this->model);
-    expect($unfilteredJobs)->toHaveCount(6)
-        ->and($unfilteredJobs)->toContain(
-            'job_image_1',
-            'job_image_2',
-            'job_document',
-            'job_video_1',
-            'job_video_2',
-            'job_video_3'
-        );
+    $jobs = $this->handler->getAllJobs($this->model, $filter);
+    $expectedJobs = array_map(fn ($index) => $this->jobs[$index], $expectedJobIndexes);
 
-    // Filter jobs that only contain 'image' attribute
-    $imageFilter = fn ($model, $attribute) => $attribute === 'image';
-    $imageJobs = $this->handler->getAllJobs($this->model, $imageFilter);
-    expect($imageJobs)->toHaveCount(2)
-        ->and($imageJobs)->toContain('job_image_1', 'job_image_2')
-        ->and($imageJobs)->not->toContain(
-            'job_document',
-            'job_video_1',
-            'job_video_2',
-            'job_video_3'
-        );
-});
+    expect($jobs)->toEqual($expectedJobs);
+})->with([
+    'no filter' => [
+        [0, 1],
+        null,
+    ],
+    'filter images' => [
+        [0],
+        fn ($model, $attribute) => $attribute === 'image',
+    ],
+]);

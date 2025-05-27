@@ -7,6 +7,11 @@ use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsContract;
 use christopheraseidl\HasUploads\Payloads\MoveUploads;
 
+/**
+ * Tests MoveUploads structure and behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Payloads\MoveUploads
+ */
 beforeEach(function () {
     $this->payload = new MoveUploads(
         get_class($this->model),
@@ -23,7 +28,7 @@ it('implements the MoveUploads contract', function () {
     expect($this->payload)->toBeInstanceOf(MoveUploadsContract::class);
 });
 
-test('the getKey() method returns the expected value', function () {
+test('the getKey method returns the expected value', function () {
     $fileIdentifier = md5(serialize(null));
     $baseKey = OperationType::Clean->value
     .'_'.OperationScope::Directory->value
@@ -35,6 +40,6 @@ test('the getKey() method returns the expected value', function () {
     expect($this->payload->getKey())->toBe($baseKey);
 });
 
-test('the shouldBroadcastIndividualEvents() method returns false', function () {
+test('the shouldBroadcastIndividualEvents method returns false', function () {
     expect($this->payload->shouldBroadcastIndividualEvents())->toBeFalse();
 });

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tests the MoveUploads job's normalization of string/array attributes.
+ * Tests the MoveUploads normalizeAttributeValue method.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\MoveUploads
  */

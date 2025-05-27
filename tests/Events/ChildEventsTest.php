@@ -7,7 +7,11 @@ use Illuminate\Broadcasting\PrivateChannel;
 /**
  * Tests structure and behavior of all child events.
  *
- * @covers \christopheraseidl\HasUploads\Events
+ * @covers \christopheraseidl\HasUploads\Events\BatchFileOperationCompleted
+ * @covers \christopheraseidl\HasUploads\Events\BatchFileOperationFailed
+ * @covers \christopheraseidl\HasUploads\Events\FileOperationCompleted
+ * @covers \christopheraseidl\HasUploads\Events\FileOperationFailed
+ * @covers \christopheraseidl\HasUploads\Events\FileOperationStarted
  */
 it('returns the expected payload and structure', function (string $event) {
     $event = "christopheraseidl\\HasUploads\\Events\\$event";

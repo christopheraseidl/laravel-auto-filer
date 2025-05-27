@@ -3,7 +3,7 @@
 namespace christopheraseidl\HasUploads\Tests\Jobs\CleanOrphanedUploads;
 
 /**
- * Tests the CleanOrphanedUploads getOperationType method.
+ * Tests the CleanOrphanedUploads getOperationType and uniqueId methods.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads
  */

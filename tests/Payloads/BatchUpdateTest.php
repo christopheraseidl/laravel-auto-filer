@@ -7,6 +7,11 @@ use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Payloads\BatchUpdate;
 use christopheraseidl\HasUploads\Payloads\Contracts\BatchUpdate as BatchUpdateContract;
 
+/**
+ * Tests BatchUpdate structure and behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Payloads\BatchUpdate
+ */
 beforeEach(function () {
     $this->payload = new BatchUpdate(
         get_class($this->model),
@@ -23,7 +28,7 @@ it('implements the BatchUpdate contract', function () {
     expect($this->payload)->toBeInstanceOf(BatchUpdateContract::class);
 });
 
-test('shouldBroadcastIndividualEvents() returns true', function () {
+test('shouldBroadcastIndividualEvents returns true', function () {
     expect($this->payload->shouldBroadcastIndividualEvents())
         ->toBeTrue();
 });

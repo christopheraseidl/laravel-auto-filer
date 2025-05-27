@@ -6,6 +6,11 @@ use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Tests AttemptsFileMoves and behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Traits\AttemptsFileMoves
+ */
 class AttemptsFileMovesTest
 {
     use AttemptsFileMoves;

@@ -28,12 +28,16 @@ it('sets disk property correctly from upload service', function () {
     expect($disk)->toBe($this->diskTestValue);
 });
 
-it('implements abstract methods correctly', function () {
+it('implements abstract createJobsFromAttribute method correctly', function () {
     $jobs = Reflect::on($this->handler)->createJobsFromAttribute($this->model, 'string', 'images');
+
+    expect($jobs)->toBe(['job1', 'job2']);
+});
+
+it('implements abstract getBatchDescription method correctly', function () {
     $description = Reflect::on($this->handler)->getBatchDescription();
 
-    expect($jobs)->toBe(['job1', 'job2'])
-        ->and($description)->toBe('Test description');
+    expect($description)->toBe('Test description');
 });
 
 it('can access parent method functionality', function () {
