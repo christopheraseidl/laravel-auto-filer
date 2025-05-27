@@ -2,30 +2,17 @@
 
 namespace christopheraseidl\HasUploads\Tests\TestClasses;
 
-use christopheraseidl\HasUploads\Jobs\Job;
 use christopheraseidl\HasUploads\Payloads\Contracts\Payload as PayloadContract;
 use christopheraseidl\HasUploads\Payloads\Payload;
 
-class TestJob extends Job
+class TestJob extends TestJobWithoutConstructor
 {
     public function __construct(
         public readonly Payload $payload
     ) {}
 
-    public function handle(): void {}
-
-    public function getOperationType(): string
-    {
-        return 'test_job';
-    }
-
     public function getPayload(): PayloadContract
     {
         return $this->payload;
-    }
-
-    public function uniqueId(): string
-    {
-        return md5($this->getOperationType());
     }
 }

@@ -3,6 +3,8 @@
 use christopheraseidl\HasUploads\Jobs\Job;
 use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
 use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
+use christopheraseidl\HasUploads\Tests\TestClasses\TestJobWithoutConstructor;
+use christopheraseidl\Reflect\Reflect;
 
 class TestJobWithConstructor extends TestJob
 {
@@ -12,18 +14,27 @@ class TestJobWithConstructor extends TestJob
     }
 }
 
-test('make() returns null when called on an abstract class', function () {
+it('returns null when called on an abstract class', function () {
     $result = Job::make(new TestPayloadNoConstructor);
+
     expect($result)->toBeNull();
 });
 
-test('make() returns instance of a class without a constructor', function () {
+it('returns instance of a job child class with a constructor', function () {
     $result = TestJob::make(new TestPayloadNoConstructor);
+
     expect($result)->toBeInstanceOf(TestJob::class);
 });
 
-test('make() passes payload to concrete class constructor', function () {
+it('returns instance of a job child class without a constructor', function () {
+    $result = TestJobWithoutConstructor::make(new TestPayloadNoConstructor);
+
+    expect($result)->toBeInstanceOf(TestJobWithoutConstructor::class);
+});
+
+it('passes payload to concrete class constructor', function () {
     $payload = new TestPayloadNoConstructor;
     $job = TestJobWithConstructor::make($payload);
-    expect($job->getPayload())->toBe($payload);
+
+    expect(Reflect::on($job)->payload)->toBe($payload);
 });

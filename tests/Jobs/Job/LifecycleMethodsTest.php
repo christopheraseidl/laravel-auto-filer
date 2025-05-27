@@ -8,6 +8,7 @@ test('retryUntil() returns DateTime 5 minutes from now', function () {
 
     $retryUntil = $this->job->retryUntil();
     $time = now()->addMinutes(5);
+
     expect($retryUntil)->toEqual($time);
 });
 
