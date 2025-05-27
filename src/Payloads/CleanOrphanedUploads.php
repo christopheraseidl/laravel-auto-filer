@@ -37,6 +37,6 @@ final class CleanOrphanedUploads extends Payload implements CleanOrphanedUploads
 
     public function getCleanupThresholdHours(): int
     {
-        return $this->cleanupThresholdHours;
+        return max(0, $this->cleanupThresholdHours);
     }
 }
