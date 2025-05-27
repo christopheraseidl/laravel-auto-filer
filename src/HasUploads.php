@@ -6,7 +6,6 @@ use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
 use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
 use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
-use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -53,7 +52,7 @@ trait HasUploads
     private function validateAssetType(?string $assetType = null): void
     {
         if ($assetType && ! $this->assetTypeExists($assetType)) {
-            throw new Exception("The asset type '$assetType' does not exist.");
+            throw new \Exception("The asset type '$assetType' does not exist.");
         }
     }
 
