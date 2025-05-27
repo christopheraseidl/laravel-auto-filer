@@ -24,6 +24,8 @@ uses(TestCase::class)->in(__DIR__);
 
 // General setup
 uses()->beforeEach(function () {
+    config()->set('logging.channels.single.path', __DIR__.'/../testing.log');
+
     $this->model = new TestModel;
 
     $this->model->save();

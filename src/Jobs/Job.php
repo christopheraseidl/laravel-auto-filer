@@ -14,10 +14,35 @@ use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 abstract class Job implements JobContract
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected function __construct()
+    {
+        try {
+            $connection = $this->getConnection();
+            $queue = $this->getQueue();
+
+            if ($connection) {
+                $this->onConnection($connection);
+            }
+
+            if ($queue) {
+                $this->onQueue($queue);
+            }
+        } catch (\Exception $e) {
+            $message = 'The job configuration setting is invalid';
+            Log::error($message, [
+                'job' => static::class,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw new \Exception($message, 0, $e);
+        }
+    }
 
     public static function make(Payload $payload): ?static
     {
@@ -72,5 +97,73 @@ abstract class Job implements JobContract
             new ThrottlesExceptions(10, 5),
             new RateLimited('uploads'),
         ];
+    }
+
+    public function getConnection(): ?string
+    {
+        $connection = $this->getJobOrDefaultConnection();
+
+        return $connection;
+    }
+
+    protected function getJobOrDefaultConnection(): ?string
+    {
+        $defaultConnection = $this->getDefaultConnection();
+        $jobConnection = $this->getJobConnection();
+
+        return $jobConnection ?? $defaultConnection;
+    }
+
+    protected function getDefaultConnection(): ?string
+    {
+        return config('has-uploads.default_connection');
+    }
+
+    protected function getJobConnection(): ?string
+    {
+        $name = $this->getJobSettingName();
+        $name = "{$name}_connection";
+
+        return config("has-uploads.{$name}");
+    }
+
+    public function getQueue(): ?string
+    {
+        $queue = $this->getJobOrDefaultQueue();
+
+        return $queue;
+    }
+
+    protected function getJobOrDefaultQueue(): ?string
+    {
+        $defaultQueue = $this->getDefaultQueue();
+        $jobQueue = $this->getJobQueue();
+
+        return $jobQueue ?? $defaultQueue;
+    }
+
+    protected function getDefaultQueue(): ?string
+    {
+        return config('has-uploads.default_queue');
+    }
+
+    protected function getJobQueue(): ?string
+    {
+        $name = $this->getJobSettingName();
+        $name = "{$name}_queue";
+
+        return config("has-uploads.{$name}");
+    }
+
+    private function getJobSettingName(): string
+    {
+        $name = get_class($this);
+        $name = explode('\\', $name);
+        $name = end($name);
+        $name = mb_strtolower(
+            Str::snake($name)
+        );
+
+        return $name;
     }
 }

@@ -23,7 +23,9 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
 {
     public function __construct(
         private readonly CleanOrphanedUploadsPayload $payload
-    ) {}
+    ) {
+        parent::__construct();
+    }
 
     public function handle(): void
     {

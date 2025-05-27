@@ -11,7 +11,9 @@ final class DeleteUploads extends Job implements DeleteUploadsContract
 {
     public function __construct(
         private readonly DeleteUploadsPayload $payload
-    ) {}
+    ) {
+        parent::__construct();
+    }
 
     public function handle(): void
     {
