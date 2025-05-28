@@ -18,7 +18,7 @@ final class MoveUploads extends Job implements MoveUploadsContract
     public function __construct(
         private readonly MoveUploadsPayload $payload
     ) {
-        parent::__construct();
+        $this->config();
     }
 
     public function handle(): void

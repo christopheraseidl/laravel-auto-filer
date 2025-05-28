@@ -20,30 +20,6 @@ abstract class Job implements JobContract
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected function __construct()
-    {
-        try {
-            $connection = $this->getConnection();
-            $queue = $this->getQueue();
-
-            if ($connection) {
-                $this->onConnection($connection);
-            }
-
-            if ($queue) {
-                $this->onQueue($queue);
-            }
-        } catch (\Exception $e) {
-            $message = 'The job configuration setting is invalid';
-            Log::error($message, [
-                'job' => static::class,
-                'error' => $e->getMessage(),
-            ]);
-
-            throw new \Exception($message, 0, $e);
-        }
-    }
-
     public static function make(Payload $payload): ?static
     {
         $class = static::class;
@@ -97,6 +73,30 @@ abstract class Job implements JobContract
             new ThrottlesExceptions(10, 5),
             new RateLimited('uploads'),
         ];
+    }
+
+    protected function config()
+    {
+        try {
+            $connection = $this->getConnection();
+            $queue = $this->getQueue();
+
+            if ($connection) {
+                $this->onConnection($connection);
+            }
+
+            if ($queue) {
+                $this->onQueue($queue);
+            }
+        } catch (\Exception $e) {
+            $message = 'The job configuration is invalid';
+            Log::error($message, [
+                'job' => static::class,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw new \Exception($message, 0, $e);
+        }
     }
 
     public function getConnection(): ?string

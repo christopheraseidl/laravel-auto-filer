@@ -9,7 +9,9 @@ class TestJob extends TestJobWithoutConstructor
 {
     public function __construct(
         public readonly Payload $payload
-    ) {}
+    ) {
+        $this->config();
+    }
 
     public function getPayload(): PayloadContract
     {

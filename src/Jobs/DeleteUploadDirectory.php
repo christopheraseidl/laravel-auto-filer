@@ -15,7 +15,7 @@ final class DeleteUploadDirectory extends Job implements DeleteUploadDirectoryCo
     public function __construct(
         private readonly DeleteUploadDirectoryPayload $payload
     ) {
-        parent::__construct();
+        $this->config();
     }
 
     public function handle(): void
