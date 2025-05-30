@@ -52,7 +52,7 @@ uses()->beforeEach(function () {
 // Handlers/ModelDeletionHandler
 uses()->beforeEach(function () {
     $this->payload = app()->makeWith(DeleteUploadDirectoryPayloadContract::class, [
-        'modelClass' => get_class($this->model),
+        'modelClass' => $this->model::class,
         'id' => $this->model->id,
         'disk' => $this->disk,
         'path' => $this->model->getUploadPath(),

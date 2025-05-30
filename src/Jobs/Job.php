@@ -157,7 +157,7 @@ abstract class Job implements JobContract
 
     private function getJobSettingName(): string
     {
-        $name = get_class($this);
+        $name = static::class;
         $name = explode('\\', $name);
         $name = end($name);
         $name = mb_strtolower(

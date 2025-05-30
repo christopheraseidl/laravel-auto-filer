@@ -11,7 +11,7 @@ use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory;
  * @covers \christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory
  */
 beforeEach(function () {
-    $this->class = get_class($this->model);
+    $this->class = $this->model::class;
 
     $this->payload = new DeleteUploadDirectory(
         $this->class,

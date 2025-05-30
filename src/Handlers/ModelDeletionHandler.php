@@ -20,7 +20,7 @@ class ModelDeletionHandler
     public function handle(Model $model): void
     {
         $payload = DeleteUploadDirectoryPayload::make(
-            get_class($model),
+            $model::class,
             $model->id,
             $this->disk,
             $model->getUploadPath()

@@ -18,7 +18,7 @@ beforeEach(function () {
     $this->filePaths = ['file.txt'];
     $this->newDir = 'test_models/1';
     $this->payload = new MoveUploadsPayload(
-        get_class($model),
+        $model::class,
         1,
         $this->attribute,
         $this->attributeType,

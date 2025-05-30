@@ -14,7 +14,7 @@ use christopheraseidl\HasUploads\Payloads\DeleteUploads;
  */
 beforeEach(function () {
     $this->payload = new DeleteUploads(
-        get_class($this->model),
+        $this->model::class,
         1,
         'string',
         'images',

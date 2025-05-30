@@ -73,7 +73,7 @@ it('throws an exception and logs an error for failures', function () {
 
     Log::shouldHaveReceived('error')
         ->with($expectation, [
-            'job' => get_class($this->mock),
+            'job' => $this->mock::class,
             'error' => 'Connection error',
         ]);
 });

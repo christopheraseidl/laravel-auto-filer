@@ -14,7 +14,7 @@ use christopheraseidl\HasUploads\Payloads\Contracts\BatchUpdate as BatchUpdateCo
  */
 beforeEach(function () {
     $this->payload = new BatchUpdate(
-        get_class($this->model),
+        $this->model::class,
         1,
         'string',
         'images',

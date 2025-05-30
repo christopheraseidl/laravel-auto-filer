@@ -13,7 +13,7 @@ use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
 beforeEach(function () {
     $this->payload = new TestPayloadNoConstructor;
     $this->job = new TestJob($this->payload);
-    $this->jobClass = get_class($this->job);
+    $this->jobClass = $this->job::class;
     $reflection = new \ReflectionClass($this->job);
     $constructor = $reflection->getConstructor();
     $this->parameter = $constructor->getParameters()[0];

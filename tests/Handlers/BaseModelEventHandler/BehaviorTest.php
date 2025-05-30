@@ -44,7 +44,7 @@ beforeEach(function () {
         $this->mock('Job2'),
     ];
 
-    $this->model = $this->partialMock(get_class($this->model));
+    $this->model = $this->partialMock($this->model::class);
 
     $this->model->shouldReceive('getUploadableAttributes')
         ->andReturn([

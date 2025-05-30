@@ -21,7 +21,7 @@ class TestModelAware extends ModelAware
 }
 
 beforeEach(function () {
-    $this->class = get_class($this->model);
+    $this->class = $this->model::class;
     $this->payload = new TestModelAware(
         $this->class,
         1,
@@ -43,7 +43,7 @@ test('the getKey method returns the expected value', function () {
     expect($this->payload->getKey())->toBe(
         OperationType::Move->value
         .'_'.OperationScope::File->value
-        .'_'.get_class($this->model)
+        .'_'.$this->model::class
         .'_'.$this->model->id
         .'_'.$fileIdentifier
     );

@@ -14,7 +14,7 @@ use christopheraseidl\HasUploads\Payloads\MoveUploads;
  */
 beforeEach(function () {
     $this->payload = new MoveUploads(
-        get_class($this->model),
+        $this->model::class,
         1,
         'string',
         'images',
@@ -32,7 +32,7 @@ test('the getKey method returns the expected value', function () {
     $fileIdentifier = md5(serialize(null));
     $baseKey = OperationType::Clean->value
     .'_'.OperationScope::Directory->value
-    .'_'.get_class($this->model)
+    .'_'.$this->model::class
     .'_'.$this->model->id
     .'_'.$fileIdentifier;
     $baseKey = "{$baseKey}_{$fileIdentifier}";

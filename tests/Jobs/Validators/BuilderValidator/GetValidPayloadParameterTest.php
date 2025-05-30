@@ -25,7 +25,7 @@ class TestJobWithMultipleParameters
 beforeEach(function () {
     $this->payload = new TestPayloadNoConstructor;
     $this->job = new TestJob($this->payload);
-    $this->jobClass = get_class($this->job);
+    $this->jobClass = $this->job::class;
     $this->reflection = new \ReflectionClass($this->job);
     $this->constructor = $this->reflection->getConstructor();
 
