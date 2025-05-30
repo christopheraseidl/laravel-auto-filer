@@ -9,6 +9,6 @@ interface CleanOrphanedUploads extends CleanupAware, Payload, SinglePath
     public function __construct(
         string $disk,
         string $path,
-        int $cleanupThresholdHours = 24
+        ?int $cleanupThresholdHours = null
     );
 }

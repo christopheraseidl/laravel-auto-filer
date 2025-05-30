@@ -10,10 +10,14 @@ final class CleanOrphanedUploads extends Payload implements CleanOrphanedUploads
 {
     use HasDisk, HasPath;
 
+    protected ?bool $isCleanupEnabled = null;
+
+    protected ?bool $isDryRun = null;
+
     public function __construct(
         private readonly string $disk,
         private readonly string $path,
-        private readonly int $cleanupThresholdHours = 24
+        private readonly ?int $cleanupThresholdHours = null
     ) {}
 
     public function getKey(): string
@@ -37,6 +41,19 @@ final class CleanOrphanedUploads extends Payload implements CleanOrphanedUploads
 
     public function getCleanupThresholdHours(): int
     {
-        return max(0, $this->cleanupThresholdHours);
+        return max(
+            0,
+            $this->cleanupThresholdHours ?? config('has-uploads.cleanup.threshold_hours')
+        );
+    }
+
+    public function isCleanupEnabled(): bool
+    {
+        return $this->isCleanupEnabled ??= config('has-uploads.cleanup.enabled', false);
+    }
+
+    public function isDryRun(): bool
+    {
+        return $this->isDryRun ??= config('has-uploads.cleanup.dry_run', false);
     }
 }

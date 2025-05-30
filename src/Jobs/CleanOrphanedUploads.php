@@ -8,6 +8,7 @@ use christopheraseidl\HasUploads\Enums\OperationType;
 use christopheraseidl\HasUploads\Jobs\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
 use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -29,17 +30,48 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
 
     public function handle(): void
     {
+        if (! $this->getPayload()->isCleanupEnabled()) {
+            return;
+        }
+
         $this->handleJob(function () {
-            $files = Storage::disk($this->getPayload()->getDisk())
-                ->files($this->getPayload()->getPath());
+            $dryRun = $this->getPayload()->isDryRun();
+            $disk = $this->getPayload()->getDisk();
+            $path = $this->getPayload()->getPath();
+            $thresholdHours = $this->getPayload()->getCleanupThresholdHours();
+
+            $files = Storage::disk($disk)->files($path);
+
+            if ($dryRun) {
+                Log::info('Initiating dry run of CleanOrphanedUploads job', [
+                    'disk' => $disk,
+                    'path' => $path,
+                    'threshold_hours' => $thresholdHours,
+                    'total_files' => count($files),
+                ]);
+            }
+
+            $processedCount = 0;
 
             foreach ($files as $file) {
                 if (now()
-                    ->subHours($this->getPayload()->getCleanupThresholdHours())
+                    ->subHours($thresholdHours)
                     ->isAfter($this->getLastModified($file))
                 ) {
-                    Storage::disk($this->getPayload()->getDisk())->delete($file);
+                    $processedCount++;
+
+                    if ($dryRun) {
+                        Log::info("Would delete file: {$file}");
+                    } else {
+                        Storage::disk($disk)->delete($file);
+                    }
                 }
+            }
+
+            if ($dryRun) {
+                Log::info('Concluding dry run of CleanOrphanedUploads job', [
+                    'files_that_would_be_deleted' => $processedCount,
+                ]);
             }
         });
     }

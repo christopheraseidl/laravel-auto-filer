@@ -16,15 +16,8 @@ return [
         'txt',
     ],
     'cleanup' => [
-        'temp_files' => [
-            'enabled' => false,
-            'threshold_hours' => 24,
-        ],
-        'orphaned_files' => [
-            'enabled' => false,
-            'threshold_days' => 7,
-            'dry_run' => true,
-            'backup' => false,
-        ],
+        'enabled' => false,
+        'dry_run' => true,
+        'threshold_hours' => 24,
     ],
 ];

@@ -44,8 +44,30 @@ test('the getCleanupThresholdHours method returns the value of the correct prope
     expect($this->payload->getCleanupThresholdHours())->toBe(12);
 });
 
+test('the getCleanupThresholdHours method returns 0 if the value is set to negative', function () {
+    $payload = new CleanOrphanedUploads(
+        'test_disk',
+        'test_path',
+        -1
+    );
+
+    expect($payload->getCleanupThresholdHours())->toBe(0);
+});
+
 test('cleanup threshold defaults to 24 hours', function () {
     $payload = new CleanOrphanedUploads('disk', 'path');
 
     expect($payload->getCleanupThresholdHours())->toBe(24);
 });
+
+test('isCleanupEnabled returns the expected value', function (bool $enabled) {
+    config()->set('has-uploads.cleanup.enabled', $enabled);
+
+    expect($this->payload->isCleanupEnabled())->toBe($enabled);
+})->with([true, false]);
+
+test('isDryRun returns the expected value', function (bool $enabled) {
+    config()->set('has-uploads.cleanup.dry_run', $enabled);
+
+    expect($this->payload->isDryRun())->toBe($enabled);
+})->with([true, false]);
