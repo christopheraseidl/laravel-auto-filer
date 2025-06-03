@@ -143,19 +143,3 @@ it('broadcasts a failure event when deleting an array of files fails', function 
 
     Event::assertDispatched(FileOperationFailed::class);
 });
-
-it('saves model array changes quietly', function () {
-    $modelMock = \Mockery::mock($this->model)->makePartial();
-    $modelMock->expects('saveQuietly')
-        ->once()
-        ->andReturnSelf();
-
-    $payloadMock = \Mockery::mock($this->job->getPayload())->makePartial();
-    $payloadMock
-        ->shouldReceive('resolveModel')
-        ->andReturn($modelMock);
-
-    $this->job = new DeleteUploads($payloadMock);
-
-    $this->job->handle();
-});

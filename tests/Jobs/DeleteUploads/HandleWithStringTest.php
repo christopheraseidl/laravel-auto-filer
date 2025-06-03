@@ -100,20 +100,3 @@ it('broadcasts failure event when delete single file fails', function () {
 
     expect(Storage::disk($this->disk)->exists($this->path))->toBeTrue();
 });
-
-it('saves model string changes quietly', function () {
-    $modelMock = \Mockery::mock($this->model)->makePartial();
-
-    $modelMock->expects('saveQuietly')
-        ->once()
-        ->andReturnSelf();
-
-    $payloadMock = \Mockery::mock($this->job->getPayload())->makePartial();
-    $payloadMock
-        ->shouldReceive('resolveModel')
-        ->andReturn($modelMock);
-
-    $this->job = new DeleteUploads($payloadMock);
-
-    $this->job->handle();
-});

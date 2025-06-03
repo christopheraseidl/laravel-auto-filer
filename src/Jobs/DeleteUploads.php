@@ -17,14 +17,10 @@ final class DeleteUploads extends Job implements DeleteUploadsContract
 
     public function handle(): void
     {
-        $model = $this->getPayload()->resolveModel();
-
-        $this->handleJob(function () use ($model) {
+        $this->handleJob(function () {
             foreach ($this->getPayload()->getFilePaths() as $file) {
                 Storage::disk($this->getPayload()->getDisk())->delete($file);
             }
-
-            $model->saveQuietly();
         });
     }
 
