@@ -2,7 +2,6 @@
 
 namespace christopheraseidl\HasUploads;
 
-use christopheraseidl\HasUploads\Contracts\UploadService as UploadServiceContract;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager as BatchManagerContract;
 use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker as ModelFileChangeTrackerContract;
 use christopheraseidl\HasUploads\Handlers\Services\BatchManager;
@@ -27,6 +26,7 @@ use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPa
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Payloads\DeleteUploads as DeleteUploadsPayload;
 use christopheraseidl\HasUploads\Payloads\MoveUploads as MoveUploadsPayload;
+use christopheraseidl\HasUploads\Services\Contracts\UploadService as UploadServiceContract;
 use christopheraseidl\HasUploads\Services\UploadService;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;

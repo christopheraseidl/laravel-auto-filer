@@ -2,10 +2,10 @@
 
 namespace christopheraseidl\HasUploads\Tests\HasUploads;
 
-use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
 use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
 use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
+use christopheraseidl\HasUploads\Services\Contracts\UploadService;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Foundation\Testing\DatabaseTransactions;

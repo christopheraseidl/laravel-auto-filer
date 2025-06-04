@@ -2,11 +2,11 @@
 
 namespace christopheraseidl\HasUploads\Tests\Handlers\BaseModelEventHandler;
 
-use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\BaseModelEventHandler;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
 use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
+use christopheraseidl\HasUploads\Services\Contracts\UploadService;
 use Illuminate\Database\Eloquent\Model;
 
 /**

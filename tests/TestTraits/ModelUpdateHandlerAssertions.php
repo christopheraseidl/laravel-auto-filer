@@ -2,13 +2,13 @@
 
 namespace christopheraseidl\HasUploads\Tests\TestTraits;
 
-use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
 use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
 use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
 use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
+use christopheraseidl\HasUploads\Services\Contracts\UploadService;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Bus;
 

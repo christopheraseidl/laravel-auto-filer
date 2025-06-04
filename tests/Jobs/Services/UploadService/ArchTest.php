@@ -8,13 +8,6 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService;
  * @covers \christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService
  */
 it('implements the UploadService interface', function () {
-    expect($this->reflection->implementsInterface('christopheraseidl\HasUploads\Contracts\UploadService'))
+    expect($this->reflection->implementsInterface('christopheraseidl\HasUploads\Services\Contracts\UploadService'))
         ->toBeTrue();
-});
-
-it('uses the AttemptsFileMoves trait', function () {
-    $traits = $this->reflection->getTraitNames();
-
-    expect($traits)->toHaveCount(1)
-        ->and($traits[0])->toBe('christopheraseidl\HasUploads\Traits\AttemptsFileMoves');
 });

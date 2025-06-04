@@ -2,16 +2,13 @@
 
 namespace christopheraseidl\HasUploads\Services;
 
-use christopheraseidl\HasUploads\Contracts\UploadService as UploadServiceContract;
-use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
+use christopheraseidl\HasUploads\Services\Contracts\UploadService as UploadServiceContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 class UploadService implements UploadServiceContract
 {
-    use AttemptsFileMoves;
-
     public function getDisk(): string
     {
         return config('has-uploads.disk', 'public');
@@ -42,10 +39,5 @@ class UploadService implements UploadServiceContract
         if (! in_array($file->getClientOriginalExtension(), config('has-uploads.mimes'))) {
             throw new \Exception('Invalid file type.');
         }
-    }
-
-    public function moveFile(string $oldPath, string $newDir): string
-    {
-        return $this->attemptMove($this->getDisk(), $oldPath, $newDir);
     }
 }

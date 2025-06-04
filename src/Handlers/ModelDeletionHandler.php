@@ -2,9 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Handlers;
 
-use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory;
 use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
+use christopheraseidl\HasUploads\Services\Contracts\UploadService;
 use Illuminate\Database\Eloquent\Model;
 
 class ModelDeletionHandler

@@ -54,11 +54,12 @@ trait AttemptsFileMoves
         throw new \Exception("Failed to move file after {$maxAttempts} attempts.");
     }
 
-    public function attemptUndoMove(string $disk, int $maxAttempts = 3): ?array
+    public function attemptUndoMove(string $disk, int $maxAttempts = 3): array
     {
         if ($maxAttempts < 1) {
             throw new \InvalidArgumentException('maxAttempts must be at least 1.');
         }
+
         $failures = [];
         $successes = [];
 
@@ -107,11 +108,6 @@ trait AttemptsFileMoves
         return $successes;
     }
 
-    public function clearMovedFiles(): void
-    {
-        $this->movedFiles = [];
-    }
-
     private function undoSingleFile(string $disk, string $oldPath, string $newPath): string
     {
         if ($this->exists($disk, $newPath)) {
@@ -142,5 +138,10 @@ trait AttemptsFileMoves
         unset($this->movedFiles[$oldPath]);
 
         return $oldPath;
+    }
+
+    private function clearMovedFiles(): void
+    {
+        $this->movedFiles = [];
     }
 }

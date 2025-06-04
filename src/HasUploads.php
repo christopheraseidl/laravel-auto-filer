@@ -2,10 +2,10 @@
 
 namespace christopheraseidl\HasUploads;
 
-use christopheraseidl\HasUploads\Contracts\UploadService;
 use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
 use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
 use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
+use christopheraseidl\HasUploads\Services\Contracts\UploadService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 

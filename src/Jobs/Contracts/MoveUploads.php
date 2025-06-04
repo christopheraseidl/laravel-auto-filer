@@ -11,5 +11,7 @@ interface MoveUploads extends Job
 
     public function attemptMove(string $disk, string $oldPath, string $newDir): string;
 
+    public function attemptUndoMove(string $disk, int $maxAttempts = 3): array;
+
     public function normalizeAttributeValue(Model $model, string $attribute): string|array|null;
 }
