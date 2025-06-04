@@ -15,6 +15,7 @@ trait AttemptsFileMoves
             throw new \InvalidArgumentException('maxAttempts must be at least 1.');
         }
 
+        $lastException = null;
         $newPath = "{$newDir}/".pathinfo($oldPath, PATHINFO_BASENAME);
         $attempts = 0;
 
@@ -31,6 +32,7 @@ trait AttemptsFileMoves
                 throw new \Exception('Copy succeeded but file not found at destination.');
             } catch (\Exception $e) {
                 $attempts++;
+                $lastException = $e;
                 if ($attempts === $maxAttempts) {
                     if (! empty($this->movedFiles)) {
                         $this->attemptUndoMove($disk);
@@ -40,6 +42,14 @@ trait AttemptsFileMoves
                 }
             }
         }
+
+        Log::error("Failed to move file after {$maxAttempts} attempts.", [
+            'disk' => $disk,
+            'oldPath' => $oldPath,
+            'newDir' => $newDir,
+            'maxAttempts' => $maxAttempts,
+            'lastError' => $lastException->getMessage(),
+        ]);
 
         throw new \Exception("Failed to move file after {$maxAttempts} attempts.");
     }
