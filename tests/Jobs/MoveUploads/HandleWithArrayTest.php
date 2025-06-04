@@ -10,7 +10,6 @@ use christopheraseidl\HasUploads\Jobs\MoveUploads;
 use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
 use christopheraseidl\HasUploads\Payloads\ModelAware;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
@@ -34,18 +33,18 @@ beforeEach(function () {
     ]);
 
     $this->files = [
-        UploadedFile::fake()->create('file1.text', 100),
-        UploadedFile::fake()->create('file2.pdf', 200),
-        UploadedFile::fake()->create('file3.doc', 300),
-        UploadedFile::fake()->create('file3.docx', 400),
+        'file1.text',
+        'file2.pdf',
+        'file3.doc',
+        'file3.docx',
     ];
 
     $this->files = array_map(function ($file) {
-        $name = $file->hashName();
-        $path = 'old_path';
-        Storage::disk($this->disk)->putFileAs($path, $file, $name);
+        $path = "old_path/{$file}";
 
-        return "{$path}/{$name}";
+        Storage::disk($this->disk)->put($path, 'test file content');
+
+        return $path;
     }, $this->files);
 
     $this->model->array = $this->files;
@@ -124,7 +123,7 @@ it('handles empty array attribute gracefully', function () {
 it('broadcasts failure event when moving array fails', function () {
     $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
     $diskMock
-        ->shouldReceive('move')
+        ->shouldReceive('copy')
         ->andThrow(new \Exception('File move failed.'));
 
     Storage::shouldReceive('disk')
@@ -134,7 +133,7 @@ it('broadcasts failure event when moving array fails', function () {
     $this->job->handle();
 
     Event::assertDispatched(FileOperationFailed::class, function ($event) {
-        return $event->exception->getMessage() === 'File move failed.';
+        return $event->exception->getMessage() === 'Failed to move file after 3 attempts.';
     });
 });
 

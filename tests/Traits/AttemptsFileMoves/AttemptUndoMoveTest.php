@@ -1,0 +1,136 @@
+<?php
+
+namespace christopheraseidl\HasUploads\Tests\Traits\AttemptsFileMoves;
+
+use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
+use christopheraseidl\Reflect\Reflect;
+use Illuminate\Support\Facades\Storage;
+
+/**
+ * Tests AttemptsFileMoves attemptUndoMove method behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Traits\AttemptsFileMoves
+ */
+class AttemptUndoMoveTest
+{
+    use AttemptsFileMoves;
+}
+
+beforeEach(function () {
+    $this->trait = Reflect::on(new attemptUndoMoveTest);
+
+    $name = 'test.txt';
+    $this->oldPath = "uploads/{$name}";
+    $this->newDir = 'new/dir';
+    $this->newPath = "{$this->newDir}/{$name}";
+    $this->trait->movedFiles = [
+        $this->oldPath => $this->newPath,
+    ];
+
+    Storage::disk($this->disk)->put($this->newPath, 'test file content');
+});
+
+it('it undoes moving a file and returns the original path', function () {
+    expect(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue();
+
+    $result = $this->trait->attemptUndoMove($this->disk);
+
+    expect(Storage::disk($this->disk)->exists($this->newPath))->toBeFalse()
+        ->and(Storage::disk($this->disk)->exists($this->oldPath))->toBeTrue()
+        ->and($result)->toBe([$this->oldPath => $this->newPath]);
+});
+
+it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures) {
+    $failureCount = 0;
+    $oldPathCheckCount = 0;
+    $diskMock = \Mockery::mock();
+
+    Storage::shouldReceive('disk')
+        ->andReturn($diskMock);
+
+    $diskMock->shouldReceive('exists')
+        ->with($this->newPath)
+        ->times($failures + 1)
+        ->andReturnUsing(function () use (&$failureCount, $failures) {
+            $failureCount++;
+            if ($failureCount <= $failures) {
+                throw new \Exception('Existence check failed.');
+            }
+
+            return true;
+        });
+
+    $diskMock->shouldReceive('exists')
+        ->with($this->oldPath)
+        ->andReturnUsing(function () use (&$oldPathCheckCount) {
+            $oldPathCheckCount++;
+
+            return $oldPathCheckCount >= 2;
+        });
+
+    $diskMock->shouldReceive('size')
+        ->andReturn(100);
+
+    $diskMock->shouldReceive('copy')
+        ->andReturn(true);
+
+    $diskMock->shouldReceive('delete')
+        ->andReturn(true);
+
+    $result = $this->trait->attemptUndoMove($this->disk);
+
+    expect($result)->toBe([$this->oldPath => $this->newPath]);
+})->with([
+    1,
+    2,
+]);
+
+it('throws exception on partial undo failure and calls uncommitMovedFile', function () {
+    $secondOldPath = 'second/path/test.pdf';
+    $secondNewPath = 'second/new/path/test.pdf';
+    $this->trait->movedFiles = [
+        $this->oldPath => $this->newPath,
+        $secondOldPath => $secondNewPath,
+    ];
+
+    $diskMock = \Mockery::mock();
+    Storage::shouldReceive('disk')->andReturn($diskMock);
+
+    $count = 0;
+
+    $diskMock->shouldReceive('exists')
+        ->andReturnUsing(function ($path) use (&$count) {
+            if (str_contains($path, '.txt')) {
+                return true;
+            }
+
+            throw new \Exception('Undo failed');
+        });
+
+    $diskMock->shouldReceive('size')->andReturn(100);
+    $diskMock->shouldReceive('copy')->andReturn(true);
+    $diskMock->shouldReceive('delete')->andReturn(true);
+
+    expect(fn () => $this->trait->attemptUndoMove($this->disk))
+        ->toThrow(\Exception::class, 'Failed to undo 1 file move(s)')
+        ->and($this->trait->movedFiles)->not->toContain($this->newPath)
+        ->and($this->trait->movedFiles)->toContain($secondNewPath);
+});
+
+it('throws an exception after 3 errors when maxAttempts is 3', function () {
+    $diskMock = \Mockery::mock();
+
+    Storage::shouldReceive('disk')
+        ->andReturn($diskMock);
+
+    $diskMock->shouldReceive('exists')
+        ->andThrow(new \Exception('Existence check failed.'));
+
+    expect(fn () => $this->trait->attemptUndoMove($this->disk))
+        ->toThrow(\Exception::class);
+});
+
+it('throws an invalid argument exception when maxAttempts is less than 1', function () {
+    expect(fn () => $this->trait->attemptUndoMove($this->disk, 0))
+        ->toThrow(\InvalidArgumentException::class, 'maxAttempts must be at least 1.');
+});

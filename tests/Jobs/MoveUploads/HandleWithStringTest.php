@@ -10,7 +10,6 @@ use christopheraseidl\HasUploads\Jobs\MoveUploads;
 use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
 use christopheraseidl\HasUploads\Payloads\ModelAware;
 use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
@@ -33,17 +32,15 @@ beforeEach(function () {
         FileOperationFailed::class,
     ]);
 
-    $file = UploadedFile::fake()->create('image.png', 100);
-    $name = $file->hashName();
-    $path = 'old_path';
-    $this->oldPath = "{$path}/{$name}";
-    Storage::disk($this->disk)->putFileAs($path, $file, $name);
+    $name = 'test.txt';
+    $this->oldPath = "uploads/{$name}";
+    $this->newDir = 'test_models/1/images';
+    $this->newPath = "{$this->newDir}/{$name}";
+
+    Storage::disk($this->disk)->put($this->oldPath, 'test file content');
 
     $this->model->string = $this->oldPath;
     $this->model->saveQuietly();
-
-    $this->newDir = 'test_models/1/images';
-    $this->newPath = "{$this->newDir}/{$name}";
 
     $payload = new TestStringMoveUploadsPayload(
         TestModel::class,
@@ -106,8 +103,8 @@ it('handles empty model string attribute gracefully', function () {
 it('broadcasts failure event when single file move fails', function () {
     $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
     $diskMock
-        ->shouldReceive('move')
-        ->andThrow(new \Exception('File move failed.'));
+        ->shouldReceive('copy')
+        ->andThrow(new \Exception('File copy failed.'));
 
     Storage::shouldReceive('disk')
         ->with($this->disk)
@@ -116,7 +113,7 @@ it('broadcasts failure event when single file move fails', function () {
     $this->job->handle();
 
     Event::assertDispatched(FileOperationFailed::class, function ($event) {
-        return $event->exception->getMessage() === 'File move failed.';
+        return $event->exception->getMessage() === 'Failed to move file after 3 attempts.';
     });
 });
 

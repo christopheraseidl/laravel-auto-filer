@@ -2,7 +2,6 @@
 
 namespace christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService;
 
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -11,10 +10,11 @@ use Illuminate\Support\Facades\Storage;
  * @covers \christopheraseidl\HasUploads\Tests\Jobs\Services\UploadService
  */
 it('moves the file and returns the new path', function () {
-    $file = UploadedFile::fake()->create('image.png', 500);
-    $location = Storage::disk($this->disk)->putFile('', $file);
+    $path = 'uploads/test.txt';
 
-    $location = $this->service->moveFile($location, 'test_dir');
+    Storage::disk($this->disk)->put($path, 'test file content');
+
+    $location = $this->service->moveFile($path, 'test_dir');
 
     expect(Storage::disk($this->disk)->exists($location))->toBeTrue();
 });

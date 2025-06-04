@@ -9,6 +9,8 @@ use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPa
 use christopheraseidl\HasUploads\Support\FileOperationType;
 use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 final class MoveUploads extends Job implements MoveUploadsContract
@@ -23,24 +25,40 @@ final class MoveUploads extends Job implements MoveUploadsContract
 
     public function handle(): void
     {
-        $model = $this->getPayload()->resolveModel();
+        $this->handleJob(function () {
+            DB::transaction(function () {
+                $model = $this->getPayload()->resolveModel();
+                $attribute = $this->getPayload()->getModelAttribute();
+                $originalFiles = Arr::wrap($model->{$attribute});
+                $filesToMove = $this->getPayload()->getFilePaths();
+                $unmovedFiles = array_diff($originalFiles, $filesToMove);
 
-        $this->handleJob(function () use ($model) {
-            $attribute = $this->getPayload()->getModelAttribute();
-            $model->{$attribute} = array_map(
-                function ($oldPath) {
-                    return $this->attemptMove(
-                        $this->getPayload()->getDisk(),
-                        $oldPath,
-                        $this->getPayload()->getNewDir());
-                },
-                $this->getPayload()->getFilePaths()
-            );
+                $movedFiles = array_map(
+                    function ($oldPath) {
+                        return $this->attemptMove(
+                            $this->getPayload()->getDisk(),
+                            $oldPath,
+                            $this->getPayload()->getNewDir());
+                    },
+                    $filesToMove
+                );
 
-            $model->{$attribute} = $this->normalizeAttributeValue($model, $attribute);
+                $model->{$attribute} = $this->arrayMerge($unmovedFiles, $movedFiles);
+                $model->{$attribute} = $this->normalizeAttributeValue($model, $attribute);
 
-            $model->saveQuietly();
+                $model->saveQuietly();
+            });
         });
+    }
+
+    /**
+     * Merge two arrays, remove empty values, and return the reindexed result.
+     */
+    private function arrayMerge(array $array1, array $array2): array
+    {
+        return array_values(array_filter(
+            array_merge($array1, $array2)
+        ));
     }
 
     /**
