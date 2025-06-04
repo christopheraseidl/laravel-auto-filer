@@ -85,7 +85,8 @@ trait AttemptsFileMoves
         if (empty($failures)) {
             $this->clearMovedFiles();
         } else {
-            Log::error('Partial file move undo failure', [
+            Log::error('File move undo failure.', [
+                'disk' => $disk,
                 'failed' => $failures,
                 'succeeded' => array_diff_key($this->movedFiles, $failures),
             ]);

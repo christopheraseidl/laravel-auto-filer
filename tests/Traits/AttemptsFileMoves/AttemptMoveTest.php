@@ -4,6 +4,7 @@ namespace christopheraseidl\HasUploads\Tests\Traits\AttemptsFileMoves;
 
 use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
 use christopheraseidl\Reflect\Reflect;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -89,8 +90,10 @@ it('calls attemptUndoMove when move fails and there are moved files', function (
         ->toThrow(\Exception::class);
 });
 
-it('throws an exception after 3 errors when maxAttempts is 3', function () {
+it('logs an error and throws an exception after 3 errors when maxAttempts is 3', function () {
     $diskMock = \Mockery::mock();
+
+    Log::spy();
 
     Storage::shouldReceive('disk')
         ->with($this->disk)
@@ -101,9 +104,18 @@ it('throws an exception after 3 errors when maxAttempts is 3', function () {
 
     expect(fn () => $this->trait->attemptMove($this->disk, $this->oldPath, $this->newDir))
         ->toThrow(\Exception::class);
+
+    Log::shouldHaveReceived('error')
+        ->with('Failed to move file after 3 attempts.', [
+            'disk' => $this->disk,
+            'oldPath' => $this->oldPath,
+            'newDir' => $this->newDir,
+            'maxAttempts' => 3,
+            'lastError' => 'Copy failed.',
+        ]);
 });
 
-it('throws final exception when maxAttempts is 0', function () {
+it('throws exception when maxAttempts is 0', function () {
     expect(fn () => $this->trait->attemptMove($this->disk, $this->oldPath, $this->newDir, 0))
         ->toThrow(\Exception::class, 'maxAttempts must be at least 1.');
 });

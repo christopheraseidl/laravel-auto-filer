@@ -4,6 +4,7 @@ namespace christopheraseidl\HasUploads\Tests\Traits\AttemptsFileMoves;
 
 use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
 use christopheraseidl\Reflect\Reflect;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -117,7 +118,9 @@ it('throws exception on partial undo failure and calls uncommitMovedFile', funct
         ->and($this->trait->movedFiles)->toContain($secondNewPath);
 });
 
-it('throws an exception after 3 errors when maxAttempts is 3', function () {
+it('logs an error and throws an exception after 3 errors when maxAttempts is 3', function () {
+    Log::spy();
+
     $diskMock = \Mockery::mock();
 
     Storage::shouldReceive('disk')
@@ -128,6 +131,13 @@ it('throws an exception after 3 errors when maxAttempts is 3', function () {
 
     expect(fn () => $this->trait->attemptUndoMove($this->disk))
         ->toThrow(\Exception::class);
+
+    Log::shouldHaveReceived('error')
+        ->with('File move undo failure.', [
+            'disk' => $this->disk,
+            'failed' => [$this->oldPath => $this->newPath],
+            'succeeded' => [],
+        ]);
 });
 
 it('throws an invalid argument exception when maxAttempts is less than 1', function () {
