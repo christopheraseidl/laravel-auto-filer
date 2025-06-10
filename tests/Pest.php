@@ -4,6 +4,7 @@ use christopheraseidl\HasUploads\Handlers\Services\BatchManager;
 use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryJobContract;
 use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
+use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
 use christopheraseidl\HasUploads\Jobs\Validators\BuilderValidator;
 use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayloadContract;
@@ -16,7 +17,9 @@ use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
@@ -138,6 +141,21 @@ uses()->beforeEach(function () {
 
     $this->job = new TestJob($this->payload);
 })->in('Jobs/Job');
+
+// Jobs/Services/CircuitBreaker
+uses()->beforeEach(function () {
+    config(['cache.default' => 'array']);
+    Cache::flush();
+
+    $this->breaker = new CircuitBreaker(
+        name: 'test-circuit',
+        failureThreshold: 2,
+        recoveryTimeout: 10,
+        halfOpenMaxAttempts: 3
+    );
+
+    Carbon::setTestNow(now());
+})->in('Jobs/Services/CircuitBreaker');
 
 // Jobs/Services/UploadService
 uses()->beforeEach(function () {
