@@ -4,10 +4,10 @@ namespace christopheraseidl\HasUploads\Jobs;
 
 use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\HasUploads\Jobs\Contracts\FileMover;
 use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads as MoveUploadsContract;
 use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
-use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 final class MoveUploads extends Job implements MoveUploadsContract
 {
-    use AttemptsFileMoves;
+    protected FileMover $mover;
 
     public function __construct(
         private readonly MoveUploadsPayload $payload
@@ -35,7 +35,7 @@ final class MoveUploads extends Job implements MoveUploadsContract
 
                 $movedFiles = array_map(
                     function ($oldPath) {
-                        return $this->attemptMove(
+                        return $this->mover->attemptMove(
                             $this->getPayload()->getDisk(),
                             $oldPath,
                             $this->getPayload()->getNewDir());
@@ -49,6 +49,13 @@ final class MoveUploads extends Job implements MoveUploadsContract
                 $model->saveQuietly();
             });
         });
+    }
+
+    protected function config()
+    {
+        parent::config();
+
+        $this->mover = app()->make(FileMover::class);
     }
 
     /**

@@ -1,13 +1,18 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Traits;
+namespace christopheraseidl\HasUploads\Jobs\Services;
 
+use christopheraseidl\HasUploads\Jobs\Contracts\CircuitBreaker;
+use christopheraseidl\HasUploads\Jobs\Contracts\FileMover as FileMoverContract;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-trait AttemptsFileMoves
+class FileMover implements FileMoverContract
 {
-    protected array $movedFiles = [];
+    public function __construct(
+        protected CircuitBreaker $breaker,
+        protected array $movedFiles = []
+    ) {}
 
     public function attemptMove(string $disk, string $oldPath, string $newDir, int $maxAttempts = 3): string
     {
@@ -15,19 +20,35 @@ trait AttemptsFileMoves
             throw new \InvalidArgumentException('maxAttempts must be at least 1.');
         }
 
+        if (! $this->breaker->canAttempt()) {
+            Log::warning('File operation blocked by circuit breaker', [
+                'operation' => 'move file',
+                'disk' => $disk,
+                'oldPath' => $oldPath,
+                'newDir' => $newDir,
+                'breaker_stats' => $this->breaker->getStats(),
+            ]);
+
+            throw new \Exception('File operations are currently unavailable due to repeated failures. Please try again later.');
+        }
+
         $lastException = null;
         $newPath = "{$newDir}/".pathinfo($oldPath, PATHINFO_BASENAME);
         $attempts = 0;
 
-        while ($attempts < $maxAttempts) {
+        while ($attempts < $maxAttempts && $this->breaker->canAttempt()) {
             try {
                 if (Storage::disk($disk)->copy($oldPath, $newPath)) {
                     if ($this->exists($disk, $newPath)) {
                         Storage::disk($disk)->delete($oldPath);
+                        $commit = $this->commitMovedFile($oldPath, $newPath);
+                        $this->breaker->recordSuccess();
 
-                        return $this->commitMovedFile($oldPath, $newPath);
+                        return $commit;
                     }
                 }
+
+                $this->breaker->recordFailure();
 
                 throw new \Exception('Copy succeeded but file not found at destination.');
             } catch (\Exception $e) {
@@ -37,11 +58,13 @@ trait AttemptsFileMoves
                     if (! empty($this->movedFiles)) {
                         $this->attemptUndoMove($disk);
                     }
-                } else {
+                } elseif ($this->breaker->canAttempt()) {
                     sleep(1);
                 }
             }
         }
+
+        $this->breaker->recordFailure();
 
         Log::error("Failed to move file after {$maxAttempts} attempts.", [
             'disk' => $disk,
@@ -66,17 +89,18 @@ trait AttemptsFileMoves
         foreach ($this->movedFiles as $oldPath => $newPath) {
             $attempts = 0;
 
-            while ($attempts < $maxAttempts) {
+            while ($attempts < $maxAttempts && $this->breaker->canAttempt()) {
                 try {
                     $this->undoSingleFile($disk, $oldPath, $newPath);
                     $successes[$oldPath] = $newPath;
+                    $this->breaker->recordSuccess();
 
                     break;
                 } catch (\Exception $e) {
                     $attempts++;
                     if ($attempts === $maxAttempts) {
                         $failures[$oldPath] = $newPath;
-                    } else {
+                    } elseif ($this->breaker->canAttempt()) {
                         sleep(1);
                     }
                 }
@@ -86,6 +110,8 @@ trait AttemptsFileMoves
         if (empty($failures)) {
             $this->clearMovedFiles();
         } else {
+            $this->breaker->recordFailure();
+
             Log::error('File move undo failure.', [
                 'disk' => $disk,
                 'failed' => $failures,

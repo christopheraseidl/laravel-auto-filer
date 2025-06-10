@@ -1,24 +1,23 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Traits\AttemptsFileMoves;
+namespace christopheraseidl\HasUploads\Tests\Jobs\Services\FileMover;
 
-use christopheraseidl\HasUploads\Traits\AttemptsFileMoves;
+use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
+use christopheraseidl\HasUploads\Jobs\Services\FileMover;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Tests AttemptsFileMoves attemptMove method behavior.
+ * Tests FileMover attemptMove method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Traits\AttemptsFileMoves
+ * @covers \christopheraseidl\HasUploads\Jobs\Services\FileMover
  */
-class AttemptMoveTest
-{
-    use AttemptsFileMoves;
-}
-
 beforeEach(function () {
-    $this->trait = Reflect::on(new AttemptMoveTest);
+    $mover = new FileMover(
+        new CircuitBreaker('test-breaker')
+    );
+    $this->mover = Reflect::on($mover);
 
     $name = 'test.txt';
     $this->oldPath = "uploads/{$name}";
@@ -31,7 +30,7 @@ beforeEach(function () {
 it('moves a file and returns the new path', function () {
     expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeTrue();
 
-    $result = $this->trait->attemptMove($this->disk, $this->oldPath, $this->newDir);
+    $result = $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir);
 
     expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeFalse()
         ->and(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue()
@@ -61,7 +60,7 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
     $diskMock->shouldReceive('size')->andReturn(100);
     $diskMock->shouldReceive('delete')->andReturn(true);
 
-    $result = $this->trait->attemptMove($this->disk, $this->oldPath, $this->newDir);
+    $result = $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir);
 
     expect($result)->toBe($this->newPath);
 })->with([
@@ -70,7 +69,7 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
 ]);
 
 it('calls attemptUndoMove when move fails and there are moved files', function () {
-    $this->trait->movedFiles = [
+    $this->mover->movedFiles = [
         $this->oldPath => $this->newPath,
     ];
 
@@ -86,7 +85,7 @@ it('calls attemptUndoMove when move fails and there are moved files', function (
     $diskMock->shouldReceive('size')->andReturn(100);
     $diskMock->shouldReceive('delete')->andReturn(true);
 
-    expect(fn () => $this->trait->attemptMove($this->disk, $this->oldPath, $this->newDir))
+    expect(fn () => $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir))
         ->toThrow(\Exception::class);
 });
 
@@ -102,7 +101,7 @@ it('logs an error and throws an exception after 3 errors when maxAttempts is 3',
     $diskMock->shouldReceive('copy')
         ->andThrow(new \Exception('Copy failed.'));
 
-    expect(fn () => $this->trait->attemptMove($this->disk, $this->oldPath, $this->newDir))
+    expect(fn () => $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir))
         ->toThrow(\Exception::class);
 
     Log::shouldHaveReceived('error')
@@ -116,6 +115,6 @@ it('logs an error and throws an exception after 3 errors when maxAttempts is 3',
 });
 
 it('throws exception when maxAttempts is 0', function () {
-    expect(fn () => $this->trait->attemptMove($this->disk, $this->oldPath, $this->newDir, 0))
+    expect(fn () => $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir, 0))
         ->toThrow(\Exception::class, 'maxAttempts must be at least 1.');
 });

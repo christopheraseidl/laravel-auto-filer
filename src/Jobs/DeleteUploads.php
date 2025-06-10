@@ -3,13 +3,13 @@
 namespace christopheraseidl\HasUploads\Jobs;
 
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads as DeleteUploadsContract;
+use christopheraseidl\HasUploads\Jobs\Contracts\FileDeleter;
 use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
-use christopheraseidl\HasUploads\Traits\AttemptsFileDeletion;
 
 final class DeleteUploads extends Job implements DeleteUploadsContract
 {
-    use AttemptsFileDeletion;
+    protected FileDeleter $deleter;
 
     public function __construct(
         private readonly DeleteUploadsPayload $payload
@@ -21,9 +21,16 @@ final class DeleteUploads extends Job implements DeleteUploadsContract
     {
         $this->handleJob(function () {
             foreach ($this->getPayload()->getFilePaths() as $file) {
-                $this->attemptDelete($this->getPayload()->getDisk(), $file);
+                $this->deleter->attemptDelete($this->getPayload()->getDisk(), $file);
             }
         });
+    }
+
+    protected function config()
+    {
+        parent::config();
+
+        $this->deleter = app()->make(FileDeleter::class);
     }
 
     public function getOperationType(): string

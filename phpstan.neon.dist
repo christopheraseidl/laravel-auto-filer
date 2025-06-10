@@ -5,7 +5,6 @@ parameters:
     level: 5
     paths:
         - src
-        - config
         - database
         - tests/TestModels/DummyModel.php
     reportUnmatchedIgnoredErrors: false
