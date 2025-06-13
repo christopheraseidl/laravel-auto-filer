@@ -18,7 +18,7 @@
     "require": {
         "php": "^8.2",
         "christopheraseidl/reflect": "dev-main",
-        "illuminate/contracts": "^10.48||^11.20||^12.0",
+        "illuminate/contracts": "^10.48.29||^11.20||^12.0",
         "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
