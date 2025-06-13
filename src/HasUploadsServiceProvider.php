@@ -35,6 +35,7 @@ use christopheraseidl\HasUploads\Payloads\MoveUploads as MoveUploadsPayload;
 use christopheraseidl\HasUploads\Services\Contracts\UploadService as UploadServiceContract;
 use christopheraseidl\HasUploads\Services\UploadService;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Str;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -80,5 +81,15 @@ class HasUploadsServiceProvider extends PackageServiceProvider
         $this->app->bind(DeleteUploadDirectoryPayloadContract::class, DeleteUploadDirectoryPayload::class);
         $this->app->bind(DeleteUploadsPayloadContract::class, DeleteUploadsPayload::class);
         $this->app->bind(MoveUploadsPayloadContract::class, MoveUploadsPayload::class);
+    }
+
+    public function boot()
+    {
+        // Patch for Str::pascal method compatibility in Laravel 10.
+        if (! method_exists(Str::class, 'pascal')) {
+            Str::macro('pascal', function ($value) {
+                return Str::studly($value);
+            });
+        }
     }
 }
