@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Tests FileDeleter attemptUndoMove method behavior.
+ * Tests FileDeleter method behavior.
  *
  * @covers \christopheraseidl\HasUploads\Jobs\Services\FileDeleter
  */
@@ -82,7 +82,9 @@ it('throws exception when maxAttempts is 0', function () {
 });
 
 it('logs a warning and throws an exception when circuit breaker blocks attempt', function () {
-    Log::shouldReceive('warning')->once();
+    Log::partialMock()
+        ->shouldReceive('warning')->once()
+        ->getMock();
 
     $breaker = \Mockery::mock(CircuitBreaker::class)->makePartial();
     $breaker->shouldReceive('canAttempt')

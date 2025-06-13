@@ -131,11 +131,13 @@ it('handles cache failures gracefully', function () {
 });
 
 it('handles email sending failures gracefully', function () {
-    Log::shouldReceive('warning')->once();
-    Log::shouldReceive('error')->with(
-        'Failed to send circuit breaker notification.',
-        \Mockery::type('array')
-    )->once();
+    Log::partialMock()
+        ->shouldReceive('warning')->once()
+        ->shouldReceive('error')->with(
+            'Failed to send circuit breaker notification.',
+            \Mockery::type('array')
+        )->once()
+        ->getMock();
 
     Mail::shouldReceive('raw')->once()->andThrow(new \Exception('SMTP connection failed.'));
 
