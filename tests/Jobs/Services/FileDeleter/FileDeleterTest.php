@@ -54,7 +54,7 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
     2,
 ]);
 
-it('logs an error and throws an exception after 3 errors when maxAttempts is 3', function () {
+it('throws an exception and logs an error after 3 errors when maxAttempts is 3', function () {
     Log::spy();
 
     $diskMock = \Mockery::mock();
@@ -81,10 +81,8 @@ it('throws exception when maxAttempts is 0', function () {
         ->toThrow(\Exception::class, 'maxAttempts must be at least 1.');
 });
 
-it('logs a warning and throws an exception when circuit breaker blocks attempt', function () {
-    Log::partialMock()
-        ->shouldReceive('warning')->once()
-        ->getMock();
+it('throws an exception and logs a warning when circuit breaker blocks attempt', function () {
+    Log::spy();
 
     $breaker = \Mockery::mock(CircuitBreaker::class)->makePartial();
     $breaker->shouldReceive('canAttempt')
@@ -108,11 +106,12 @@ it('logs a warning and throws an exception when circuit breaker blocks attempt',
             \Exception::class,
             'File operations are currently unavailable due to repeated failures. Please try again later.'
         );
+
+    Log::shouldHaveReceived('warning')->once();
 });
 
 it('records a circuit breaker failure and throws an exception when deletion fails', function () {
-    Log::shouldReceive('error')->once();
-    Log::shouldReceive('warning')->times(3);
+    Log::spy();
 
     $diskMock = \Mockery::mock();
     $diskMock->shouldReceive('delete')
@@ -123,4 +122,7 @@ it('records a circuit breaker failure and throws an exception when deletion fail
 
     expect(fn () => $this->deleter->attemptDelete($this->disk, 'path'))
         ->toThrow(\Exception::class, 'Failed to delete file after 3 attempts.');
+
+    Log::shouldHaveReceived('error')->once();
+    Log::shouldHaveReceived('warning')->times(3);
 });

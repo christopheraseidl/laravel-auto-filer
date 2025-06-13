@@ -38,7 +38,7 @@ describe('CLOSED state', function () {
     });
 
     it('transitions to open when failure threshold is met', function () {
-        Log::shouldReceive('warning')->once();
+        Log::spy();
 
         $this->setFailureCount(1);
         expect($this->breaker->getFailureCount())->toBe(1);
@@ -48,14 +48,12 @@ describe('CLOSED state', function () {
         expect($this->breaker->getState())->toBe('open');
         expect($this->breaker->getFailureCount())->toBe(2);
         expect($this->breaker->getStats()['opened_at'])->toBe($this->fixedTimestamp);
+
+        Log::shouldHaveReceived('warning')->once();
     });
 
     it('sends email notification when enabled and threshold met', function () {
-        Log::shouldReceive('warning')->once();
-        Log::shouldReceive('info')->with(
-            'Circuit breaker notification sent to admin.',
-            ['breaker' => 'test-circuit-email']
-        )->once();
+        Log::spy();
 
         Mail::shouldReceive('raw')->once()->with(
             \Mockery::type('string'),
@@ -67,10 +65,17 @@ describe('CLOSED state', function () {
         $this->breakerWithEmail->recordFailure();
 
         expect($this->breakerWithEmail->getState())->toBe('open');
+
+        Log::shouldHaveReceived('warning')->once();
+        Log::shouldHaveReceived('info')->with(
+            'Circuit breaker notification sent to admin.',
+            ['breaker' => 'test-circuit-email']
+        )->once();
     });
 
     it('does not send email when disabled', function () {
-        Log::shouldReceive('warning')->once();
+        Log::spy();
+
         Mail::shouldReceive('raw')->never();
 
         $this->setFailureCount(1);
@@ -78,6 +83,8 @@ describe('CLOSED state', function () {
         $this->breaker->recordFailure();
 
         expect($this->breaker->getState())->toBe('open');
+
+        Log::shouldHaveReceived('warning')->once();
     });
 });
 
@@ -96,7 +103,7 @@ describe('HALF_OPEN state', function () {
     });
 
     it('transitions to open when max half-open attempts reached', function () {
-        Log::shouldReceive('warning')->once();
+        Log::spy();
 
         $this->setHalfOpenAttempts(2);
 
@@ -104,14 +111,12 @@ describe('HALF_OPEN state', function () {
 
         expect($this->breaker->getState())->toBe('open');
         expect($this->breaker->getStats()['opened_at'])->toBe($this->fixedTimestamp);
+
+        Log::shouldHaveReceived('warning')->once();
     });
 
     it('sends notification when transitioning from half-open to open', function () {
-        Log::shouldReceive('warning')->once();
-        Log::shouldReceive('info')->with(
-            'Circuit breaker notification sent to admin.',
-            ['breaker' => 'test-circuit-email']
-        )->once();
+        Log::spy();
 
         Mail::shouldReceive('raw')->once();
 
@@ -121,6 +126,12 @@ describe('HALF_OPEN state', function () {
         $this->breakerWithEmail->recordFailure();
 
         expect($this->breakerWithEmail->getState())->toBe('open');
+
+        Log::shouldHaveReceived('warning')->once();
+        Log::shouldHaveReceived('info')->with(
+            'Circuit breaker notification sent to admin.',
+            ['breaker' => 'test-circuit-email']
+        )->once();
     });
 });
 
@@ -131,23 +142,23 @@ it('handles cache failures gracefully', function () {
 });
 
 it('handles email sending failures gracefully', function () {
-    Log::partialMock()
-        ->shouldReceive('warning')->once()
-        ->shouldReceive('error')->with(
-            'Failed to send circuit breaker notification.',
-            \Mockery::type('array')
-        )->once()
-        ->getMock();
+    Log::spy();
 
     Mail::shouldReceive('raw')->once()->andThrow(new \Exception('SMTP connection failed.'));
 
     $this->setFailureCount(1, 'test-circuit-email');
 
     expect(fn () => $this->breakerWithEmail->recordFailure())->not->toThrow(\Exception::class);
+
+    Log::shouldHaveReceived('warning')->once();
+    Log::shouldHaveReceived('error')->with(
+        'Failed to send circuit breaker notification.',
+        \Mockery::type('array')
+    )->once();
 });
 
 it('ignores failures when already in open state', function () {
-    Log::shouldReceive('warning')->never();
+    Log::spy();
 
     $this->transitionToOpen();
     $initialFailureCount = $this->breaker->getFailureCount();
@@ -155,4 +166,6 @@ it('ignores failures when already in open state', function () {
     $this->breaker->recordFailure();
 
     expect($this->breaker->getState())->toBe('open');
+
+    Log::shouldNotHaveReceived('warning');
 });
