@@ -11,6 +11,11 @@ uses(
     CircuitBreakerHelpers::class
 );
 
+/**
+ * Tests CircuitBreaker recordFailure method behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ */
 beforeEach(function () {
     $this->breakerWithEmail = new CircuitBreaker(
         name: 'test-circuit-email',

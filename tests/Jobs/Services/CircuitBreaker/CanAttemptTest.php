@@ -10,6 +10,11 @@ uses(
     CircuitBreakerHelpers::class
 );
 
+/**
+ * Tests CircuitBreaker canAttempt method behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ */
 it('returns true when circuit breaker is in closed state', function () {
     expect($this->breaker->getState())->toBe('closed');
 

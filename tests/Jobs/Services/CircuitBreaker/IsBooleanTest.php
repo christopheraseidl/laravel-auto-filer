@@ -5,6 +5,11 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\Services\CircuitBreaker;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
+/**
+ * Tests CircuitBreaker is... boolean methods behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ */
 it('returns expected value', function (string $name) {
     $method = Str::pascal($name);
     $method = "is{$method}";

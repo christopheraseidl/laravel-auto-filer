@@ -10,6 +10,11 @@ uses(
     CircuitBreakerHelpers::class
 );
 
+/**
+ * Tests CircuitBreaker reset method behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ */
 it('closes the circuit breaker', function () {
     Log::shouldReceive('info')->twice();
 

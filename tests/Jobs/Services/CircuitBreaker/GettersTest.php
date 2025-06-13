@@ -5,6 +5,11 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\Services\CircuitBreaker;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 
+/**
+ * Tests CircuitBreaker getter methods behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ */
 test('getState returns the expected string', function () {
     Cache::shouldReceive('get')
         ->andReturn('test_state');

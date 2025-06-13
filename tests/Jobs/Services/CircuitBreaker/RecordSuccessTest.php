@@ -9,6 +9,11 @@ uses(
     CircuitBreakerHelpers::class
 );
 
+/**
+ * Tests CircuitBreaker recordSuccess method behavior.
+ *
+ * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ */
 describe('OPEN state', function () {
     it('does not close the circuit breaker but it resets failures to 0', function () {
         $this->transitionToOpen();
