@@ -17,7 +17,8 @@ it('adds a pascal macro when needed', function () {
     $string = 'hello_world';
     Str::flushMacros();
 
-    $provider = Reflect::on(new class(app()) extends HasUploadsServiceProvider {
+    $provider = Reflect::on(new class(app()) extends HasUploadsServiceProvider
+    {
         protected function hasPascalMethod(): bool
         {
             return false;
@@ -33,31 +34,32 @@ it('adds a pascal macro when needed', function () {
 
 it('does not add a pascal macro when method already exists', function () {
     Str::flushMacros();
-    
-    $provider = Reflect::on(new class(app()) extends HasUploadsServiceProvider {
+
+    $provider = Reflect::on(new class(app()) extends HasUploadsServiceProvider
+    {
         public $addPascalMacroCalled = false;
-        
+
         protected function hasPascalMethod(): bool
         {
             return true; // Simulate Laravel 11+
         }
-        
+
         protected function addPascalMacro(): void
         {
             $this->addPascalMacroCalled = true;
             parent::addPascalMacro();
         }
     });
-    
+
     $provider->addPascalMacroIfNeeded();
-    
+
     expect($provider->addPascalMacroCalled)->toBeFalse();
     expect(Str::hasMacro('pascal'))->toBeFalse();
 });
 
 it('uses pascal as an alias for studly', function () {
     $string = 'hello_world';
-    
+
     $provider = Reflect::on(new HasUploadsServiceProvider(app()));
 
     $transformedString = $provider->pascalTransform($string);
