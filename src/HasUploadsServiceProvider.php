@@ -83,13 +83,31 @@ class HasUploadsServiceProvider extends PackageServiceProvider
         $this->app->bind(MoveUploadsPayloadContract::class, MoveUploadsPayload::class);
     }
 
-    public function boot()
+    public function packageBooted()
     {
-        // Patch for Str::pascal method compatibility in Laravel 10.
-        if (! method_exists(Str::class, 'pascal')) {
-            Str::macro('pascal', function ($value) {
-                return Str::studly($value);
-            });
+        $this->addPascalMacroIfNeeded();
+    }
+
+    // Patch for Str::pascal method compatibility in Laravel 10.
+    protected function addPascalMacroIfNeeded(): void
+    {
+        if (! $this->hasPascalMethod()) {
+            $this->addPascalMacro();
         }
+    }
+
+    protected function hasPascalMethod(): bool
+    {
+        return method_exists(Str::class, 'pascal');
+    }
+
+    protected function addPascalMacro(): void
+    {
+        Str::macro('pascal', [$this, 'pascalTransform']);
+    }
+
+    protected function pascalTransform($value)
+    {
+        return Str::studly($value);
     }
 }
