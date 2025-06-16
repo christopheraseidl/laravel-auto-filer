@@ -106,7 +106,7 @@ class HasUploadsServiceProvider extends PackageServiceProvider
         Str::macro('pascal', [$this, 'pascalTransform']);
     }
 
-    protected function pascalTransform($value)
+    public function pascalTransform($value)
     {
         return Str::studly($value);
     }
