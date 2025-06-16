@@ -21,7 +21,7 @@ it('adds a pascal macro when needed', function () {
     {
         protected function hasPascalMethod(): bool
         {
-            return false;
+            return false; // Simulate Laravel 10
         }
     });
 

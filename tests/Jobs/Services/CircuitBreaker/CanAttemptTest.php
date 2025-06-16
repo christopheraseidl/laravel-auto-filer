@@ -4,6 +4,7 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\Services\CircuitBreaker;
 
 use christopheraseidl\HasUploads\Tests\TestTraits\CircuitBreakerHelpers;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 uses(
@@ -26,6 +27,16 @@ it('returns true when circuit breaker is in closed state', function () {
 it('returns false when circuit is open and recovery timeout has not passed', function () {
     $this->transitionToOpen();
     expect($this->breaker->getState())->toBe('open');
+
+    $canAttempt = $this->breaker->canAttempt();
+
+    expect($canAttempt)->toBe(false);
+});
+
+it('returns false when the state is invalid', function () {
+    Cache::shouldReceive('get')
+        ->with('circuit_breaker:test-circuit:state', 'closed')
+        ->andReturn('test_state');
 
     $canAttempt = $this->breaker->canAttempt();
 

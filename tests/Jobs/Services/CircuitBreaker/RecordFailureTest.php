@@ -4,6 +4,7 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\Services\CircuitBreaker;
 
 use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
 use christopheraseidl\HasUploads\Tests\TestTraits\CircuitBreakerHelpers;
+use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -59,15 +60,16 @@ describe('CLOSED state', function () {
 
     it('sends email notification when enabled and threshold met', function () {
         Log::spy();
-
-        Mail::shouldReceive('raw')->once()->with(
-            \Mockery::type('string'),
-            \Mockery::type('Closure')
-        );
+        Mail::spy();
 
         $this->setFailureCount(1, 'test-circuit-email');
 
         $this->breakerWithEmail->recordFailure();
+
+        $message = Reflect::on($this->breakerWithEmail)->buildEmailContent(
+            'Circuit breaker opened after 2 failures.',
+            $this->breakerWithEmail->getStats()
+        );
 
         expect($this->breakerWithEmail->getState())->toBe('open');
 
@@ -76,6 +78,26 @@ describe('CLOSED state', function () {
             'Circuit breaker notification sent to admin.',
             ['breaker' => 'test-circuit-email']
         )->once();
+
+        Mail::shouldHaveReceived('raw')->once()->withArgs(function ($actualMessage, $closure) use ($message) {
+            if ($actualMessage !== $message) {
+                return false;
+            }
+
+            $mockMail = \Mockery::mock();
+            $mockMail->shouldReceive('to')
+                ->once()
+                ->with('admin@test.com')
+                ->andReturnSelf();
+            $mockMail->shouldReceive('subject')
+                ->once()
+                ->with('Circuit breaker alert: test-circuit-email')
+                ->andReturnSelf();
+
+            $closure($mockMail);
+
+            return true;
+        });
     });
 
     it('does not send email when disabled', function () {
@@ -122,13 +144,17 @@ describe('HALF_OPEN state', function () {
 
     it('sends notification when transitioning from half-open to open', function () {
         Log::spy();
-
-        Mail::shouldReceive('raw')->once();
+        Mail::spy();
 
         $this->transitionToHalfOpen('test-circuit-email');
         $this->setHalfOpenAttempts(2, 'test-circuit-email');
 
         $this->breakerWithEmail->recordFailure();
+
+        $message = Reflect::on($this->breakerWithEmail)->buildEmailContent(
+            'Circuit breaker reopened after 3 half-open attempts.',
+            $this->breakerWithEmail->getStats()
+        );
 
         expect($this->breakerWithEmail->getState())->toBe('open');
 
@@ -137,6 +163,26 @@ describe('HALF_OPEN state', function () {
             'Circuit breaker notification sent to admin.',
             ['breaker' => 'test-circuit-email']
         )->once();
+
+        Mail::shouldHaveReceived('raw')->once()->withArgs(function ($actualMessage, $closure) use ($message) {
+            if ($actualMessage !== $message) {
+                return false;
+            }
+
+            $mockMail = \Mockery::mock();
+            $mockMail->shouldReceive('to')
+                ->once()
+                ->with('admin@test.com')
+                ->andReturnSelf();
+            $mockMail->shouldReceive('subject')
+                ->once()
+                ->with('Circuit breaker alert: test-circuit-email')
+                ->andReturnSelf();
+
+            $closure($mockMail);
+
+            return true;
+        });
     });
 });
 
