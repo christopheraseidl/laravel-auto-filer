@@ -50,42 +50,62 @@ class HasUploadsServiceProvider extends PackageServiceProvider
 
     public function packageRegistered()
     {
-        // Services
-        $this->app->singleton(UploadServiceContract::class, UploadService::class);
-        $this->app->bind(ModelFileChangeTrackerContract::class, ModelFileChangeTracker::class);
-        $this->app->bind(BuilderContract::class, Builder::class);
-        $this->app->bind(BatchManagerContract::class, BatchManager::class);
-        $this->app->bind(BuilderValidatorContract::class, BuilderValidator::class);
-        $this->app->bind(CircuitBreakerContract::class, function (Application $app) {
-            return new CircuitBreaker(
-                name: 'laravel-has-uploads-circuit-breaker',
-                failureThreshold: config('has-uploads.circuit_breaker.failure_threshold'),
-                recoveryTimeout: config('has-uploads.circuit_breaker.recovery_timeout'),
-                halfOpenMaxAttempts: config('has-uploads.circuit_breaker.half_open_attempts'),
-                cacheTtlHours: config('has-uploads.circuit_breaker.cache_ttl'),
-                emailNotificationEnabled: config('has-uploads.circuit_breaker.email_notifications'),
-                adminEmail: config('has-uploads.circuit_breaker.admin_email')
-            );
-        });
-        $this->app->bind(FileMoverContract::class, FileMover::class);
-        $this->app->bind(FileDeleterContract::class, FileDeleter::class);
-
-        // Jobs
-        $this->app->bind(CleanOrphanedUploadsJobContract::class, CleanOrphanedUploadsJob::class);
-        $this->app->bind(DeleteUploadDirectoryJobContract::class, DeleteUploadDirectoryJob::class);
-        $this->app->bind(DeleteUploadsJobContract::class, DeleteUploadsJob::class);
-        $this->app->bind(MoveUploadsJobContract::class, MoveUploadsJob::class);
-
-        // Payloads
-        $this->app->bind(CleanOrphanedUploadsPayloadContract::class, CleanOrphanedUploadsPayload::class);
-        $this->app->bind(DeleteUploadDirectoryPayloadContract::class, DeleteUploadDirectoryPayload::class);
-        $this->app->bind(DeleteUploadsPayloadContract::class, DeleteUploadsPayload::class);
-        $this->app->bind(MoveUploadsPayloadContract::class, MoveUploadsPayload::class);
+        $this->registerServices();
+        $this->registerJobs();
+        $this->registerPayloads();
     }
 
     public function packageBooted()
     {
         $this->addPascalMacroIfNeeded();
+    }
+
+    public function pascalTransform($value)
+    {
+        return Str::studly($value);
+    }
+
+    protected function registerServices(): void
+    {
+        $this->app->singleton(UploadServiceContract::class, UploadService::class);
+        $this->app->singleton(ModelFileChangeTrackerContract::class, ModelFileChangeTracker::class);
+        $this->app->singleton(BuilderContract::class, Builder::class);
+        $this->app->singleton(BatchManagerContract::class, BatchManager::class);
+        $this->app->singleton(BuilderValidatorContract::class, BuilderValidator::class);
+        $this->registerCircuitBreaker();
+        $this->app->bind(FileMoverContract::class, FileMover::class);
+        $this->app->singleton(FileDeleterContract::class, FileDeleter::class);
+    }
+
+    protected function registerCircuitBreaker(): void
+    {
+        $this->app->singleton(CircuitBreakerContract::class, function (Application $app) {
+            return new CircuitBreaker(
+                name: 'laravel-has-uploads-circuit-breaker',
+                failureThreshold: config('has-uploads.circuit_breaker.failure_threshold', 5),
+                recoveryTimeout: config('has-uploads.circuit_breaker.recovery_timeout', 60),
+                halfOpenMaxAttempts: config('has-uploads.circuit_breaker.half_open_attempts', 3),
+                cacheTtlHours: config('has-uploads.circuit_breaker.cache_ttl', 1),
+                emailNotificationEnabled: config('has-uploads.circuit_breaker.email_notifications', false),
+                adminEmail: config('has-uploads.circuit_breaker.admin_email')
+            );
+        });
+    }
+
+    protected function registerJobs(): void
+    {
+        $this->app->bind(CleanOrphanedUploadsJobContract::class, CleanOrphanedUploadsJob::class);
+        $this->app->bind(DeleteUploadDirectoryJobContract::class, DeleteUploadDirectoryJob::class);
+        $this->app->bind(DeleteUploadsJobContract::class, DeleteUploadsJob::class);
+        $this->app->bind(MoveUploadsJobContract::class, MoveUploadsJob::class);
+    }
+
+    protected function registerPayloads(): void
+    {
+        $this->app->bind(CleanOrphanedUploadsPayloadContract::class, CleanOrphanedUploadsPayload::class);
+        $this->app->bind(DeleteUploadDirectoryPayloadContract::class, DeleteUploadDirectoryPayload::class);
+        $this->app->bind(DeleteUploadsPayloadContract::class, DeleteUploadsPayload::class);
+        $this->app->bind(MoveUploadsPayloadContract::class, MoveUploadsPayload::class);
     }
 
     // Patch for Str::pascal method compatibility in Laravel 10.
@@ -104,10 +124,5 @@ class HasUploadsServiceProvider extends PackageServiceProvider
     protected function addPascalMacro(): void
     {
         Str::macro('pascal', [$this, 'pascalTransform']);
-    }
-
-    public function pascalTransform($value)
-    {
-        return Str::studly($value);
     }
 }
