@@ -16,10 +16,62 @@ class FileMover implements FileMoverContract
 
     public function attemptMove(string $disk, string $oldPath, string $newDir, int $maxAttempts = 3): string
     {
+        $this->validateMaxAttempts($maxAttempts);
+        $this->checkCircuitBreaker($disk, $oldPath, $newDir);
+
+        $newPath = $this->buildNewPath($newDir, $oldPath);
+        $lastException = null;
+        $attempts = 0;
+
+        while ($attempts < $maxAttempts && $this->breaker->canAttempt()) {
+            try {
+                return $this->performMove($disk, $oldPath, $newPath);
+            } catch (\Exception $e) {
+                $lastException = $e;
+                $attempts++;
+
+                Log::warning('Move attempt failed.', [
+                    'attempt' => $attempts,
+                    'error' => $e->getMessage(),
+                ]);
+
+                $this->handleMoveFailure($disk, $attempts, $maxAttempts);
+            }
+        }
+
+        if ($attempts === $maxAttempts) {
+            $this->breaker->recordFailure();
+        }
+
+        $this->logMoveFailure($disk, $oldPath, $newDir, $maxAttempts, $lastException);
+
+        throw new \Exception("Failed to move file after {$maxAttempts} attempts.");
+    }
+
+    public function attemptUndoMove(string $disk, int $maxAttempts = 3, bool $throwOnFailure = true): array
+    {
+        $this->validateMaxAttempts($maxAttempts);
+
+        $results = $this->processUndoOperations($disk, $maxAttempts);
+
+        if (empty($results['failures'])) {
+            $this->handleSuccessfulUndo();
+        } else {
+            $this->handleFailedUndo($disk, $results, $throwOnFailure);
+        }
+
+        return $results['successes'];
+    }
+
+    protected function validateMaxAttempts(int $maxAttempts): void
+    {
         if ($maxAttempts < 1) {
             throw new \InvalidArgumentException('maxAttempts must be at least 1.');
         }
+    }
 
+    protected function checkCircuitBreaker(string $disk, string $oldPath, string $newDir): void
+    {
         if (! $this->breaker->canAttempt()) {
             Log::warning('File operation blocked by circuit breaker', [
                 'operation' => 'move file',
@@ -31,122 +83,170 @@ class FileMover implements FileMoverContract
 
             throw new \Exception('File operations are currently unavailable due to repeated failures. Please try again later.');
         }
+    }
 
-        $lastException = null;
-        $newPath = "{$newDir}/".pathinfo($oldPath, PATHINFO_BASENAME);
-        $attempts = 0;
+    protected function buildNewPath(string $newDir, string $oldPath): string
+    {
+        return "{$newDir}/".pathinfo($oldPath, PATHINFO_BASENAME);
+    }
 
-        while ($attempts < $maxAttempts && $this->breaker->canAttempt()) {
-            try {
-                if (Storage::disk($disk)->copy($oldPath, $newPath)) {
-                    if ($this->exists($disk, $newPath)) {
-                        Storage::disk($disk)->delete($oldPath);
-                        $commit = $this->commitMovedFile($oldPath, $newPath);
-                        $this->breaker->recordSuccess();
-
-                        return $commit;
-                    }
-                }
-
-                $this->breaker->recordFailure();
-
-                throw new \Exception('Copy succeeded but file not found at destination.');
-            } catch (\Exception $e) {
-                $attempts++;
-                $lastException = $e;
-                if ($attempts === $maxAttempts) {
-                    if (! empty($this->movedFiles)) {
-                        $this->attemptUndoMove($disk);
-                    }
-                } elseif ($this->breaker->canAttempt()) {
-                    sleep(1);
-                }
-            }
+    protected function performMove(string $disk, string $oldPath, string $newPath): string
+    {
+        if (! Storage::disk($disk)->copy($oldPath, $newPath)) {
+            $this->breaker->recordFailure();
+            throw new \Exception('Failed to copy file.');
         }
 
-        $this->breaker->recordFailure();
+        if (! $this->exists($disk, $newPath)) {
+            $this->breaker->recordFailure();
+            throw new \Exception('Copy succeeded but file not found at destination.');
+        }
 
+        Storage::disk($disk)->delete($oldPath);
+        $commit = $this->commitMovedFile($oldPath, $newPath);
+        $this->breaker->recordSuccess();
+
+        return $commit;
+    }
+
+    protected function handleMoveFailure(string $disk, int $attempts, int $maxAttempts): void
+    {
+        if ($attempts === $maxAttempts) {
+            if (! empty($this->movedFiles)) {
+                try {
+                    $this->attemptUndoMove($disk, $maxAttempts, false);
+                } catch (\Exception $e) {
+                    Log::error('Unexpected exception during undo after move failure.', [
+                        'error' => $e->getMessage(),
+                        'disk' => $disk,
+                    ]);
+                }
+            }
+        } elseif ($this->breaker->canAttempt()) {
+            $this->waitBeforeRetry();
+        }
+    }
+
+    protected function waitBeforeRetry(): void
+    {
+        sleep(1);
+    }
+
+    protected function logMoveFailure(string $disk, string $oldPath, string $newDir, int $maxAttempts, ?\Exception $lastException): void
+    {
         Log::error("Failed to move file after {$maxAttempts} attempts.", [
             'disk' => $disk,
             'oldPath' => $oldPath,
             'newDir' => $newDir,
             'maxAttempts' => $maxAttempts,
-            'lastError' => $lastException->getMessage(),
+            'lastError' => $lastException?->getMessage(),
         ]);
-
-        throw new \Exception("Failed to move file after {$maxAttempts} attempts.");
     }
 
-    public function attemptUndoMove(string $disk, int $maxAttempts = 3): array
+    protected function processUndoOperations(string $disk, int $maxAttempts): array
     {
-        if ($maxAttempts < 1) {
-            throw new \InvalidArgumentException('maxAttempts must be at least 1.');
+        if (! $this->breaker->canAttempt()) {
+            Log::warning('Undo operations blocked by circuit breaker.', [
+                'disk' => $disk,
+                'pending_undos' => count($this->movedFiles),
+            ]);
+
+            return ['failures' => $this->movedFiles, 'successes' => []];
         }
 
         $failures = [];
         $successes = [];
 
         foreach ($this->movedFiles as $oldPath => $newPath) {
-            $attempts = 0;
+            $result = $this->attemptSingleUndo($disk, $oldPath, $newPath, $maxAttempts);
 
-            while ($attempts < $maxAttempts && $this->breaker->canAttempt()) {
-                try {
-                    $this->undoSingleFile($disk, $oldPath, $newPath);
-                    $successes[$oldPath] = $newPath;
-                    $this->breaker->recordSuccess();
-
-                    break;
-                } catch (\Exception $e) {
-                    $attempts++;
-                    if ($attempts === $maxAttempts) {
-                        $failures[$oldPath] = $newPath;
-                    } elseif ($this->breaker->canAttempt()) {
-                        sleep(1);
-                    }
-                }
+            if ($result) {
+                $successes[$oldPath] = $newPath;
+            } else {
+                $failures[$oldPath] = $newPath;
             }
         }
 
-        if (empty($failures)) {
-            $this->clearMovedFiles();
-        } else {
-            $this->breaker->recordFailure();
-
-            Log::error('File move undo failure.', [
-                'disk' => $disk,
-                'failed' => $failures,
-                'succeeded' => array_diff_key($this->movedFiles, $failures),
-            ]);
-
-            foreach ($this->movedFiles as $oldPath => $newPath) {
-                if (! isset($failures[$oldPath])) {
-                    $this->uncommitMovedFile($oldPath);
-                }
-            }
-
-            throw new \Exception(sprintf(
-                'Failed to undo %d file move(s): %s',
-                count($failures),
-                json_encode($failures, JSON_PRETTY_PRINT)
-            ));
-        }
-
-        return $successes;
+        return ['failures' => $failures, 'successes' => $successes];
     }
 
-    private function undoSingleFile(string $disk, string $oldPath, string $newPath): string
+    protected function attemptSingleUndo(string $disk, string $oldPath, string $newPath, int $maxAttempts): bool
     {
-        if ($this->exists($disk, $newPath)) {
-            if (! $this->exists($disk, $oldPath)) {
-                Storage::disk($disk)->copy($newPath, $oldPath);
-            }
+        $attempts = 0;
 
-            if ($this->exists($disk, $oldPath)) {
-                Storage::disk($disk)->delete($newPath);
+        while ($attempts < $maxAttempts && $this->breaker->canAttempt()) {
+            try {
+                $this->undoSingleFile($disk, $oldPath, $newPath);
+                $this->breaker->recordSuccess();
+
+                return true;
+            } catch (\Exception $e) {
+                $attempts++;
+
+                Log::warning('Undo attempt failed.', [
+                    'attempt' => $attempts,
+                    'error' => $e->getMessage(),
+                ]);
+
+                if ($attempts < $maxAttempts) {
+                    $this->waitBeforeRetry();
+                }
             }
         }
 
-        return $oldPath;
+        return false;
+    }
+
+    protected function handleSuccessfulUndo(): void
+    {
+        $this->clearMovedFiles();
+    }
+
+    protected function handleFailedUndo(string $disk, array $results, bool $throwOnFailure = true): void
+    {
+        $this->breaker->recordFailure();
+
+        Log::error('File move undo failure.', [
+            'disk' => $disk,
+            'failed' => $results['failures'],
+            'succeeded' => $results['successes'],
+        ]);
+
+        $this->uncommitSuccessfulUndos($results['successes']);
+
+        if ($throwOnFailure) {
+            throw new \Exception(sprintf(
+                'Failed to undo %d file move(s): %s',
+                count($results['failures']),
+                json_encode($results['failures'], JSON_PRETTY_PRINT)
+            ));
+        }
+    }
+
+    protected function uncommitSuccessfulUndos(array $successes): void
+    {
+        foreach ($successes as $oldPath => $newPath) {
+            $this->uncommitMovedFile($oldPath);
+        }
+    }
+
+    private function undoSingleFile(string $disk, string $oldPath, string $newPath): void
+    {
+        if (! $this->exists($disk, $newPath)) {
+            return; // Nothing to undo
+        }
+
+        // Restore original if it doesn't exist
+        if (! $this->exists($disk, $oldPath)) {
+            Storage::disk($disk)->copy($newPath, $oldPath);
+        }
+
+        // Verify restoration before deleting
+        if ($this->exists($disk, $oldPath)) {
+            Storage::disk($disk)->delete($newPath);
+        } else {
+            throw new \Exception('Failed to restore file to original location.');
+        }
     }
 
     private function exists(string $disk, $path): bool
@@ -159,11 +259,9 @@ class FileMover implements FileMoverContract
         return $this->movedFiles[$oldPath] = $newPath;
     }
 
-    private function uncommitMovedFile(string $oldPath): string
+    private function uncommitMovedFile(string $oldPath): void
     {
         unset($this->movedFiles[$oldPath]);
-
-        return $oldPath;
     }
 
     private function clearMovedFiles(): void
