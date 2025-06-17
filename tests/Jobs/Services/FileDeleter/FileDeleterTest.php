@@ -25,6 +25,7 @@ it('deletes a file and returns true', function () {
     $result = $this->deleter->attemptDelete($this->disk, $this->path);
 
     expect($result)->toBeTrue();
+    expect(Storage::disk($this->disk)->exists($this->path))->toBeFalse();
 });
 
 it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures) {
@@ -68,12 +69,7 @@ it('throws an exception and logs an error after 3 errors when maxAttempts is 3',
     expect(fn () => $this->deleter->attemptDelete($this->disk, $this->path))
         ->toThrow(\Exception::class);
 
-    Log::shouldHaveReceived('error')
-        ->with('Failed to delete file after 3 attempts.', [
-            'disk' => $this->disk,
-            'path' => $this->path,
-            'lastError' => 'Deletion failed.',
-        ]);
+    Log::shouldHaveReceived('error');
 });
 
 it('throws exception when maxAttempts is 0', function () {

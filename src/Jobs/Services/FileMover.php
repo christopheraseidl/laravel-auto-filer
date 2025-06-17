@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
  * It integrates with a circuit breaker to prevent cascading failures when
  * the underlying storage system is experiencing issues.
  */
-class FileMover implements FileMoverContract
+class FileMover extends FileOperator implements FileMoverContract
 {
     /**
      * The $movedFiles array is used to track moved files for rollback (old path => new path).
@@ -52,7 +52,6 @@ class FileMover implements FileMoverContract
                 $attempts++;
 
                 $this->logMoveAttemptFailure($attempts, $e);
-
                 $this->handleMoveFailure($disk, $attempts, $maxAttempts);
             }
         }
@@ -86,26 +85,10 @@ class FileMover implements FileMoverContract
         if (empty($results['failures'])) {
             $this->handleSuccessfulUndo();
         } else {
-            $this->handleFailedUndo($disk, $results, $throwOnFailure);
+            $this->handleUndoFailure($disk, $results, $throwOnFailure);
         }
 
         return $results['successes'];
-    }
-
-    protected function validateMaxAttempts(int $maxAttempts): void
-    {
-        if ($maxAttempts < 1) {
-            throw new \InvalidArgumentException('maxAttempts must be at least 1.');
-        }
-    }
-
-    protected function checkCircuitBreaker(string $operation, string $disk, array $context): void
-    {
-        if (! $this->breaker->canAttempt()) {
-            $this->logCircuitBreakerBlock($operation, $disk, $context);
-
-            throw new \Exception('File operations are currently unavailable due to repeated failures. Please try again later.');
-        }
     }
 
     /**
@@ -117,21 +100,29 @@ class FileMover implements FileMoverContract
      */
     protected function performMove(string $disk, string $oldPath, string $newPath): string
     {
-        if (! Storage::disk($disk)->copy($oldPath, $newPath)) {
-            $this->breaker->recordFailure();
-            throw new \Exception('Failed to copy file.');
-        }
-
-        if (! $this->exists($disk, $newPath)) {
-            $this->breaker->recordFailure();
-            throw new \Exception('Copy succeeded but file not found at destination.');
-        }
-
+        $this->copyFile($disk, $oldPath, $newPath);
+        $this->validateCopiedFile($disk, $newPath);
         Storage::disk($disk)->delete($oldPath);
         $commit = $this->commitMovedFile($oldPath, $newPath);
         $this->breaker->recordSuccess();
 
         return $commit;
+    }
+
+    protected function copyFile(string $disk, string $oldPath, string $newPath): void
+    {
+        if (! Storage::disk($disk)->copy($oldPath, $newPath)) {
+            $this->breaker->recordFailure();
+            throw new \Exception('Failed to copy file.');
+        }
+    }
+
+    protected function validateCopiedFile($disk, $newPath): void
+    {
+        if (! $this->exists($disk, $newPath)) {
+            $this->breaker->recordFailure();
+            throw new \Exception('Copy succeeded but file not found at destination.');
+        }
     }
 
     protected function processUndoOperations(string $disk, int $maxAttempts): array
@@ -230,7 +221,7 @@ class FileMover implements FileMoverContract
         $this->clearMovedFiles();
     }
 
-    protected function handleFailedUndo(string $disk, array $results, bool $throwOnFailure = true): void
+    protected function handleUndoFailure(string $disk, array $results, bool $throwOnFailure = true): void
     {
         $this->breaker->recordFailure();
 
@@ -265,21 +256,6 @@ class FileMover implements FileMoverContract
     protected function exists(string $disk, string $path): bool
     {
         return Storage::disk($disk)->exists($path) && Storage::disk($disk)->size($path) > 0;
-    }
-
-    protected function waitBeforeRetry(): void
-    {
-        sleep(1);
-    }
-
-    protected function logCircuitBreakerBlock(string $operation, string $disk, array $context): void
-    {
-        Log::warning('File operation blocked by circuit breaker.', [
-            'operation' => $operation,
-            'disk' => $disk,
-            'breaker_stats' => $this->breaker->getStats(),
-            ...$context,
-        ]);
     }
 
     protected function logMoveAttemptFailure(int $attempts, \Exception $e): void
@@ -341,10 +317,5 @@ class FileMover implements FileMoverContract
     private function clearMovedFiles(): void
     {
         $this->movedFiles = [];
-    }
-
-    private function maxAttemptsReached(int $attempts, int $maxAttempts): bool
-    {
-        return $attempts >= $maxAttempts;
     }
 }

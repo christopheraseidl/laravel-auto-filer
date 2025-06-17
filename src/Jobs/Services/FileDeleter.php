@@ -7,71 +7,96 @@ use christopheraseidl\HasUploads\Jobs\Contracts\FileDeleter as FileDeleterContra
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
-class FileDeleter implements FileDeleterContract
+/**
+ * Handles file deletion operations with retry logic and circuit breaker protection.
+ *
+ * This service provides file deletion capability. It integrates with a circuit
+ * breaker to prevent cascading failures when the underlying storage system is experiencing issues.
+ */
+class FileDeleter extends FileOperator implements FileDeleterContract
 {
     public function __construct(
         protected CircuitBreaker $breaker
     ) {}
 
+    /**
+     * Attempts to delete a file with retry logic.
+     *
+     * @return bool The success of the deletion attempt
+     *
+     * @throws \InvalidArgumentException If maxAttempts < 1
+     * @throws \Exception If circuit breaker is open or deletion fails after all attempts
+     */
     public function attemptDelete(string $disk, string $path, int $maxAttempts = 3): bool
     {
-        if ($maxAttempts < 1) {
-            throw new \InvalidArgumentException('maxAttempts must be at least 1.');
-        }
-
-        if (! $this->breaker->canAttempt()) {
-            Log::warning('File operation blocked by circuit breaker', [
-                'operation' => 'delete file',
-                'disk' => $disk,
-                'path' => $path,
-                'breaker_stats' => $this->breaker->getStats(),
-            ]);
-
-            throw new \Exception('File operations are currently unavailable due to repeated failures. Please try again later.');
-        }
+        $this->validateMaxAttempts($maxAttempts);
+        $this->checkCircuitBreaker('attempt delete file', $disk, [
+            'path' => $path,
+        ]);
 
         $lastException = null;
         $attempts = 0;
 
         while ($attempts < $maxAttempts && $this->breaker->canAttempt()) {
             try {
-                $result = Storage::disk($disk)->delete($path);
-
-                if ($result) {
-                    $this->breaker->recordSuccess();
-
-                    return true;
-                } else {
-                    $this->breaker->recordFailure();
-
-                    throw new \Exception('Deletion operation returned false.');
-                }
+                return $this->performDeletion($disk, $path);
             } catch (\Exception $e) {
                 $attempts++;
                 $lastException = $e;
 
-                Log::warning("File delete attempt {$attempts} failed", [
-                    'disk' => $disk,
-                    'path' => $path,
-                    'error' => $e->getMessage(),
-                    'attempt' => $attempts,
-                    'max_attempts' => $maxAttempts,
-                ]);
-
-                if ($attempts !== $maxAttempts && $this->breaker->canAttempt()) {
-                    sleep(1);
-                }
+                $this->logDeletionAttemptFailure($disk, $path, $attempts, $maxAttempts, $e);
+                $this->handleDeletionFailure($attempts, $maxAttempts);
             }
         }
 
         $this->breaker->recordFailure();
-
-        Log::error("Failed to delete file after {$attempts} attempts.", [
-            'disk' => $disk,
-            'path' => $path,
-            'lastError' => $lastException->getMessage(),
-        ]);
+        $this->logFinalDeletionFailure($disk, $path, $attempts, $lastException);
 
         throw new \Exception("Failed to delete file after {$attempts} attempts.");
+    }
+
+    protected function performDeletion(string $disk, string $path): bool
+    {
+        $result = Storage::disk($disk)->delete($path);
+
+        if ($result) {
+            $this->breaker->recordSuccess();
+
+            return true;
+        } else {
+            $this->breaker->recordFailure();
+
+            throw new \Exception('Deletion operation returned false.');
+        }
+    }
+
+    protected function handleDeletionFailure(int $attempts, int $maxAttempts): void
+    {
+        if ($this->maxAttemptsReached($attempts, $maxAttempts) || ! $this->breaker->canAttempt()) {
+            return;
+        }
+
+        $this->waitBeforeRetry();
+    }
+
+    protected function logDeletionAttemptFailure(string $disk, string $path, int $attempts, int $maxAttempts, \Exception $e): void
+    {
+        Log::warning("File delete attempt {$attempts} failed.", [
+            'disk' => $disk,
+            'path' => $path,
+            'error' => $e->getMessage(),
+            'attempt' => $attempts,
+            'max_attempts' => $maxAttempts,
+        ]);
+    }
+
+    protected function logFinalDeletionFailure(string $disk, string $path, int $attempts, ?\Exception $lastException): void
+    {
+        Log::error("File delete attempt {$attempts} failed.", [
+            'disk' => $disk,
+            'path' => $path,
+            'max_attempts' => $attempts,
+            'last_error' => $lastException?->getMessage(),
+        ]);
     }
 }
