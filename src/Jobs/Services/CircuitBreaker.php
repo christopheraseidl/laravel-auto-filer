@@ -7,6 +7,15 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
+/**
+ * Circuit breaker implementation that prevents cascading failures by monitoring
+ * failure rates and temporarily blocking requests when thresholds are exceeded.
+ *
+ * The circuit breaker has three states:
+ * - CLOSED: Normal operation, requests are allowed through
+ * - OPEN: Failure threshold exceeded, requests are blocked
+ * - HALF_OPEN: Testing phase after recovery timeout, limited requests allowed
+ */
 class CircuitBreaker implements CircuitBreakerContract
 {
     const STATE_CLOSED = 'closed';
@@ -25,21 +34,39 @@ class CircuitBreaker implements CircuitBreakerContract
         private readonly ?string $adminEmail = null
     ) {}
 
+    /**
+     * Check if the circuit breaker is in the closed state (normal operation).
+     */
     public function isClosed(): bool
     {
         return $this->getState() === self::STATE_CLOSED;
     }
 
+    /**
+     * Check if the circuit breaker is in the open state (blocking requests).
+     */
     public function isOpen(): bool
     {
         return $this->getState() === self::STATE_OPEN;
     }
 
+    /**
+     * Check if the circuit breaker is in the half-open state (testing recovery).
+     */
     public function isHalfOpen(): bool
     {
         return $this->getState() === self::STATE_HALF_OPEN;
     }
 
+    /**
+     * Determine if a request attempt is allowed based on the current state and conditions.
+     *
+     * In CLOSED state, all attempts are allowed.
+     * In OPEN state, attempts are only allowed after the recovery timeout has passed.
+     * In HALF_OPEN state, attempts are limited to the configured maximum.
+     *
+     * @return bool True if the attempt should be allowed, false otherwise
+     */
     public function canAttempt(): bool
     {
         try {
@@ -78,6 +105,12 @@ class CircuitBreaker implements CircuitBreakerContract
         }
     }
 
+    /**
+     * Record a successful operation and potentially transition from HALF_OPEN to CLOSED.
+     *
+     * If the circuit breaker is in HALF_OPEN state, a success will transition it back
+     * to CLOSED state, indicating full recovery.
+     */
     public function recordSuccess(): void
     {
         try {
@@ -97,6 +130,12 @@ class CircuitBreaker implements CircuitBreakerContract
         }
     }
 
+    /**
+     * Record a failure and potentially transition the circuit breaker state.
+     *
+     * In CLOSED state, failures are counted and may trigger transition to OPEN.
+     * In HALF_OPEN state, failures increment attempts and may trigger transition back to OPEN.
+     */
     public function recordFailure(): void
     {
         try {
@@ -124,6 +163,9 @@ class CircuitBreaker implements CircuitBreakerContract
         }
     }
 
+    /**
+     * Manually reset the circuit breaker to CLOSED state, clearing all failure data.
+     */
     public function reset(): void
     {
         try {
@@ -137,16 +179,31 @@ class CircuitBreaker implements CircuitBreakerContract
         }
     }
 
+    /**
+     * Get the current state of the circuit breaker.
+     *
+     * @return string The current state (closed, open, or half_open)
+     */
     public function getState(): string
     {
         return Cache::get($this->getKey('state'), self::STATE_CLOSED);
     }
 
+    /**
+     * Get the current failure count.
+     *
+     * @return int Number of recorded failures
+     */
     public function getFailureCount(): int
     {
         return Cache::get($this->getKey('failures'), 0);
     }
 
+    /**
+     * Get comprehensive statistics about the circuit breaker's current state.
+     *
+     * @return array Associative array containing name, state, failure counts, and timing information
+     */
     public function getStats(): array
     {
         return [

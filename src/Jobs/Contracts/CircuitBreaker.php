@@ -2,6 +2,12 @@
 
 namespace christopheraseidl\HasUploads\Jobs\Contracts;
 
+/**
+ * Contract for circuit breaker implementations that prevent cascading failures.
+ *
+ * Circuit breakers monitor failure rates and temporarily block operations
+ * when failure thresholds are exceeded, allowing systems to recover.
+ */
 interface CircuitBreaker
 {
     public function __construct(
