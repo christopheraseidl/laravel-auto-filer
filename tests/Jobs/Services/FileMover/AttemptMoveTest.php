@@ -56,6 +56,7 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
             return true;
         });
 
+    // Mock file operations.
     $diskMock->shouldReceive('exists')->andReturn(true);
     $diskMock->shouldReceive('size')->andReturn(100);
     $diskMock->shouldReceive('delete')->andReturn(true);
@@ -77,7 +78,7 @@ it('calls attemptUndoMove when move fails and there are moved files', function (
 
     Storage::shouldReceive('disk')->with($this->disk)->andReturn($diskMock);
 
-    // Mock the failed copy attempt
+    // Mock the failed copy attempt.
     $diskMock->shouldReceive('copy')->times(3)->andThrow(new \Exception('Copy failed.'));
 
     // Mock the undo operation.
@@ -91,15 +92,14 @@ it('calls attemptUndoMove when move fails and there are moved files', function (
 
 it('logs an error and throws an exception after 3 errors when maxAttempts is 3', function () {
     $diskMock = \Mockery::mock();
-
-    Log::spy();
+    $diskMock->shouldReceive('copy')
+        ->andThrow(new \Exception('Copy failed.'));
 
     Storage::shouldReceive('disk')
         ->with($this->disk)
         ->andReturn($diskMock);
 
-    $diskMock->shouldReceive('copy')
-        ->andThrow(new \Exception('Copy failed.'));
+    Log::spy();
 
     expect(fn () => $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir))
         ->toThrow(\Exception::class);
@@ -107,10 +107,10 @@ it('logs an error and throws an exception after 3 errors when maxAttempts is 3',
     Log::shouldHaveReceived('error')
         ->with('Failed to move file after 3 attempts.', [
             'disk' => $this->disk,
-            'oldPath' => $this->oldPath,
-            'newDir' => $this->newDir,
-            'maxAttempts' => 3,
-            'lastError' => 'Copy failed.',
+            'old_path' => $this->oldPath,
+            'new_dir' => $this->newDir,
+            'max_attempts' => 3,
+            'last_error' => 'Copy failed.',
         ]);
 });
 

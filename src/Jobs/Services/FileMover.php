@@ -166,7 +166,7 @@ class FileMover implements FileMoverContract
 
         while ($attempts < $maxAttempts && $this->breaker->canAttempt()) {
             try {
-                $this->undoSingleFile($disk, $oldPath, $newPath);
+                $this->performUndo($disk, $oldPath, $newPath);
                 $this->breaker->recordSuccess();
 
                 return true;
@@ -189,6 +189,25 @@ class FileMover implements FileMoverContract
         }
 
         return false;
+    }
+
+    protected function performUndo(string $disk, string $oldPath, string $newPath): void
+    {
+        if (! $this->exists($disk, $newPath)) {
+            return; // Nothing to undo
+        }
+
+        // Restore original if it doesn't exist
+        if (! $this->exists($disk, $oldPath)) {
+            Storage::disk($disk)->copy($newPath, $oldPath);
+        }
+
+        // Verify restoration before deleting
+        if ($this->exists($disk, $oldPath)) {
+            Storage::disk($disk)->delete($newPath);
+        } else {
+            throw new \Exception('Failed to restore file to original location.');
+        }
     }
 
     protected function handleMoveFailure(string $disk, int $attempts, int $maxAttempts): void
@@ -307,25 +326,6 @@ class FileMover implements FileMoverContract
             'failed' => $failures,
             'succeeded' => $successes,
         ]);
-    }
-
-    private function undoSingleFile(string $disk, string $oldPath, string $newPath): void
-    {
-        if (! $this->exists($disk, $newPath)) {
-            return; // Nothing to undo
-        }
-
-        // Restore original if it doesn't exist
-        if (! $this->exists($disk, $oldPath)) {
-            Storage::disk($disk)->copy($newPath, $oldPath);
-        }
-
-        // Verify restoration before deleting
-        if ($this->exists($disk, $oldPath)) {
-            Storage::disk($disk)->delete($newPath);
-        } else {
-            throw new \Exception('Failed to restore file to original location.');
-        }
     }
 
     private function commitMovedFile(string $oldPath, string $newPath): string
