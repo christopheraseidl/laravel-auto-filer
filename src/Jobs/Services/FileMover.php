@@ -9,12 +9,10 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Handles file move operations with retry logic and circuit breaker protection.
- * 
+ *
  * This service provides atomic file moves with automatic rollback on failure.
  * It integrates with a circuit breaker to prevent cascading failures when
  * the underlying storage system is experiencing issues.
- * 
- * @package christopheraseidl\HasUploads
  */
 class FileMover implements FileMoverContract
 {
@@ -28,9 +26,9 @@ class FileMover implements FileMoverContract
 
     /**
      * Attempts to move a file with retry logic and automatic rollback.
-     * 
+     *
      * @return string The new file path after successful move
-     * 
+     *
      * @throws \InvalidArgumentException If maxAttempts < 1
      * @throws \Exception If circuit breaker is open or move fails after all attempts
      */
@@ -39,7 +37,7 @@ class FileMover implements FileMoverContract
         $this->validateMaxAttempts($maxAttempts);
         $this->checkCircuitBreaker('attempt move file', $disk, [
             'old_path' => $oldPath,
-            'new_dir' => $newDir
+            'new_dir' => $newDir,
         ]);
 
         $newPath = $this->buildNewPath($newDir, $oldPath);
@@ -73,9 +71,9 @@ class FileMover implements FileMoverContract
      *
      * This method will attempt to restore all files tracked in $movedFiles
      * to their original locations. Partial success is possible.
-     * 
+     *
      * @return array<string, string> Successfully restored files (old path => new path)
-     * 
+     *
      * @throws \InvalidArgumentException If maxAttempts < 1
      * @throws \Exception If throwOnFailure is true and any undo operation fails
      */
@@ -112,7 +110,7 @@ class FileMover implements FileMoverContract
 
     /**
      * Performs the actual file move operation.
-     * 
+     *
      * This method uses copy+delete instead of move to strive for atomicity
      * and to verify the file exists at the destination before removing
      * the source.
@@ -140,7 +138,7 @@ class FileMover implements FileMoverContract
     {
         if (! $this->breaker->canAttempt()) {
             $this->logCircuitBreakerBlock('process undo operations', $disk, [
-                'pending_undos' => count($this->movedFiles)
+                'pending_undos' => count($this->movedFiles),
             ]);
 
             return ['failures' => $this->movedFiles, 'successes' => []];
@@ -177,7 +175,7 @@ class FileMover implements FileMoverContract
 
                 $this->logUndoAttemptFailure($disk, $attempts, $e, [
                     'old_path' => $oldPath,
-                    'new_path' => $newPath
+                    'new_path' => $newPath,
                 ]);
 
                 if ($attempts < $maxAttempts) {
