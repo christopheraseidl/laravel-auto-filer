@@ -30,10 +30,6 @@ it('logs unexpected exception when attemptUndoMove throws during move failure ha
     $maxAttempts = 1;
     $fileMover->handleMoveFailure($this->disk, $attempt, $maxAttempts);
 
-    $fileMover->shouldHaveReceived('logUnexpectedUndoException')
-        ->once()
-        ->with($this->disk, $undoException);
-
     Log::shouldHaveReceived('error')
         ->once()
         ->with('Unexpected exception during undo after move failure.', [

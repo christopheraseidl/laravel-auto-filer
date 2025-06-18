@@ -51,23 +51,7 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
                 ]);
             }
 
-            $processedCount = 0;
-
-            foreach ($files as $file) {
-                // Check if file is older than threshold
-                if (now()
-                    ->subHours($thresholdHours)
-                    ->isAfter($this->getLastModified($file))
-                ) {
-                    $processedCount++;
-
-                    if ($dryRun) {
-                        Log::info("Would delete file: {$file}");
-                    } else {
-                        Storage::disk($disk)->delete($file);
-                    }
-                }
-            }
+            $processedCount = $this->processFiles($files, $dryRun, $thresholdHours);
 
             if ($dryRun) {
                 Log::info('Concluding dry run of CleanOrphanedUploads job', [
@@ -103,5 +87,26 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
     public function getPayload(): CleanOrphanedUploadsPayload
     {
         return $this->payload;
+    }
+
+    private function processFiles(array $files, bool $dryRun, int $thresholdHours): int
+    {
+        $processedCount = 0;
+        $cutoffTime = now()->subHours($thresholdHours);
+
+        foreach ($files as $file) {
+            // Check if file is older than threshold
+            if ($cutoffTime->isAfter($this->getLastModified($file))) {
+                $processedCount++;
+
+                if ($dryRun) {
+                    Log::info("Would delete file: {$file}");
+                } else {
+                    Storage::disk($this->getPayload()->getDisk())->delete($file);
+                }
+            }
+        }
+
+        return $processedCount;
     }
 }
