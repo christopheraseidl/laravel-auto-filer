@@ -4,7 +4,6 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\Services\FileMover;
 
 use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
 use christopheraseidl\HasUploads\Jobs\Services\FileMover;
-use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -14,13 +13,17 @@ use Illuminate\Support\Facades\Log;
  */
 it('logs unexpected exception when attemptUndoMove throws during move failure handling', function () {
     $circuitBreaker = \Mockery::mock(CircuitBreaker::class);
+    $circuitBreaker->shouldReceive('maxAttemptsReached')->andReturnTrue();
+    $circuitBreaker->shouldReceive('canAttempt')->andReturnTrue();
+
+    $fileMover = \Mockery::mock(FileMover::class, [$circuitBreaker, [
+        'old_1' => 'new_path_1',
+        'old_2' => 'new_path_2',
+    ]])->makePartial();
+
     $undoException = new \Exception('Error while moving.');
 
-    $fileMover = \Mockery::mock(new FileMover($circuitBreaker))->makePartial();
-    $fileMover = Reflect::on($fileMover);
-
     // Set up test state
-    $fileMover->movedFiles = ['old_1' => 'new_path_1', 'old_2' => 'new_path_2'];
     $fileMover->shouldReceive('attemptUndoMove')
         ->andThrow($undoException);
 

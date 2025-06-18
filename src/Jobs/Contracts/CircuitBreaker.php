@@ -69,4 +69,9 @@ interface CircuitBreaker
      * Return circuit breaker statistics.
      */
     public function getStats(): array;
+
+    /**
+     * Determine if maximum retry attempts have been reached.
+     */
+    public function maxAttemptsReached(int $attempts, int $maxAttempts): bool;
 }

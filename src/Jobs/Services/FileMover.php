@@ -51,7 +51,7 @@ class FileMover extends FileOperator implements FileMoverContract
             }
         }
 
-        if ($this->maxAttemptsReached($attempts, $maxAttempts)) {
+        if ($this->breaker->maxAttemptsReached($attempts, $maxAttempts)) {
             $this->breaker->recordFailure();
         }
 
@@ -169,7 +169,7 @@ class FileMover extends FileOperator implements FileMoverContract
             }
         }
 
-        if ($this->maxAttemptsReached($attempts, $maxAttempts)) {
+        if ($this->breaker->maxAttemptsReached($attempts, $maxAttempts)) {
             $this->breaker->recordFailure();
         }
 
@@ -197,7 +197,7 @@ class FileMover extends FileOperator implements FileMoverContract
 
     protected function handleMoveFailure(string $disk, int $attempts, int $maxAttempts): void
     {
-        if ($this->maxAttemptsReached($attempts, $maxAttempts)) {
+        if ($this->breaker->maxAttemptsReached($attempts, $maxAttempts)) {
             if (! empty($this->movedFiles)) {
                 try {
                     $this->attemptUndoMove($disk, $maxAttempts, false);

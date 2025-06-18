@@ -34,14 +34,6 @@ abstract class FileOperator
         }
     }
 
-    /**
-     * Determine if maximum retry attempts have been reached.
-     */
-    protected function maxAttemptsReached(int $attempts, int $maxAttempts): bool
-    {
-        return $attempts >= $maxAttempts;
-    }
-
     protected function waitBeforeRetry(): void
     {
         sleep(1); // Brief pause before retry attempt

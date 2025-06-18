@@ -77,7 +77,7 @@ class FileDeleter extends FileOperator implements FileDeleterContract
 
     protected function handleDeletionFailure(int $attempts, int $maxAttempts): void
     {
-        if ($this->maxAttemptsReached($attempts, $maxAttempts) || ! $this->breaker->canAttempt()) {
+        if ($this->breaker->maxAttemptsReached($attempts, $maxAttempts) || ! $this->breaker->canAttempt()) {
             return;
         }
 

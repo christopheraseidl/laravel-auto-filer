@@ -60,11 +60,11 @@ class CircuitBreaker implements CircuitBreakerContract
         try {
             $state = $this->getState();
 
-            if ($state === self::STATE_CLOSED) {
+            if ($this->isClosed()) {
                 return true;
             }
 
-            if ($state === self::STATE_OPEN) {
+            if ($this->isOpen()) {
                 $openedAt = Cache::get($this->getKey('opened_at'));
 
                 if ($openedAt && (now()->timestamp - $openedAt) >= $this->recoveryTimeout) {
@@ -76,7 +76,7 @@ class CircuitBreaker implements CircuitBreakerContract
                 return false;
             }
 
-            if ($state === self::STATE_HALF_OPEN) {
+            if ($this->isHalfOpen()) {
                 $attempts = Cache::get($this->getKey('half_open_attempts'), 0);
 
                 return $attempts < $this->halfOpenMaxAttempts;
@@ -101,7 +101,7 @@ class CircuitBreaker implements CircuitBreakerContract
         try {
             $state = $this->getState();
 
-            if ($state === self::STATE_HALF_OPEN) {
+            if ($this->isHalfOpen()) {
                 $this->transitionToClosed();
                 Log::info("CircuitBreaker '{$this->name}' recovered and transitioned to CLOSED state at {$this->getTimestamp()}.");
             }
@@ -125,10 +125,10 @@ class CircuitBreaker implements CircuitBreakerContract
             $failures = Cache::get($this->getKey('failures'), 0) + 1;
             $this->setKey('failures', $failures);
 
-            if ($state === self::STATE_CLOSED && $failures >= $this->failureThreshold) {
+            if ($this->isClosed() && $failures >= $this->failureThreshold) {
                 $this->transitionToOpen();
                 $this->sendAdminNotification("Circuit breaker opened after {$failures} failures.");
-            } elseif ($state === self::STATE_HALF_OPEN) {
+            } elseif ($this->isHalfOpen()) {
                 Cache::increment($this->getKey('half_open_attempts'));
                 $halfOpenAttempts = Cache::get($this->getKey('half_open_attempts'), 0);
 
@@ -196,6 +196,14 @@ class CircuitBreaker implements CircuitBreakerContract
             'opened_at' => Cache::get($this->getKey('opened_at')),
             'recovery_timeout' => $this->recoveryTimeout,
         ];
+    }
+
+    /**
+     * Determine if maximum retry attempts have been reached.
+     */
+    public function maxAttemptsReached(int $attempts, int $maxAttempts): bool
+    {
+        return $attempts >= $maxAttempts;
     }
 
     private function transitionToOpen(): void
