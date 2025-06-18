@@ -8,7 +8,7 @@ use christopheraseidl\HasUploads\Jobs\Contracts\Job;
 use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
 
 /**
- * Fluent builder for creating Job instances with validated payloads.
+ * Fluently creates Job instances with validated payloads.
  *
  * Provides a convenient API for setting job properties dynamically and
  * constructing jobs with properly validated payload objects.

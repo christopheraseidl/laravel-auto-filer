@@ -12,22 +12,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Job to clean up orphaned temporary upload files that failed to be processed.
+ * Cleans orphaned temporary upload files older than specified threshold.
  *
- * CAUTION: This job deletes files from the specified disk and path that are
- * older than 24 hours (by default). It assumes any files in this location
- * are temporary uploads that failed to be moved to their model directories. If
- * your application stores other files in this location, DO NOT use this job.
- *
- * The job supports dry-run mode for testing and includes circuit breaker
- * protection to prevent cascading failures during file system operations.
- *
- * Files are considered orphaned if they exist in the temporary upload directory
- * and are older than the configured threshold (typically indicating a failed
- * upload or processing operation).
- *
- * @see \christopheraseidl\HasUploads\Support\UploadService For the upload path
- * configuration.
+ * CAUTION: Deletes files from specified disk and path older than 24 hours by default.
+ * Only use if temporary uploads are stored exclusively in the target location.
  */
 final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
 {
@@ -38,16 +26,12 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
     }
 
     /**
-     * Execute the cleanup operation for orphaned upload files.
-     *
-     * Scans the configured path for files older than the threshold and deletes them.
-     * Respects dry-run mode and cleanup enabled flags from the payload configuration.
-     * Includes comprehensive logging for both dry-run and actual deletion operations.
+     * Execute cleanup operation for orphaned upload files.
      */
     public function handle(): void
     {
         if (! $this->getPayload()->isCleanupEnabled()) {
-            return;
+            return; // Cleanup disabled via configuration
         }
 
         $this->handleJob(function () {
@@ -70,6 +54,7 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
             $processedCount = 0;
 
             foreach ($files as $file) {
+                // Check if file is older than threshold
                 if (now()
                     ->subHours($thresholdHours)
                     ->isAfter($this->getLastModified($file))
@@ -92,11 +77,6 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
         });
     }
 
-    /**
-     * Get the last modified timestamp for a file as a DateTime object.
-     *
-     * @return \DateTimeInterface The file's last modification time
-     */
     public function getLastModified(string $file): \DateTimeInterface
     {
         return Carbon::createFromTimestamp(
@@ -105,11 +85,7 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
     }
 
     /**
-     * Get the operation type identifier for this job.
-     *
-     * Used for circuit breaker grouping and operation tracking.
-     *
-     * @return string The operation type combining clean operation and directory scope
+     * Get operation type identifier for job tracking.
      */
     public function getOperationType(): string
     {
@@ -117,16 +93,11 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
     }
 
     /**
-     * Get a unique identifier for this job type.
-     *
-     * Uses the operation type as the unique ID since cleanup operations
-     * should be singleton jobs (only one running at a time).
-     *
-     * @return string The unique job identifier
+     * Get unique identifier ensuring singleton job execution.
      */
     public function uniqueId(): string
     {
-        return $this->getOperationType();
+        return $this->getOperationType(); // Only one cleanup job should run at a time
     }
 
     public function getPayload(): CleanOrphanedUploadsPayload

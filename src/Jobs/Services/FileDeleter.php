@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Handles file deletion operations with retry logic and circuit breaker protection.
- *
- * This service provides file deletion capability. It integrates with a circuit
- * breaker to prevent cascading failures when the underlying storage system is experiencing issues.
  */
 class FileDeleter extends FileOperator implements FileDeleterContract
 {
@@ -20,12 +17,7 @@ class FileDeleter extends FileOperator implements FileDeleterContract
     ) {}
 
     /**
-     * Attempts to delete a file with retry logic.
-     *
-     * @return bool The success of the deletion attempt
-     *
-     * @throws \InvalidArgumentException If maxAttempts < 1
-     * @throws \Exception If circuit breaker is open or deletion fails after all attempts
+     * Attempt to delete a file with retry logic.
      */
     public function attemptDelete(string $disk, string $path, int $maxAttempts = 3): bool
     {

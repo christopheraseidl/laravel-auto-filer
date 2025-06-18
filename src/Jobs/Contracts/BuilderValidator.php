@@ -4,6 +4,9 @@ namespace christopheraseidl\HasUploads\Jobs\Contracts;
 
 use ReflectionParameter;
 
+/**
+ * Validates job configuration and payload construction.
+ */
 interface BuilderValidator
 {
     /**

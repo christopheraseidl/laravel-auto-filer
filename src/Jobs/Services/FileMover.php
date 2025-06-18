@@ -9,10 +9,6 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Handles file move operations with retry logic and circuit breaker protection.
- *
- * This service provides atomic file moves with automatic rollback on failure.
- * It integrates with a circuit breaker to prevent cascading failures when
- * the underlying storage system is experiencing issues.
  */
 class FileMover extends FileOperator implements FileMoverContract
 {
@@ -25,12 +21,7 @@ class FileMover extends FileOperator implements FileMoverContract
     ) {}
 
     /**
-     * Attempts to move a file with retry logic and automatic rollback.
-     *
-     * @return string The new file path after successful move
-     *
-     * @throws \InvalidArgumentException If maxAttempts < 1
-     * @throws \Exception If circuit breaker is open or move fails after all attempts
+     * Attempt to move a file with retry logic and automatic rollback.
      */
     public function attemptMove(string $disk, string $oldPath, string $newDir, int $maxAttempts = 3): string
     {
@@ -66,15 +57,7 @@ class FileMover extends FileOperator implements FileMoverContract
     }
 
     /**
-     * Attempts to undo previously moved files.
-     *
-     * This method will attempt to restore all files tracked in $movedFiles
-     * to their original locations. Partial success is possible.
-     *
-     * @return array<string, string> Successfully restored files (old path => new path)
-     *
-     * @throws \InvalidArgumentException If maxAttempts < 1
-     * @throws \Exception If throwOnFailure is true and any undo operation fails
+     * Attempt to undo previously moved files.
      */
     public function attemptUndoMove(string $disk, int $maxAttempts = 3, bool $throwOnFailure = true): array
     {
@@ -92,11 +75,7 @@ class FileMover extends FileOperator implements FileMoverContract
     }
 
     /**
-     * Performs the actual file move operation.
-     *
-     * This method uses copy+delete instead of move to strive for atomicity
-     * and to verify the file exists at the destination before removing
-     * the source.
+     * Perform the actual file move operation using copy+delete for atomicity.
      */
     protected function performMove(string $disk, string $oldPath, string $newPath): string
     {

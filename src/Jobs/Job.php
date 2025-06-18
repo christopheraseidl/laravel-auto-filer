@@ -17,29 +17,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Abstract base class for file operation jobs with standardized configuration and error handling.
- *
- * Provides common functionality for all file operation jobs including:
- * - Dynamic job instantiation with payload validation
- * - Standardized job execution with event broadcasting
- * - Configurable connection and queue routing
- * - Built-in retry logic and failure handling
- * - Rate limiting and throttling middleware
- *
- * Child classes must implement the specific job logic while inheriting
- * the standardized infrastructure for reliability and monitoring.
+ * Provides standardized configuration and error handling for file operation jobs.
  */
 abstract class Job implements JobContract
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * Factory method to create job instances with reflection-based validation.
-     *
-     * Validates that the job class is concrete and has the correct constructor
-     * signature before instantiation. Returns null for abstract classes.
-     *
-     * @return static|null The job instance or null if class is abstract
+     * Provides standardized configuration and error handling for file operation jobs.
      */
     public static function make(Payload $payload): ?static
     {
@@ -47,7 +32,7 @@ abstract class Job implements JobContract
         $reflection = new \ReflectionClass($class);
 
         if ($reflection->isAbstract()) {
-            return null;
+            return null; // Cannot instantiate abstract classes
         }
 
         $constructor = $reflection->getConstructor();
@@ -59,11 +44,7 @@ abstract class Job implements JobContract
     }
 
     /**
-     * Execute the job with standardized error handling and event broadcasting.
-     *
-     * Wraps the actual job logic with try-catch handling and broadcasts
-     * success/failure events based on payload configuration. This provides
-     * consistent behavior across all job types.
+     * Execute job with standardized error handling and event broadcasting.
      */
     public function handleJob(\Closure $job): void
     {
@@ -86,12 +67,7 @@ abstract class Job implements JobContract
     }
 
     /**
-     * Set the retry timeout for failed jobs.
-     *
-     * Jobs will continue retrying for up to 5 minutes before being marked
-     * as permanently failed.
-     *
-     * @return \DateTime The deadline for retry attempts
+     * Set retry timeout for failed jobs to 5 minutes.
      */
     public function retryUntil(): \DateTime
     {
@@ -100,8 +76,6 @@ abstract class Job implements JobContract
 
     /**
      * Handle permanent job failure after all retries are exhausted.
-     *
-     * Logs the failure with job details for debugging and monitoring purposes.
      */
     public function failed(\Throwable $exception): void
     {
@@ -109,28 +83,22 @@ abstract class Job implements JobContract
     }
 
     /**
-     * Define middleware for job execution.
-     *
-     * Applies throttling for repeated exceptions and rate limiting to prevent
-     * overwhelming the file system or external services.
-     *
-     * @return array Array of middleware instances
+     * Define middleware for job execution with throttling and rate limiting.
      */
     public function middleware(): array
     {
+        // By default, allow 10 exceptions in 5 minutes
+        $maxAttempts = config('has-uploads.throttle_exception_attempts', 10);
+        $period = config('has-uploads.throttle_exception_period', 5);
+
         return [
-            new ThrottlesExceptions(10, 5),
+            new ThrottlesExceptions($maxAttempts, $period),
             new RateLimited('uploads'),
         ];
     }
 
     /**
-     * Get the queue connection for this job.
-     *
-     * Uses job-specific configuration if available, falling back to the
-     * package default connection.
-     *
-     * @return string|null The connection name or null for default
+     * Get queue connection using job-specific configuration or package default.
      */
     public function getConnection(): ?string
     {
@@ -140,12 +108,7 @@ abstract class Job implements JobContract
     }
 
     /**
-     * Get the queue name for this job.
-     *
-     * Uses job-specific configuration if available, falling back to the
-     * package default queue.
-     *
-     * @return string|null The queue name or null for default
+     * Get queue name using job-specific configuration or package default.
      */
     public function getQueue(): ?string
     {
@@ -155,12 +118,7 @@ abstract class Job implements JobContract
     }
 
     /**
-     * Configure the job's connection and queue settings.
-     *
-     * Applies the resolved connection and queue configuration to the job instance.
-     * Throws an exception if the configuration is invalid to fail fast.
-     *
-     * @throws \Exception When job configuration is invalid
+     * Configure job's connection and queue settings.
      */
     protected function config()
     {
@@ -187,9 +145,7 @@ abstract class Job implements JobContract
     }
 
     /**
-     * Resolve the connection with job-specific override capability.
-     *
-     * @return string|null The resolved connection name
+     * Resolve connection with job-specific override capability.
      */
     protected function getJobOrDefaultConnection(): ?string
     {
@@ -213,9 +169,7 @@ abstract class Job implements JobContract
     }
 
     /**
-     * Resolve the queue with job-specific override capability.
-     *
-     * @return string|null The resolved queue name
+     * Resolve queue with job-specific override capability.
      */
     protected function getJobOrDefaultQueue(): ?string
     {
@@ -239,11 +193,7 @@ abstract class Job implements JobContract
     }
 
     /**
-     * Generate a configuration key name from the job class name.
-     *
-     * Converts the class name to snake_case for consistent configuration naming.
-     *
-     * @return string The snake_case job setting name
+     * Generate configuration key name from job class name.
      */
     private function getJobSettingName(): string
     {

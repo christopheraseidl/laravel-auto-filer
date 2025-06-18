@@ -14,14 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Job to move uploaded files from temporary locations to permanent model directories.
- *
- * This job handles the transition of files from temporary upload locations to their
- * final destinations associated with specific models. It updates the model's file
- * attribute to reflect the new file paths while preserving any unmoved files.
- *
- * The operation is wrapped in a database transaction to ensure data consistency
- * between the file system operations and model updates.
+ * Moves uploaded files from temporary locations to permanent model directories.
  */
 final class MoveUploads extends Job implements MoveUploadsContract
 {
@@ -34,11 +27,7 @@ final class MoveUploads extends Job implements MoveUploadsContract
     }
 
     /**
-     * Execute the file move operation within a database transaction.
-     *
-     * Moves specified files to their new directory and updates the model's
-     * file attribute to reflect both moved and unmoved files. The database
-     * transaction ensures consistency between file operations and model updates.
+     * Execute file move operation within database transaction.
      */
     public function handle(): void
     {
@@ -60,24 +49,17 @@ final class MoveUploads extends Job implements MoveUploadsContract
                     $filesToMove
                 );
 
+                // Combine unmoved and moved files
                 $model->{$attribute} = $this->arrayMerge($unmovedFiles, $movedFiles);
                 $model->{$attribute} = $this->normalizeAttributeValue($model, $attribute);
 
-                $model->saveQuietly();
+                $model->saveQuietly(); // Skip model events during file move
             });
         });
     }
 
     /**
      * Normalize attribute value based on model casting configuration.
-     *
-     * Handles the conversion between array and string representations based on
-     * the model's cast configuration. If the attribute is not cast as array
-     * but contains multiple files, throws an exception to prevent data loss.
-     *
-     * @return string|array|null The normalized attribute value
-     *
-     * @throws \Exception When multiple files exist but attribute is not cast as array
      */
     public function normalizeAttributeValue(Model $model, string $attribute): string|array|null
     {
@@ -90,7 +72,7 @@ final class MoveUploads extends Job implements MoveUploadsContract
         if (! isset($casts[$attribute]) || $casts[$attribute] !== 'array') {
             try {
                 return (count($model->{$attribute}) === 1)
-                    ? $model->{$attribute}[0]
+                    ? $model->{$attribute}[0] // Single file as string
                     : throw new \Exception('The attribute is being treated as an array but is not cast as an array in the model.');
             } catch (\Throwable $e) {
                 Log::error("Array conversion failed in MoveUploads job: {$e->getMessage()}");
@@ -101,21 +83,11 @@ final class MoveUploads extends Job implements MoveUploadsContract
         return $model->{$attribute};
     }
 
-    /**
-     * Get the operation type identifier for this job.
-     *
-     * @return string The operation type for grouping and tracking
-     */
     public function getOperationType(): string
     {
         return FileOperationType::get(OperationType::Move, OperationScope::File);
     }
 
-    /**
-     * Get the operation type identifier for this job.
-     *
-     * @return string The operation type for grouping and tracking
-     */
     public function uniqueId(): string
     {
         return $this->getPayload()->getKey();
@@ -126,26 +98,15 @@ final class MoveUploads extends Job implements MoveUploadsContract
         return $this->payload;
     }
 
-    /**
-     * Configure the job by setting up the FileMover dependency.
-     *
-     * Resolves the FileMover service from the container, which provides
-     * the retry logic and circuit breaker integration for move operations.
-     */
     protected function config()
     {
         parent::config();
 
-        $this->mover = app()->make(FileMover::class);
+        $this->mover = app()->make(FileMover::class); // Initialize file mover service
     }
 
     /**
-     * Merge arrays, remove empty values, and reindex the result.
-     *
-     * Combines unmoved and moved files while filtering out any null/empty
-     * values that might result from failed move operations.
-     *
-     * @return array Clean, reindexed array of file paths
+     * Merge arrays, remove empty values, and reindex result.
      */
     private function arrayMerge(array $array1, array $array2): array
     {

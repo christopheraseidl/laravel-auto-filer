@@ -2,6 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Jobs\Contracts;
 
+/**
+ * Attempts to move a file with circuit breaker, retry, and rollback logic.
+ */
 interface FileMover
 {
     public function __construct(

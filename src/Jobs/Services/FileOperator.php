@@ -6,20 +6,14 @@ use christopheraseidl\HasUploads\Jobs\Contracts\CircuitBreaker;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Abstract base class for file operations with circuit breaker protection.
- *
- * Provides common functionality for file operations including retry logic,
- * circuit breaker integration, and failure handling to prevent cascading
- * failures in file system operations.
+ * Provides common functionality for file operations with circuit breaker protection.
  */
 abstract class FileOperator
 {
     protected CircuitBreaker $breaker;
 
     /**
-     * Validate that the maximum attempts value is reasonable.
-     *
-     * @throws \InvalidArgumentException When maxAttempts is less than 1
+     * Validate that maximum attempts value is at least 1.
      */
     protected function validateMaxAttempts(int $maxAttempts): void
     {
@@ -29,12 +23,7 @@ abstract class FileOperator
     }
 
     /**
-     * Check if the circuit breaker allows the operation to proceed.
-     *
-     * If the circuit breaker is open (blocking requests), logs the blocked
-     * operation and throws an exception to prevent the operation from executing.
-     *
-     * @throws \Exception When circuit breaker is open and blocking operations
+     * Check if circuit breaker allows operation to proceed.
      */
     protected function checkCircuitBreaker(string $operation, string $disk, array $context): void
     {
@@ -46,9 +35,7 @@ abstract class FileOperator
     }
 
     /**
-     * Determine if the maximum number of retry attempts has been reached.
-     *
-     * @return bool True if no more attempts should be made
+     * Determine if maximum retry attempts have been reached.
      */
     protected function maxAttemptsReached(int $attempts, int $maxAttempts): bool
     {
@@ -57,7 +44,7 @@ abstract class FileOperator
 
     protected function waitBeforeRetry(): void
     {
-        sleep(1);
+        sleep(1); // Brief pause before retry attempt
     }
 
     protected function logCircuitBreakerBlock(string $operation, string $disk, array $context): void

@@ -8,13 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * Circuit breaker implementation that prevents cascading failures by monitoring
- * failure rates and temporarily blocking requests when thresholds are exceeded.
- *
- * The circuit breaker has three states:
- * - CLOSED: Normal operation, requests are allowed through
- * - OPEN: Failure threshold exceeded, requests are blocked
- * - HALF_OPEN: Testing phase after recovery timeout, limited requests allowed
+ * Prevents cascading failures by monitoring failure rates and blocking requests when thresholds are exceeded.
  */
 class CircuitBreaker implements CircuitBreakerContract
 {
@@ -59,13 +53,7 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Determine if a request attempt is allowed based on the current state and conditions.
-     *
-     * In CLOSED state, all attempts are allowed.
-     * In OPEN state, attempts are only allowed after the recovery timeout has passed.
-     * In HALF_OPEN state, attempts are limited to the configured maximum.
-     *
-     * @return bool True if the attempt should be allowed, false otherwise
+     * Determine if request attempt is allowed based on current state.
      */
     public function canAttempt(): bool
     {
@@ -106,10 +94,7 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Record a successful operation and potentially transition from HALF_OPEN to CLOSED.
-     *
-     * If the circuit breaker is in HALF_OPEN state, a success will transition it back
-     * to CLOSED state, indicating full recovery.
+     * Record successful operation and transition from half-open to closed if applicable.
      */
     public function recordSuccess(): void
     {
@@ -131,10 +116,7 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Record a failure and potentially transition the circuit breaker state.
-     *
-     * In CLOSED state, failures are counted and may trigger transition to OPEN.
-     * In HALF_OPEN state, failures increment attempts and may trigger transition back to OPEN.
+     * Record failure and potentially transition circuit breaker state.
      */
     public function recordFailure(): void
     {
@@ -164,7 +146,7 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Manually reset the circuit breaker to CLOSED state, clearing all failure data.
+     * Reset circuit breaker to closed state.
      */
     public function reset(): void
     {

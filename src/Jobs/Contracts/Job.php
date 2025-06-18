@@ -9,6 +9,9 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Throwable;
 
+/**
+ * Provides common functionality to extending job classes.
+ */
 interface Job extends ShouldBeUnique, ShouldQueue
 {
     /**

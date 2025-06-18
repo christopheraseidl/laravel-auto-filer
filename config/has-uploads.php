@@ -4,7 +4,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Storage Disk
+    | Storage disk
     |--------------------------------------------------------------------------
     |
     | The default disk to use for file storage. This should correspond to
@@ -16,7 +16,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Storage Path
+    | Storage path
     |--------------------------------------------------------------------------
     |
     | The default path within the disk where files will be stored.
@@ -28,7 +28,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Broadcast Channel
+    | Broadcast channel
     |--------------------------------------------------------------------------
     |
     | The default broadcast channel to use for real-time notifications
@@ -40,7 +40,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Maximum File Size
+    | Maximum file size
     |--------------------------------------------------------------------------
     |
     | The maximum file size allowed for uploads, specified in kilobytes.
@@ -52,7 +52,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Allowed MIME Types
+    | Allowed MIME types
     |--------------------------------------------------------------------------
     |
     | An array of allowed file extensions for uploads. Only files with
@@ -73,7 +73,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | File Cleanup Configuration
+    | File cleanup configuration
     |--------------------------------------------------------------------------
     |
     | Configuration options for automatic file cleanup operations.
@@ -90,7 +90,35 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Circuit Breaker Configuration
+    | Exception throttle maximum attempts
+    |--------------------------------------------------------------------------
+    |
+    | The maximum number of exceptions allowed within the specified time period
+    | before throttling is activated. Once this threshold is exceeded, the
+    | system will temporarily reject or delay file operations to prevent
+    | system overload and cascading failures.
+    |
+    */
+
+    'throttle_exception_attempts' => 10,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exception throttle period
+    |--------------------------------------------------------------------------
+    |
+    | The time window (in minutes) used to calculate the exception threshold.
+    | If the configured number of exceptions occurs within this period,
+    | throttling will be activated. After this period expires, the exception
+    | counter resets and normal operations can resume.
+    |
+    */
+
+    'throttle_exception_period' => 10,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Circuit breaker configuration
     |--------------------------------------------------------------------------
     |
     | Circuit breaker settings for file operations to prevent cascading
@@ -103,7 +131,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Email Notifications
+        | Email notifications
         |--------------------------------------------------------------------------
         |
         | Enable or disable email notifications when circuit breakers are triggered.
@@ -116,7 +144,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Admin Email Address
+        | Admin email address
         |--------------------------------------------------------------------------
         |
         | The email address to send circuit breaker notifications to.
@@ -128,7 +156,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Failure Threshold
+        | Failure threshold
         |--------------------------------------------------------------------------
         |
         | Number of consecutive failures before opening the circuit.
@@ -141,7 +169,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Recovery Timeout
+        | Recovery timeout
         |--------------------------------------------------------------------------
         |
         | Time in seconds to wait before attempting recovery (transition to half-open).
@@ -154,7 +182,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Half-Open Attempts
+        | Half-open attempts
         |--------------------------------------------------------------------------
         |
         | Number of attempts allowed in half-open state before reopening.
