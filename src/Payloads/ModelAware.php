@@ -8,6 +8,9 @@ use christopheraseidl\HasUploads\Payloads\Contracts\ModelAware as ModelAwareCont
 use christopheraseidl\HasUploads\Traits\HasDisk;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Provides model context for upload operation payloads.
+ */
 abstract class ModelAware extends Payload implements ModelAwareContract
 {
     use HasDisk;
@@ -24,6 +27,9 @@ abstract class ModelAware extends Payload implements ModelAwareContract
         private readonly ?string $newDir = null
     ) {}
 
+    /**
+     * Generate unique identifier combining model context and file hash.
+     */
     public function getKey(): string
     {
         $modelIdentifier = sprintf(
@@ -54,6 +60,9 @@ abstract class ModelAware extends Payload implements ModelAwareContract
         ];
     }
 
+    /**
+     * Retrieve the model instance from the database.
+     */
     public function resolveModel(): Model
     {
         return $this->getModelClass()::findOrFail($this->getModelId());

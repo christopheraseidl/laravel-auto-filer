@@ -39,6 +39,9 @@ use Illuminate\Support\Str;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
+/**
+ * Registers all package services, jobs, payloads, and compatibility features.
+ */
 class HasUploadsServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
@@ -48,6 +51,9 @@ class HasUploadsServiceProvider extends PackageServiceProvider
             ->hasConfigFile();
     }
 
+    /**
+     * Call methods that should run when the package is registered.
+     */
     public function packageRegistered()
     {
         $this->registerServices();
@@ -55,6 +61,9 @@ class HasUploadsServiceProvider extends PackageServiceProvider
         $this->registerPayloads();
     }
 
+    /**
+     * Call methods that should run when the package is booted.
+     */
     public function packageBooted()
     {
         $this->addPascalMacroIfNeeded();
@@ -77,21 +86,6 @@ class HasUploadsServiceProvider extends PackageServiceProvider
         $this->app->singleton(FileDeleterContract::class, FileDeleter::class);
     }
 
-    protected function registerCircuitBreaker(): void
-    {
-        $this->app->singleton(CircuitBreakerContract::class, function (Application $app) {
-            return new CircuitBreaker(
-                name: 'laravel-has-uploads-circuit-breaker',
-                failureThreshold: config('has-uploads.circuit_breaker.failure_threshold', 5),
-                recoveryTimeout: config('has-uploads.circuit_breaker.recovery_timeout', 60),
-                halfOpenMaxAttempts: config('has-uploads.circuit_breaker.half_open_attempts', 3),
-                cacheTtlHours: config('has-uploads.circuit_breaker.cache_ttl', 1),
-                emailNotificationEnabled: config('has-uploads.circuit_breaker.email_notifications', false),
-                adminEmail: config('has-uploads.circuit_breaker.admin_email')
-            );
-        });
-    }
-
     protected function registerJobs(): void
     {
         $this->app->bind(CleanOrphanedUploadsJobContract::class, CleanOrphanedUploadsJob::class);
@@ -108,10 +102,31 @@ class HasUploadsServiceProvider extends PackageServiceProvider
         $this->app->bind(MoveUploadsPayloadContract::class, MoveUploadsPayload::class);
     }
 
-    // Patch for Str::pascal method compatibility in Laravel 10.
+    /**
+     * Register circuit breaker with configuration-based parameters.
+     */
+    protected function registerCircuitBreaker(): void
+    {
+        $this->app->singleton(CircuitBreakerContract::class, function (Application $app) {
+            return new CircuitBreaker(
+                name: 'laravel-has-uploads-circuit-breaker',
+                failureThreshold: config('has-uploads.circuit_breaker.failure_threshold', 5),
+                recoveryTimeout: config('has-uploads.circuit_breaker.recovery_timeout', 60),
+                halfOpenMaxAttempts: config('has-uploads.circuit_breaker.half_open_attempts', 3),
+                cacheTtlHours: config('has-uploads.circuit_breaker.cache_ttl', 1),
+                emailNotificationEnabled: config('has-uploads.circuit_breaker.email_notifications', false),
+                adminEmail: config('has-uploads.circuit_breaker.admin_email')
+            );
+        });
+    }
+
+    /**
+     * Add Str::pascal macro for Laravel 10 compatibility if method doesn't exist.
+     */
     protected function addPascalMacroIfNeeded(): void
     {
         if (! $this->hasPascalMethod()) {
+            // Laravel 10 compatibility patch
             $this->addPascalMacro();
         }
     }

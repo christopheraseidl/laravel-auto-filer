@@ -4,6 +4,9 @@ namespace christopheraseidl\HasUploads\Payloads\Contracts;
 
 use christopheraseidl\HasUploads\Contracts\SinglePath;
 
+/**
+ * Provides model and path data to the DeleteUploadDirectory job.
+ */
 interface DeleteUploadDirectory extends Payload, SinglePath
 {
     public function __construct(

@@ -8,6 +8,9 @@ use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
 use christopheraseidl\HasUploads\Services\Contracts\UploadService;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Handles model events by creating and dispatching upload jobs.
+ */
 abstract class BaseModelEventHandler
 {
     protected string $disk;
@@ -41,8 +44,12 @@ abstract class BaseModelEventHandler
         );
     }
 
+    /**
+     * Collect jobs from all uploadable attributes, applying optional filter.
+     */
     protected function getAllJobs(Model $model, ?\Closure $filter = null): array
     {
+        // Default filter accepts all attributes
         $filter = $filter ?? fn ($model, $attribute) => true;
 
         return collect($model->getUploadableAttributes())

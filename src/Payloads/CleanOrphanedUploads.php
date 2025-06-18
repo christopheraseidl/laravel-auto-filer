@@ -6,6 +6,9 @@ use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as Clea
 use christopheraseidl\HasUploads\Traits\HasDisk;
 use christopheraseidl\HasUploads\Traits\HasPath;
 
+/**
+ * Provides relevant data to the CleanOrphanedUploads job based on threshold and configuration.
+ */
 final class CleanOrphanedUploads extends Payload implements CleanOrphanedUploadsContract
 {
     use HasDisk, HasPath;
@@ -39,6 +42,9 @@ final class CleanOrphanedUploads extends Payload implements CleanOrphanedUploads
         ];
     }
 
+    /**
+     * Get cleanup threshold with fallback to configuration default.
+     */
     public function getCleanupThresholdHours(): int
     {
         return max(

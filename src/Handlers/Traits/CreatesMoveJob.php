@@ -8,8 +8,14 @@ use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
 use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Creates move jobs for new file paths.
+ */
 trait CreatesMoveJob
 {
+    /**
+     * Create a move job if new files exist, otherwise return null.
+     */
     protected function createMoveJob(
         Builder $builder,
         Model $model,

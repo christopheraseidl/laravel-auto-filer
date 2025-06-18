@@ -32,5 +32,9 @@ it('gets the correct path with assetType', function () {
 });
 
 it('throws an exception for incorrect assetType', function () {
-    $path = $this->model->getUploadPath('non-existent');
-})->throws(\Exception::class, "The asset type 'non-existent' does not exist.");
+    $nonExistent = 'non-existent';
+    $class = $this->model::class;
+
+    expect(fn () => $this->model->getUploadPath($nonExistent))
+        ->toThrow(\Exception::class, "Asset type '{$nonExistent}' is not configured for {$class}");
+});

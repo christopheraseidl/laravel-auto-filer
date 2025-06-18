@@ -7,6 +7,9 @@ use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadD
 use christopheraseidl\HasUploads\Services\Contracts\UploadService;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Handles file cleanup when models are deleted.
+ */
 class ModelDeletionHandler
 {
     protected string $disk;
@@ -17,6 +20,9 @@ class ModelDeletionHandler
         $this->disk = $uploadService->getDisk();
     }
 
+    /**
+     * Delete the entire upload directory for the model.
+     */
     public function handle(Model $model): void
     {
         $payload = DeleteUploadDirectoryPayload::make(

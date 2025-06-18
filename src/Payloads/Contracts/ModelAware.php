@@ -6,6 +6,9 @@ use christopheraseidl\HasUploads\Enums\OperationScope;
 use christopheraseidl\HasUploads\Enums\OperationType;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Provides model context for upload operation payloads.
+ */
 interface ModelAware extends Payload
 {
     public function __construct(
@@ -20,6 +23,9 @@ interface ModelAware extends Payload
         ?string $newDir = null
     );
 
+    /**
+     * Retrieve the model instance from the database.
+     */
     public function resolveModel(): Model;
 
     public function getModelClass(): string;

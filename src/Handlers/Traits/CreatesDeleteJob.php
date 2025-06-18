@@ -8,8 +8,14 @@ use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
 use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Creates delete jobs for removed file paths.
+ */
 trait CreatesDeleteJob
 {
+    /**
+     * Create a delete job if removed files exist, otherwise return null.
+     */
     protected function createDeleteJob(
         Builder $builder,
         Model $model,

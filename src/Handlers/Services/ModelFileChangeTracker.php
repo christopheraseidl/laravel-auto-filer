@@ -6,12 +6,18 @@ use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker as Mo
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 
+/**
+ * Tracks file changes by comparing original and current model attribute values.
+ */
 class ModelFileChangeTracker implements ModelFileChangeTrackerContract
 {
     public array $originalPaths = [];
 
     public array $currentPaths = [];
 
+    /**
+     * Get files present in current but not in original paths.
+     */
     public function getNewFiles(Model $model, string $attribute): array
     {
         return array_values(
@@ -22,6 +28,9 @@ class ModelFileChangeTracker implements ModelFileChangeTrackerContract
         );
     }
 
+    /**
+     * Get files present in original but not in current paths.
+     */
     public function getRemovedFiles(Model $model, string $attribute): array
     {
         return array_values(

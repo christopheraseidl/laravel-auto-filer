@@ -9,51 +9,43 @@ use christopheraseidl\HasUploads\Services\Contracts\UploadService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+/**
+ * Provides upload functionality to models with automatic file handling.
+ */
 trait HasUploads
 {
     protected static ?UploadService $uploadService = null;
 
-    public static function bootHasUploads()
+    public static function bootHasUploads(): void
     {
         static::$uploadService = app(UploadService::class);
 
-        static::created(function (Model $model) {
-            app(ModelCreationHandler::class)->handle($model);
-        });
-
-        static::saved(function (Model $model) {
-            app(ModelUpdateHandler::class)->handle($model);
-        });
-
-        static::deleted(function (Model $model) {
-            app(ModelDeletionHandler::class)->handle($model);
-        });
+        static::created(fn (Model $model) => app(ModelCreationHandler::class)->handle($model));
+        static::saved(fn (Model $model) => app(ModelUpdateHandler::class)->handle($model));
+        static::deleted(fn (Model $model) => app(ModelDeletionHandler::class)->handle($model));
     }
 
-    protected function getUploadService(): UploadService
+    /**
+     * Define uploadable attributes and their corresponding asset types.
+     * Override in your model: ['avatar' => 'images', 'resume' => 'documents']
+     */
+    public function getUploadableAttributes(): array
     {
-        return static::$uploadService;
+        return [];
     }
 
     public function getUploadPath(?string $assetType = null): string
     {
-        $this->validateAssetType($assetType);
+        if ($assetType) {
+            $this->validateAssetType($assetType);
+        }
 
-        $parts = array_filter([
+        return implode('/', array_filter([
             $this->getUploadService()->getPath(),
             $this->getModelDirName(),
             $this->id,
             $assetType,
-        ]);
-
-        return implode('/', $parts);
-    }
-
-    private function validateAssetType(?string $assetType = null): void
-    {
-        if ($assetType && ! $this->assetTypeExists($assetType)) {
-            throw new \Exception("The asset type '$assetType' does not exist.");
-        }
+        ]));
     }
 
     public function getModelDirName(): string
@@ -61,32 +53,25 @@ trait HasUploads
         return Str::snake(Str::plural(class_basename($this)));
     }
 
-    private function assetTypeExists(string $assetType): bool
+    protected function getUploadService(): UploadService
     {
-        $assetType = $this->sanitizePath($assetType);
-
-        return array_search($assetType, $this->getUploadableAttributes(), true) !== false;
+        return static::$uploadService ??= app(UploadService::class);
     }
 
-    /**
-     * Sanitize a path string to prevent directory traversal attacks.
-     * Removes all directory separators and returns only the final path component.
-     */
+    private function validateAssetType(string $assetType): void
+    {
+        if (! $this->assetTypeExists($assetType)) {
+            throw new \Exception("Asset type '{$assetType}' is not configured for ".static::class);
+        }
+    }
+
+    private function assetTypeExists(string $assetType): bool
+    {
+        return in_array($this->sanitizePath($assetType), $this->getUploadableAttributes(), true);
+    }
+
     private function sanitizePath(string $path): string
     {
         return basename(str_replace(['/', '\\'], '', $path));
-    }
-
-    /**
-     * Override this method in your model to specify which attributes are uploadable (keys)
-     * and where to put them (values).
-     */
-    public function getUploadableAttributes(): array
-    {
-        return [
-            // 'attribute_name' => 'asset_type'
-            // e.g., 'image' => 'images'
-            // 'pdf' => 'documents'
-        ];
     }
 }

@@ -5,6 +5,9 @@ namespace christopheraseidl\HasUploads\Services\Contracts;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 
+/**
+ * Manages file uploads with validation and storage operations.
+ */
 interface UploadService
 {
     public function getDisk(): string;
