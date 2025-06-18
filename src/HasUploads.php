@@ -6,6 +6,8 @@ use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
 use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
 use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
 use christopheraseidl\HasUploads\Services\Contracts\UploadService;
+use christopheraseidl\HasUploads\Support\Contracts\UploadableAttributesBuilder as UploadableAttributesBuilderContract;
+use christopheraseidl\HasUploads\Support\UploadableAttributesBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -27,7 +29,11 @@ trait HasUploads
 
     /**
      * Define uploadable attributes and their corresponding asset types.
-     * Override in your model: ['avatar' => 'images', 'resume' => 'documents']
+     *
+     * Override in your model and use the fluent builder syntax:
+     * return $this->uploadable('avatar')->as('images')->and('resume')->as('documents')->build();
+     *
+     * Or return a traditional array: ['avatar' => 'images', 'resume' => 'documents']
      */
     public function getUploadableAttributes(): array
     {
@@ -58,7 +64,15 @@ trait HasUploads
         return static::$uploadService ??= app(UploadService::class);
     }
 
-    private function validateAssetType(string $assetType): void
+    /**
+     * Create a fluent builder for defining uploadable attributes.
+     */
+    protected function uploadable(string $attribute): UploadableAttributesBuilderContract
+    {
+        return (new UploadableAttributesBuilder)->uploadable($attribute);
+    }
+
+    protected function validateAssetType(string $assetType): void
     {
         if (! $this->assetTypeExists($assetType)) {
             throw new \Exception("Asset type '{$assetType}' is not configured for ".static::class);
