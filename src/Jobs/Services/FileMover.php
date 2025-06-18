@@ -42,7 +42,11 @@ class FileMover extends FileOperator implements FileMoverContract
                 $lastException = $e;
                 $attempts++;
 
-                $this->logMoveAttemptFailure($attempts, $e);
+                Log::warning('Move attempt failed.', [
+                    'attempt' => $attempts,
+                    'error' => $e->getMessage(),
+                ]);
+
                 $this->handleMoveFailure($disk, $attempts, $maxAttempts);
             }
         }
@@ -51,7 +55,13 @@ class FileMover extends FileOperator implements FileMoverContract
             $this->breaker->recordFailure();
         }
 
-        $this->logFinalMoveFailure($disk, $oldPath, $newDir, $maxAttempts, $lastException);
+        Log::error("Failed to move file after {$maxAttempts} attempts.", [
+            'disk' => $disk,
+            'old_path' => $oldPath,
+            'new_dir' => $newDir,
+            'max_attempts' => $maxAttempts,
+            'last_error' => $lastException?->getMessage(),
+        ]);
 
         throw new \Exception("Failed to move file after {$maxAttempts} attempts.");
     }
@@ -143,9 +153,14 @@ class FileMover extends FileOperator implements FileMoverContract
             } catch (\Exception $e) {
                 $attempts++;
 
-                $this->logUndoAttemptFailure($disk, $attempts, $e, [
-                    'old_path' => $oldPath,
-                    'new_path' => $newPath,
+                Log::warning('Undo attempt failed.', [
+                    'disk' => $disk,
+                    'attempt' => $attempts,
+                    [
+                        'old_path' => $oldPath,
+                        'new_path' => $newPath,
+                    ],
+                    'error' => $e->getMessage(),
                 ]);
 
                 if ($attempts < $maxAttempts) {
@@ -187,7 +202,10 @@ class FileMover extends FileOperator implements FileMoverContract
                 try {
                     $this->attemptUndoMove($disk, $maxAttempts, false);
                 } catch (\Exception $e) {
-                    $this->logUnexpectedUndoException($disk, $e);
+                    Log::error('Unexpected exception during undo after move failure.', [
+                        'disk' => $disk,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             }
         } elseif ($this->breaker->canAttempt()) {
@@ -204,7 +222,11 @@ class FileMover extends FileOperator implements FileMoverContract
     {
         $this->breaker->recordFailure();
 
-        $this->logFinalUndoFailure($disk, $results['failures'], $results['successes']);
+        Log::error('File move undo failure.', [
+            'disk' => $disk,
+            'failed' => $results['failures'],
+            'succeeded' => $results['successes'],
+        ]);
 
         $this->uncommitSuccessfulUndos($results['successes']);
 
@@ -235,52 +257,6 @@ class FileMover extends FileOperator implements FileMoverContract
     protected function exists(string $disk, string $path): bool
     {
         return Storage::disk($disk)->exists($path) && Storage::disk($disk)->size($path) > 0;
-    }
-
-    protected function logMoveAttemptFailure(int $attempts, \Exception $e): void
-    {
-        Log::warning('Move attempt failed.', [
-            'attempt' => $attempts,
-            'error' => $e->getMessage(),
-        ]);
-    }
-
-    protected function logFinalMoveFailure(string $disk, string $oldPath, string $newDir, int $maxAttempts, ?\Exception $lastException): void
-    {
-        Log::error("Failed to move file after {$maxAttempts} attempts.", [
-            'disk' => $disk,
-            'old_path' => $oldPath,
-            'new_dir' => $newDir,
-            'max_attempts' => $maxAttempts,
-            'last_error' => $lastException?->getMessage(),
-        ]);
-    }
-
-    protected function logUndoAttemptFailure(string $disk, int $attempts, \Exception $e, array $context): void
-    {
-        Log::warning('Undo attempt failed.', [
-            'disk' => $disk,
-            'attempt' => $attempts,
-            ...$context,
-            'error' => $e->getMessage(),
-        ]);
-    }
-
-    protected function logUnexpectedUndoException(string $disk, \Exception $e): void
-    {
-        Log::error('Unexpected exception during undo after move failure.', [
-            'disk' => $disk,
-            'error' => $e->getMessage(),
-        ]);
-    }
-
-    protected function logFinalUndoFailure(string $disk, array $failures, array $successes): void
-    {
-        Log::error('File move undo failure.', [
-            'disk' => $disk,
-            'failed' => $failures,
-            'succeeded' => $successes,
-        ]);
     }
 
     private function commitMovedFile(string $oldPath, string $newPath): string

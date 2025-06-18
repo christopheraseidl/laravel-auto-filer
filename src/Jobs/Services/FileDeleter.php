@@ -36,13 +36,26 @@ class FileDeleter extends FileOperator implements FileDeleterContract
                 $attempts++;
                 $lastException = $e;
 
-                $this->logDeletionAttemptFailure($disk, $path, $attempts, $maxAttempts, $e);
+                Log::warning("File delete attempt {$attempts} failed.", [
+                    'disk' => $disk,
+                    'path' => $path,
+                    'error' => $e->getMessage(),
+                    'attempt' => $attempts,
+                    'max_attempts' => $maxAttempts,
+                ]);
+
                 $this->handleDeletionFailure($attempts, $maxAttempts);
             }
         }
 
         $this->breaker->recordFailure();
-        $this->logFinalDeletionFailure($disk, $path, $attempts, $lastException);
+
+        Log::error("File deletion failed after {$attempts} attempts.", [
+            'disk' => $disk,
+            'path' => $path,
+            'max_attempts' => $attempts,
+            'last_error' => $lastException?->getMessage(),
+        ]);
 
         throw new \Exception("Failed to delete file after {$attempts} attempts.");
     }
@@ -69,26 +82,5 @@ class FileDeleter extends FileOperator implements FileDeleterContract
         }
 
         $this->waitBeforeRetry();
-    }
-
-    protected function logDeletionAttemptFailure(string $disk, string $path, int $attempts, int $maxAttempts, \Exception $e): void
-    {
-        Log::warning("File delete attempt {$attempts} failed.", [
-            'disk' => $disk,
-            'path' => $path,
-            'error' => $e->getMessage(),
-            'attempt' => $attempts,
-            'max_attempts' => $maxAttempts,
-        ]);
-    }
-
-    protected function logFinalDeletionFailure(string $disk, string $path, int $attempts, ?\Exception $lastException): void
-    {
-        Log::error("File delete attempt {$attempts} failed.", [
-            'disk' => $disk,
-            'path' => $path,
-            'max_attempts' => $attempts,
-            'last_error' => $lastException?->getMessage(),
-        ]);
     }
 }
