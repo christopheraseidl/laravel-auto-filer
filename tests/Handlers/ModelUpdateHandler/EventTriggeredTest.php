@@ -3,13 +3,13 @@
 namespace christopheraseidl\HasUploads\Tests\Handler\ModelUpdateHandler;
 
 use christopheraseidl\HasUploads\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
-use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerAssertions;
+use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerHelpers;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 
 uses(
     DatabaseTransactions::class,
-    ModelUpdateHandlerAssertions::class,
+    ModelUpdateHandlerHelpers::class,
     AssertsCorrectJobAttributesAndTypesConfigured::class
 );
 

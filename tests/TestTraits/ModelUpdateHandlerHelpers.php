@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Bus;
  * A trait providing re-usable methods for tests in
  * /tests/Handlers/ModelUpdateHandler.
  */
-trait ModelUpdateHandlerAssertions
+trait ModelUpdateHandlerHelpers
 {
     public function setHandler(): void
     {

@@ -2,9 +2,9 @@
 
 namespace christopheraseidl\HasUploads\Tests\Handlers\ModelUpdateHandler;
 
-use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerAssertions;
+use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerHelpers;
 
-uses(ModelUpdateHandlerAssertions::class);
+uses(ModelUpdateHandlerHelpers::class);
 
 /**
  * Tests ModelUpdateHandler createJobsFromAttribute() method with an empty
