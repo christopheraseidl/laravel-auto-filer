@@ -62,7 +62,7 @@ class FileDeleter extends FileOperator implements FileDeleterContract
 
     protected function performDeletion(string $disk, string $path): bool
     {
-        $result = Storage::disk($disk)->delete($path);
+        $result = $this->deleteDirectoryOrFile($disk, $path);
 
         if ($result) {
             $this->breaker->recordSuccess();
@@ -82,5 +82,12 @@ class FileDeleter extends FileOperator implements FileDeleterContract
         }
 
         $this->waitBeforeRetry();
+    }
+
+    protected function deleteDirectoryOrFile(string $disk, string $path): bool
+    {
+        return Storage::disk($disk)->directoryExists($path)
+            ? Storage::disk($disk)->deleteDirectory($path)
+            : Storage::disk($disk)->delete($path);
     }
 }

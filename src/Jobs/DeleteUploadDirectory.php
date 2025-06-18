@@ -8,7 +8,6 @@ use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory as DeleteU
 use christopheraseidl\HasUploads\Jobs\Contracts\FileDeleter;
 use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\HasUploads\Support\FileOperationType;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -30,7 +29,7 @@ final class DeleteUploadDirectory extends Job implements DeleteUploadDirectoryCo
     public function handle(): void
     {
         $this->handleJob(function () {
-            Storage::disk($this->payload->getDisk())->deleteDirectory($this->payload->getPath());
+            $this->deleter->attemptDelete($this->getPayload()->getDisk(), $this->payload->getPath());
         });
     }
 

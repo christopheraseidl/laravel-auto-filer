@@ -31,11 +31,7 @@ it('deletes a file and returns true', function () {
 it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures) {
     $count = 0;
     $diskMock = \Mockery::mock();
-
-    Storage::shouldReceive('disk')
-        ->with($this->disk)
-        ->andReturn($diskMock);
-
+    $diskMock->shouldReceive('directoryExists')->andReturnFalse();
     $diskMock->shouldReceive('delete')
         ->times($failures + 1)
         ->andReturnUsing(function () use (&$count, $failures) {
@@ -46,6 +42,10 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
 
             return true;
         });
+
+    Storage::shouldReceive('disk')
+        ->with($this->disk)
+        ->andReturn($diskMock);
 
     $result = $this->deleter->attemptDelete($this->disk, $this->path);
 
@@ -110,6 +110,7 @@ it('records a circuit breaker failure and throws an exception when deletion fail
     Log::spy();
 
     $diskMock = \Mockery::mock();
+    $diskMock->shouldReceive('directoryExists')->andReturnFalse();
     $diskMock->shouldReceive('delete')
         ->andReturn(false);
 
