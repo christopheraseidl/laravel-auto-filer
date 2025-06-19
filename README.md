@@ -1,4 +1,4 @@
-# A simple package for automating file upload storage and locations associated with models.
+# Automated file organization for Eloquent Models
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/christopheraseidl/laravel-model-filer.svg?style=flat-square)](https://packagist.org/packages/christopheraseidl/laravel-model-filer)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/christopheraseidl/laravel-model-filer/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/christopheraseidl/laravel-model-filer/actions?query=workflow%3Arun-tests+branch%3Amain)
@@ -6,6 +6,16 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/christopheraseidl/laravel-model-filer.svg?style=flat-square)](https://packagist.org/packages/christopheraseidl/laravel-model-filer)
 
 Laravel Model Filer is a simple package that automates file organization for your Eloquent models. It handles file uploads, moves them to organized directories, and automatically cleans up files when models are deleted.
+
+### Key features
+
+- **Automatic file organization**: files are organized in a predictable structure: `model_type/model_id/asset_type/filename`.
+- **Automatic file movement**: files are automatically moved from temporary to permanent locations when models are saved.
+- **Automatic cleanup**: files are deleted when their associated models are deleted.
+- **Circuit breaker protection**: built-in circuit breaker prevents cascading failures.
+- **Batch operations**: efficient handling of multiple file operations.
+- **Fluent configuration**: easy-to-use fluent interface for defining uploadable attributes.
+- **Laravel 10, 11, and 12 support**: compatible with recent Laravel versions.
 
 ## Installation
 
@@ -57,13 +67,13 @@ class Product extends Model
 You can also just use an associative array with `getUploadableAttributes`:
 ```php
 public function getUploadableAttributes(): array
-    {
-        return [
-            'thumbnail' => 'images',
-            'images' => 'images',
-            'current_report' => 'documents'
-        ];
-    }
+{
+    return [
+        'thumbnail' => 'images',
+        'images' => 'images',
+        'current_report' => 'documents'
+    ];
+}
 ```
 
 ### How it works
