@@ -5,13 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/christopheraseidl/laravel-model-filer/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/christopheraseidl/laravel-model-filer/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/christopheraseidl/laravel-model-filer.svg?style=flat-square)](https://packagist.org/packages/christopheraseidl/laravel-model-filer)
 
-The idea of this package is simple:
-
-1. Add the `ModelFiler` trait to your model.
-2. Set up your model and database for storing uploaded file paths (see **Usage** below).
-3. Your files will be stored in logical, human-readable file paths unique for each model.
-
-Files will be automatically deleted when their associated model is deleted. There is also a cleanup job that you can schedule called  `CleanOrphanedUploads`, which deletes orphaned uploaded files stored in the `uploads_tmp_path` directory (see **Usage**).
+Laravel Model Filer is a simple package that automates file organization for your Eloquent models. It handles file uploads, moves them to organized directories, and automatically cleans up files when models are deleted.
 
 ## Installation
 
@@ -21,54 +15,15 @@ You can install the package via composer:
 composer require christopheraseidl/laravel-model-filer
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="laravel-model-filer-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
+You can optionally publish the config file:
 
 ```bash
 php artisan vendor:publish --tag="laravel-model-filer-config"
 ```
 
-This is the contents of the published config file:
-
-```php
-return [
-    'disk' => 'public',
-    'path' => '',
-    'max_size' => 5120,
-    'mimes' => [
-        'jpg',
-        'jpeg',
-        'png',
-        'ico',
-        'pdf',
-        'doc',
-        'docx',
-        'txt',
-    ],
-    'cleanup' => [
-        'temp_files' => [
-            'enabled' => false,
-            'threshold_hours' => 24,
-        ],
-        'orphaned_files' => [
-            'enabled' => false,
-            'threshold_days' => 7,
-            'dry_run' => true,
-            'backup' => false,
-        ],
-    ],
-];
-```
-
 ## Usage
 
-To set up the model, add a `use` statement and the `getUploadableAttributes` method, which returns a key-value array where the keys are the attribute names and the values are the sub-directories where you want their uploaded files to be stored.
+Add the `HasFiles` trait to your model and define which attributes should handle file uploads:
 
 ```php
 use christopheraseidl\ModelFiler\HasFiles;
@@ -78,6 +33,7 @@ class Product extends Model
     use HasFiles;
 
     protected $fillable = [
+        'thumbnail',
         'images',
         'current_report',
     ];
@@ -91,20 +47,62 @@ class Product extends Model
 
     public function getUploadableAttributes(): array
     {
-        return [
-            'images' => 'images',
-            'current_report' => 'report',
-        ];
+        return $this->uploadable('thumbnail')->as('images')
+            ->and('images')->as('images')
+            ->and('current_report')->as('documents')
+            ->build();
     }
 }
 ```
+You can also just use an associative array with `getUploadableAttributes`:
+```php
+public function getUploadableAttributes(): array
+    {
+        return [
+            'thumbnail' => 'images',
+            'images' => 'images',
+            'current_report' => 'documents'
+        ];
+    }
+```
 
-### Creating, updating, or deleting a model record
+### How it works
 
-- Store the uploaded file path in the model attributes &mdash; in our example, `images` and `current_report`.
-- The stored path values should be relative to the storage directory, for example `my-image.png`, which indicates that the file is stored in the root storage directory (default behavior). Upon saving the model, the path will be updated to something like `products/1/images/my-image.png`.
-- The files will be copied to the same location as the path values.
-- After the copied files are verified to exist in their new locations, the original uploaded files are automatically deleted.
+1. **File Upload**: Upload files to a temporary location and store the paths in your model attributes.
+2. **Model Save**: When the model is saved, files are automatically moved to their permanent location or deleted.
+3. **Path Structure**: Files are organized as `disk://path/products/1/thumbnails/filename.jpg`.
+4. **Model Delete**: When a model is deleted, all associated files are automatically removed.
+
+### Example usage
+```php
+// Creating a new product with file uploads
+$product = new Product([
+    'name' => 'Awesome Product',
+    'thumbnail' => 'temp/uploaded-thumbnail.jpg',
+    'images' => [
+        'temp/image1.jpg',
+        'temp/image2.jpg',
+    ],
+    'current_report' => 'temp/current_report.pdf',
+]);
+
+$product->save();
+
+// Files are now moved to:
+// - products/1/thumbnails/uploaded-thumbnail.jpg
+// - products/1/images/image1.jpg
+// - products/1/images/image2.jpg
+// - products/1/documents/current_report.pdf
+
+// Updating files
+$product->thumbnail = 'temp/new-thumbnail.jpg';
+$product->save();
+// Old thumbnail is deleted, new one is moved to products/1/thumbnails/new-thumbnail.jpg
+
+// Deleting the model
+$product->delete();
+// All associated files are automatically deleted
+```
 
 ### Scheduling a job to clean orphaned file uploads
 
@@ -112,54 +110,49 @@ You may schedule the `CleanOrphanedUploads` job by following [Laravel's document
 
 ## Settings configuration
 
-To customize settings, first publish the config file (see **Installation**) and then modify their values.
+To customize settings, first publish the config file (see **Installation**) and then modify their values. By default, settings are as follows:
 
-### disk
-
-The name of the disk you want to use.
-
-*default* : `'public'`
-
-### uploads_tmp_path
-
-The temporary uploads directory, relative to the storage root.
-
-*default* : `''`
-
-### final_path_prefix
-
-The prefix path that you want to go before the models subdirectory.
-
-*default* : `''`
-
-### max_size
-
-The maximum file syze, in kilobytes.
-
-*default* : `'5120'`
-
-### mimes
-
-The permitted mime types.
-
-*default* : `['jpg', 'jpeg', 'png', 'ico', 'pdf', 'doc', 'docx', 'txt']`
-
-### cleanup
-
-*default* :
 ```php
-[
-    'temp_files' => [
+return [
+    // Storage disk to use
+    'disk' => 'public',
+    
+    // Base path within the disk
+    'path' => '',
+    
+    // Broadcast channel for real-time notifications
+    'broadcast_channel' => 'default',
+    
+    // Maximum file size in KB
+    'max_size' => 5120,
+    
+    // Allowed file extensions
+    'mimes' => [
+        'jpg', 'jpeg', 'png', 'ico',
+        'pdf', 'doc', 'docx', 'txt',
+    ],
+    
+    // Cleanup configuration
+    'cleanup' => [
         'enabled' => false,
+        'dry_run' => true,
         'threshold_hours' => 24,
     ],
-    'orphaned_files' => [
-        'enabled' => false,
-        'threshold_days' => 7,
-        'dry_run' => true,
-        'backup' => false,
+    
+    // Exception throttling
+    'throttle_exception_attempts' => 10,
+    'throttle_exception_period' => 10,
+    
+    // Circuit breaker configuration
+    'circuit_breaker' => [
+        'email_notifications' => false,
+        'admin_email' => env('MAIL_FROM_ADDRESS'),
+        'failure_threshold' => 5,
+        'recovery_timeout' => 60,
+        'half_open_attempts' => 3,
+        'cache_ttl' => 1,
     ],
-],
+];
 ```
 
 ## Testing
