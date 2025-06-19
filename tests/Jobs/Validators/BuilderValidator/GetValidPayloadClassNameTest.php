@@ -1,15 +1,15 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Validators\BuilderValidator;
 
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
-use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
+use christopheraseidl\ModelFiler\Tests\TestClasses\TestJob;
 use Mockery\MockInterface;
 
 /**
  * Tests BuilderValidator getValidPayloadClassName method.
  *
- * @covers \christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator
+ * @covers \christopheraseidl\ModelFiler\Tests\Jobs\Validators\BuilderValidator
  */
 beforeEach(function () {
     $this->payload = new TestPayloadNoConstructor;
@@ -23,7 +23,7 @@ beforeEach(function () {
 it('returns the expected payload class name', function () {
     $testValue = $this->validator->getValidPayloadClassName($this->jobClass, $this->parameter);
 
-    expect($testValue)->toEqual('christopheraseidl\HasUploads\Payloads\Payload');
+    expect($testValue)->toEqual('christopheraseidl\ModelFiler\Payloads\Payload');
 });
 
 it('throws an exception when the parameter argument is not a class', function () {
@@ -34,7 +34,7 @@ it('throws an exception when the parameter argument is not a class', function ()
     $reflectionNamedTypeMock->shouldReceive('isBuiltin')->andReturn(true);
 
     expect(fn () => $this->validator->getValidPayloadClassName($this->jobClass, $reflectionParameterMock))
-        ->toThrow(\InvalidArgumentException::class, "Parameter of christopheraseidl\HasUploads\Tests\TestClasses\TestJob constructor must be a class type.");
+        ->toThrow(\InvalidArgumentException::class, "Parameter of christopheraseidl\ModelFiler\Tests\TestClasses\TestJob constructor must be a class type.");
 });
 
 it('throws an exception when the parameter type is not a ReflectionNamedType', function () {
@@ -45,4 +45,4 @@ it('throws an exception when the parameter type is not a ReflectionNamedType', f
     });
 
     $this->validator->getValidPayloadClassName($this->jobClass, $reflectionParameterMock);
-})->throws(\InvalidArgumentException::class, "Parameter of christopheraseidl\HasUploads\Tests\TestClasses\TestJob constructor must be a class type.");
+})->throws(\InvalidArgumentException::class, "Parameter of christopheraseidl\ModelFiler\Tests\TestClasses\TestJob constructor must be a class type.");

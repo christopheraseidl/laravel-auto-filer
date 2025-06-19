@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Events\Event;
+namespace christopheraseidl\ModelFiler\Tests\Events\Event;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
-use christopheraseidl\HasUploads\Tests\TestTraits\EventHelpers;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload;
+use christopheraseidl\ModelFiler\Tests\TestTraits\EventHelpers;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Broadcasting\PrivateChannel;
 
@@ -14,10 +14,10 @@ uses(
 /**
  * Tests Event class method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Events\Event
+ * @covers \christopheraseidl\ModelFiler\Events\Event
  */
 beforeEach(function () {
-    config()->set('has-uploads.broadcast_channel', 'test-channel');
+    config()->set('model-filer.broadcast_channel', 'test-channel');
 
     $this->setHandler();
 });
@@ -31,7 +31,7 @@ it('broadcasts on configured private channel', function () {
 });
 
 it('uses different channel when config changes', function (string $channelName) {
-    config()->set('has-uploads.broadcast_channel', $channelName);
+    config()->set('model-filer.broadcast_channel', $channelName);
 
     $channels = $this->handler->broadcastOn();
 

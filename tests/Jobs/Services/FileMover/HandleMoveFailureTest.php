@@ -1,16 +1,16 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Services\FileMover;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileMover;
 
-use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
-use christopheraseidl\HasUploads\Jobs\Services\FileMover;
+use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
+use christopheraseidl\ModelFiler\Jobs\Services\FileMover;
 use Illuminate\Support\Facades\Log;
 use Mockery\MockInterface;
 
 /**
  * Tests FileMover handleMoveFailure method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Services\FileMover
+ * @covers \christopheraseidl\ModelFiler\Jobs\Services\FileMover
  */
 it('logs unexpected exception when attemptUndoMove throws during move failure handling', function () {
     $circuitBreaker = $this->mock(CircuitBreaker::class, function (MockInterface $mock) {

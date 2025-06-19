@@ -1,16 +1,16 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Facades;
+namespace christopheraseidl\ModelFiler\Tests\Facades;
 
-use christopheraseidl\HasUploads\Facades\UploadService;
+use christopheraseidl\ModelFiler\Facades\FileService;
 
 /**
- * Tests configuration of UploadService Facade class.
+ * Tests configuration of FileService Facade class.
  *
- * @covers \christopheraseidl\HasUploads\Facades\UploadService
+ * @covers \christopheraseidl\ModelFiler\Facades\FileService
  */
 beforeEach(function () {
-    $this->reflection = new \ReflectionClass(UploadService::class);
+    $this->reflection = new \ReflectionClass(FileService::class);
 });
 
 it('extends the Facade class', function () {
@@ -21,8 +21,8 @@ it('extends the Facade class', function () {
 it('returns the expected accessor value', function () {
     $method = $this->reflection->getMethod('getFacadeAccessor');
 
-    $instance = new UploadService;
+    $instance = new FileService;
     $accessor = $method->invoke($instance);
 
-    expect($accessor)->toBe('christopheraseidl\HasUploads\Services\UploadService');
+    expect($accessor)->toBe('christopheraseidl\ModelFiler\Services\FileService');
 });

@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Validators;
+namespace christopheraseidl\ModelFiler\Jobs\Validators;
 
-use christopheraseidl\HasUploads\Jobs\Contracts\BuilderValidator as BuilderValidatorContract;
+use christopheraseidl\ModelFiler\Jobs\Contracts\BuilderValidator as BuilderValidatorContract;
 
 /**
  * Validates job builder operations using reflection to ensure proper job structure.

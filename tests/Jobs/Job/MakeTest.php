@@ -1,15 +1,15 @@
 <?php
 
-use christopheraseidl\HasUploads\Jobs\Job;
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
-use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
-use christopheraseidl\HasUploads\Tests\TestClasses\TestJobWithoutConstructor;
+use christopheraseidl\ModelFiler\Jobs\Job;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
+use christopheraseidl\ModelFiler\Tests\TestClasses\TestJob;
+use christopheraseidl\ModelFiler\Tests\TestClasses\TestJobWithoutConstructor;
 use christopheraseidl\Reflect\Reflect;
 
 /**
  * Tests the Job make method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Job
+ * @covers \christopheraseidl\ModelFiler\Jobs\Job
  */
 class TestJobWithConstructor extends TestJob
 {

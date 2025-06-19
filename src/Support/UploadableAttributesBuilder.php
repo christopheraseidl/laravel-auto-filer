@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Support;
+namespace christopheraseidl\ModelFiler\Support;
 
-use christopheraseidl\HasUploads\Support\Contracts\UploadableAttributesBuilder as UploadableAttributesBuilderContract;
+use christopheraseidl\ModelFiler\Support\Contracts\UploadableAttributesBuilder as UploadableAttributesBuilderContract;
 
 /**
  * Defines and returns uploadable attributes and their types.

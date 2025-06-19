@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\BaseModelEventHandler;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\BaseModelEventHandler;
 
-use christopheraseidl\HasUploads\Handlers\Services\BatchManager;
-use christopheraseidl\HasUploads\Handlers\Services\ModelFileChangeTracker;
-use christopheraseidl\HasUploads\Jobs\Services\Builder;
-use christopheraseidl\HasUploads\Services\UploadService;
-use christopheraseidl\HasUploads\Tests\TestClasses\BaseModelEventHandlerTestClass;
-use christopheraseidl\HasUploads\Tests\TestTraits\BaseModelEventHandlerHelpers;
+use christopheraseidl\ModelFiler\Handlers\Services\BatchManager;
+use christopheraseidl\ModelFiler\Handlers\Services\ModelFileChangeTracker;
+use christopheraseidl\ModelFiler\Jobs\Services\Builder;
+use christopheraseidl\ModelFiler\Services\FileService;
+use christopheraseidl\ModelFiler\Tests\TestClasses\BaseModelEventHandlerTestClass;
+use christopheraseidl\ModelFiler\Tests\TestTraits\BaseModelEventHandlerHelpers;
 use Illuminate\Support\Facades\Bus;
 use Mockery\MockInterface;
 
@@ -18,14 +18,14 @@ uses(
 /**
  * Tests BaseModelEventHandler class method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\BaseModelEventHandler
+ * @covers \christopheraseidl\ModelFiler\Handlers\BaseModelEventHandler
  */
 beforeEach(function () {
     Bus::fake();
 
     $this->setHandler();
 
-    $this->mock(UploadService::class, function (MockInterface $mock) {
+    $this->mock(FileService::class, function (MockInterface $mock) {
         $mock->shouldReceive('getDisk')->andReturn($this->diskTestValue);
     });
 
@@ -34,7 +34,7 @@ beforeEach(function () {
     $this->mock(ModelFileChangeTracker::class);
 
     $this->handler = \Mockery::mock(BaseModelEventHandlerTestClass::class, [
-        app(UploadService::class),
+        app(FileService::class),
         app(Builder::class),
         $this->batchManager,
         app(ModelFileChangeTracker::class),

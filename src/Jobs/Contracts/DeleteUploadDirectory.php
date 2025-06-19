@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Contracts;
+namespace christopheraseidl\ModelFiler\Jobs\Contracts;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 
 /**
  * Deletes an entire directly of uploaded files.

@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads\Contracts;
+namespace christopheraseidl\ModelFiler\Payloads\Contracts;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
 use Illuminate\Database\Eloquent\Model;
 
 /**

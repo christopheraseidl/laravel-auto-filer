@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Contracts;
+namespace christopheraseidl\ModelFiler\Contracts;
 
 /**
  * Provides functionality for interacting with a path property.

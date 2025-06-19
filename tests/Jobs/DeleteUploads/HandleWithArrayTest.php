@@ -1,15 +1,15 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploads;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\DeleteUploads;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Events\FileOperationCompleted;
-use christopheraseidl\HasUploads\Events\FileOperationFailed;
-use christopheraseidl\HasUploads\Jobs\DeleteUploads;
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsPayload;
-use christopheraseidl\HasUploads\Payloads\ModelAware;
-use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
+use christopheraseidl\ModelFiler\Events\FileOperationFailed;
+use christopheraseidl\ModelFiler\Jobs\DeleteUploads;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploadsPayload;
+use christopheraseidl\ModelFiler\Payloads\ModelAware;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Tests the DeleteUploads handle method with array (multiple file) attributes.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploads
+ * @covers \christopheraseidl\ModelFiler\Jobs\DeleteUploads
  */
 class TestArrayDeleteUploadsPayload extends ModelAware implements DeleteUploadsPayload
 {

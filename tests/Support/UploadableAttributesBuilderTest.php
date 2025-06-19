@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Support;
+namespace christopheraseidl\ModelFiler\Tests\Support;
 
-use christopheraseidl\HasUploads\Support\UploadableAttributesBuilder;
+use christopheraseidl\ModelFiler\Support\UploadableAttributesBuilder;
 use christopheraseidl\Reflect\Reflect;
 
 beforeEach(function () {

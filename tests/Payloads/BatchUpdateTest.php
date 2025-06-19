@@ -1,16 +1,16 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Payloads;
+namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Payloads\BatchUpdate;
-use christopheraseidl\HasUploads\Payloads\Contracts\BatchUpdate as BatchUpdateContract;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Payloads\BatchUpdate;
+use christopheraseidl\ModelFiler\Payloads\Contracts\BatchUpdate as BatchUpdateContract;
 
 /**
  * Tests BatchUpdate structure and behavior.
  *
- * @covers \christopheraseidl\HasUploads\Payloads\BatchUpdate
+ * @covers \christopheraseidl\ModelFiler\Payloads\BatchUpdate
  */
 beforeEach(function () {
     $this->payload = new BatchUpdate(

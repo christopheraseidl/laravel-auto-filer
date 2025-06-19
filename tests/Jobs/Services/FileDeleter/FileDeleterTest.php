@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Services\FileDeleter;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileDeleter;
 
-use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
-use christopheraseidl\HasUploads\Jobs\Services\FileDeleter;
+use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
+use christopheraseidl\ModelFiler\Jobs\Services\FileDeleter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Mockery\MockInterface;
@@ -11,7 +11,7 @@ use Mockery\MockInterface;
 /**
  * Tests FileDeleter method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Services\FileDeleter
+ * @covers \christopheraseidl\ModelFiler\Jobs\Services\FileDeleter
  */
 beforeEach(function () {
     $this->deleter = new FileDeleter(

@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Services;
+namespace christopheraseidl\ModelFiler\Jobs\Services;
 
-use christopheraseidl\HasUploads\Jobs\Contracts\Builder as BuilderContract;
-use christopheraseidl\HasUploads\Jobs\Contracts\BuilderValidator;
-use christopheraseidl\HasUploads\Jobs\Contracts\Job;
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
+use christopheraseidl\ModelFiler\Jobs\Contracts\Builder as BuilderContract;
+use christopheraseidl\ModelFiler\Jobs\Contracts\BuilderValidator;
+use christopheraseidl\ModelFiler\Jobs\Contracts\Job;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload;
 
 /**
  * Fluently creates Job instances with validated payloads.

@@ -6,7 +6,7 @@ use Illuminate\Queue\Middleware\ThrottlesExceptions;
 /**
  * Tests the Job middleware method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Job
+ * @covers \christopheraseidl\ModelFiler\Jobs\Job
  */
 it('returns correct throttling and rate limiting', function () {
     $middleware = $this->job->middleware();

@@ -1,19 +1,19 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\HasUploads;
+namespace christopheraseidl\ModelFiler\Tests\ModelFiler;
 
-use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
-use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
-use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
-use christopheraseidl\HasUploads\Services\Contracts\UploadService;
-use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
+use christopheraseidl\ModelFiler\Handlers\ModelCreationHandler;
+use christopheraseidl\ModelFiler\Handlers\ModelDeletionHandler;
+use christopheraseidl\ModelFiler\Handlers\ModelUpdateHandler;
+use christopheraseidl\ModelFiler\Services\Contracts\FileService;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Mockery\MockInterface;
 
 uses(DatabaseTransactions::class);
 
-it('calls the handlers on model events and sets the uploadService static property', function () {
+it('calls the handlers on model events and sets the fileService static property', function () {
     $this->mock(ModelCreationHandler::class, function (MockInterface $mock) {
         $mock->shouldReceive('handle')->once();
     });
@@ -30,6 +30,6 @@ it('calls the handlers on model events and sets the uploadService static propert
     $model->delete();
 });
 
-it('sets the uploadService static property', function () {
-    expect(Reflect::on($this->model)->uploadService)->toBeInstanceOf(UploadService::class);
+it('sets the fileService static property', function () {
+    expect(Reflect::on($this->model)->fileService)->toBeInstanceOf(FileService::class);
 });

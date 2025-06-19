@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Contracts;
+namespace christopheraseidl\ModelFiler\Jobs\Contracts;
 
 /**
  * Implements a circuit breaker to prevent cascading failures.

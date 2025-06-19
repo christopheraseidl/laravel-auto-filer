@@ -1,10 +1,10 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\ModelDeletionHandler;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\ModelDeletionHandler;
 
-use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
-use christopheraseidl\HasUploads\Services\Contracts\UploadService;
-use christopheraseidl\HasUploads\Tests\TestTraits\AssertsDeleteUploadDirectory;
+use christopheraseidl\ModelFiler\Handlers\ModelDeletionHandler;
+use christopheraseidl\ModelFiler\Services\Contracts\FileService;
+use christopheraseidl\ModelFiler\Tests\TestTraits\AssertsDeleteUploadDirectory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 
@@ -16,12 +16,12 @@ uses(
 /**
  * Tests ModelDeletionHandler behavior triggered directly by methods.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\ModelDeletionHandler
+ * @covers \christopheraseidl\ModelFiler\Handlers\ModelDeletionHandler
  */
 beforeEach(function () {
     Bus::fake();
 
-    $this->handler = new ModelDeletionHandler(app(UploadService::class));
+    $this->handler = new ModelDeletionHandler(app(FileService::class));
 });
 
 it('dispatches the correctly configured delete upload directory job when handle() is called', function () {

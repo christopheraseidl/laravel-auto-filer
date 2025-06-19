@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Payloads\Payload;
+namespace christopheraseidl\ModelFiler\Tests\Payloads\Payload;
 
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayload;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayload;
 
 /**
  * Tests Payload required methods behavior.
  *
- * @covers \christopheraseidl\HasUploads\Payloads\Payload
+ * @covers \christopheraseidl\ModelFiler\Payloads\Payload
  */
 beforeEach(function () {
     $this->payload = new TestPayload('test value');

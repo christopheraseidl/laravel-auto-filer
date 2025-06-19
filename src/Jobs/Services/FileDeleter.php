@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Services;
+namespace christopheraseidl\ModelFiler\Jobs\Services;
 
-use christopheraseidl\HasUploads\Jobs\Contracts\CircuitBreaker;
-use christopheraseidl\HasUploads\Jobs\Contracts\FileDeleter as FileDeleterContract;
+use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker;
+use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter as FileDeleterContract;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 

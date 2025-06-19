@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads\Contracts;
+namespace christopheraseidl\ModelFiler\Payloads\Contracts;
 
-use christopheraseidl\HasUploads\Contracts\SinglePath;
+use christopheraseidl\ModelFiler\Contracts\SinglePath;
 
 /**
  * Provides disk and path data to the CleanOrphanedUploads job based on threshold and configuration.

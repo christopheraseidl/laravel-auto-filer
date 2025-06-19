@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Job;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Job;
 
-use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
+use christopheraseidl\ModelFiler\Tests\TestClasses\TestJob;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Tests the Job config method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Job
+ * @covers \christopheraseidl\ModelFiler\Jobs\Job
  */
 beforeEach(function () {
     $this->mock = $this->partialMock(TestJob::class);

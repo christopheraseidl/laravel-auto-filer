@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\CleanOrphanedUploads;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\CleanOrphanedUploads;
 
-use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
+use christopheraseidl\ModelFiler\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 
 /**
  * Tests the CleanOrphanedUploads getPayload method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads
+ * @covers \christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads
  */
 it('gets the expected payload', function () {
     expect($this->cleaner->getPayload())

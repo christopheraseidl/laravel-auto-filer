@@ -1,10 +1,10 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\Services;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\Services;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Events\FileOperationCompleted;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -13,7 +13,7 @@ use Mockery\MockInterface;
 /**
  * Tests BatchManager handleSuccess() method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\Services\BatchManager
+ * @covers \christopheraseidl\ModelFiler\Handlers\Services\BatchManager
  */
 it('broadcasts FileOperationCompleted with correct data', function () {
     $this->batchManager->handleSuccess($this->batch, $this->model, $this->disk);

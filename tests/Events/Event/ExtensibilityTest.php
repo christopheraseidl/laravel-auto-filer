@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Events\Event;
+namespace christopheraseidl\ModelFiler\Tests\Events\Event;
 
-use christopheraseidl\HasUploads\Events\Event;
-use christopheraseidl\HasUploads\Tests\TestTraits\EventHelpers;
+use christopheraseidl\ModelFiler\Events\Event;
+use christopheraseidl\ModelFiler\Tests\TestTraits\EventHelpers;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
@@ -14,7 +14,7 @@ uses(
 /**
  * Tests Event class extensibility.
  *
- * @covers \christopheraseidl\HasUploads\Events\Event
+ * @covers \christopheraseidl\ModelFiler\Events\Event
  */
 beforeEach(function () {
     $this->setHandler();

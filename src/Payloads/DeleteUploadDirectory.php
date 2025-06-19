@@ -1,10 +1,10 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads;
+namespace christopheraseidl\ModelFiler\Payloads;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
-use christopheraseidl\HasUploads\Traits\HasDisk;
-use christopheraseidl\HasUploads\Traits\HasPath;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
+use christopheraseidl\ModelFiler\Traits\HasDisk;
+use christopheraseidl\ModelFiler\Traits\HasPath;
 
 /**
  * Provides model and path data to the DeleteUploadDirectory job.

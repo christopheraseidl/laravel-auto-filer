@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Services\CircuitBreaker;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
-use christopheraseidl\HasUploads\Tests\TestTraits\CircuitBreakerHelpers;
+use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +14,7 @@ uses(
 /**
  * Tests CircuitBreaker canAttempt method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ * @covers \christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker
  */
 it('returns true when circuit breaker is in closed state', function () {
     expect($this->breaker->getState())->toBe('closed');

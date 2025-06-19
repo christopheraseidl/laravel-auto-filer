@@ -1,12 +1,12 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestTraits;
+namespace christopheraseidl\ModelFiler\Tests\TestTraits;
 
-use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
-use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
-use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\HasUploads\Services\UploadService;
-use christopheraseidl\HasUploads\Tests\TestClasses\BaseModelEventHandlerTestClass;
+use christopheraseidl\ModelFiler\Handlers\Contracts\BatchManager;
+use christopheraseidl\ModelFiler\Handlers\Contracts\ModelFileChangeTracker;
+use christopheraseidl\ModelFiler\Jobs\Contracts\Builder;
+use christopheraseidl\ModelFiler\Services\FileService;
+use christopheraseidl\ModelFiler\Tests\TestClasses\BaseModelEventHandlerTestClass;
 use Mockery\MockInterface;
 
 /**
@@ -19,12 +19,12 @@ trait BaseModelEventHandlerHelpers
     {
         $this->diskTestValue = 'test_disk';
 
-        $this->mock(UploadService::class, function (MockInterface $mock) {
+        $this->mock(FileService::class, function (MockInterface $mock) {
             $mock->shouldReceive('getDisk')->andReturn($this->diskTestValue);
         });
 
         $this->handler = new BaseModelEventHandlerTestClass(
-            app(UploadService::class),
+            app(FileService::class),
             app(Builder::class),
             app(BatchManager::class),
             app(ModelFileChangeTracker::class)

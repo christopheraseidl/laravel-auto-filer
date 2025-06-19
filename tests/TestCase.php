@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests;
+namespace christopheraseidl\ModelFiler\Tests;
 
-use christopheraseidl\HasUploads\HasUploadsServiceProvider;
+use christopheraseidl\ModelFiler\ModelFilerServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -13,7 +13,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'christopheraseidl\\HasUploads\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'christopheraseidl\\ModelFiler\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
 
         // Queue table migrations.
@@ -43,7 +43,7 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            HasUploadsServiceProvider::class,
+            ModelFilerServiceProvider::class,
         ];
     }
 

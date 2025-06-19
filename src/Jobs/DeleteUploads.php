@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs;
+namespace christopheraseidl\ModelFiler\Jobs;
 
-use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads as DeleteUploadsContract;
-use christopheraseidl\HasUploads\Jobs\Contracts\FileDeleter;
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsPayload;
-use christopheraseidl\HasUploads\Support\FileOperationType;
+use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploads as DeleteUploadsContract;
+use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploadsPayload;
+use christopheraseidl\ModelFiler\Support\FileOperationType;
 
 /**
  * Deletes multiple upload files using retry mechanism with circuit breaker protection.

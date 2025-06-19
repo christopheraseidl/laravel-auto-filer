@@ -1,12 +1,12 @@
 {
-    "name": "christopheraseidl/laravel-has-uploads",
-    "description": "A simple package for automating file uploads associated with models. ",
+    "name": "christopheraseidl/laravel-model-filer",
+    "description": "A simple package for automating the organization of files associated with models. ",
     "keywords": [
         "christopheraseidl",
         "laravel",
-        "laravel-has-uploads"
+        "laravel-model-filer"
     ],
-    "homepage": "https://github.com/christopheraseidl/laravel-has-uploads",
+    "homepage": "https://github.com/christopheraseidl/laravel-model-filer",
     "license": "MIT",
     "authors": [
         {
@@ -36,13 +36,13 @@
     },
     "autoload": {
         "psr-4": {
-            "christopheraseidl\\HasUploads\\": "src/",
-            "christopheraseidl\\HasUploads\\Database\\Factories\\": "database/factories/"
+            "christopheraseidl\\ModelFiler\\": "src/",
+            "christopheraseidl\\ModelFiler\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "christopheraseidl\\HasUploads\\Tests\\": "tests/",
+            "christopheraseidl\\ModelFiler\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -64,10 +64,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "christopheraseidl\\HasUploads\\HasUploadsServiceProvider"
+                "christopheraseidl\\ModelFiler\\ModelFilerServiceProvider"
             ],
             "aliases": {
-                "UploadService": "christopheraseidl\\HasUploads\\Facades\\UploadService"
+                "FileService": "christopheraseidl\\ModelFiler\\Facades\\FileService"
             }
         }
     },

@@ -1,10 +1,10 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Handlers;
+namespace christopheraseidl\ModelFiler\Handlers;
 
-use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory;
-use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
-use christopheraseidl\HasUploads\Services\Contracts\UploadService;
+use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploadDirectory;
+use christopheraseidl\ModelFiler\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
+use christopheraseidl\ModelFiler\Services\Contracts\FileService;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -15,9 +15,9 @@ class ModelDeletionHandler
     protected string $disk;
 
     public function __construct(
-        protected UploadService $uploadService
+        protected FileService $fileService
     ) {
-        $this->disk = $uploadService->getDisk();
+        $this->disk = $fileService->getDisk();
     }
 
     /**

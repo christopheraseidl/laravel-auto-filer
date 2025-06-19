@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs;
+namespace christopheraseidl\ModelFiler\Jobs;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Jobs\Contracts\FileMover;
-use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads as MoveUploadsContract;
-use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
-use christopheraseidl\HasUploads\Support\FileOperationType;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Jobs\Contracts\FileMover;
+use christopheraseidl\ModelFiler\Jobs\Contracts\MoveUploads as MoveUploadsContract;
+use christopheraseidl\ModelFiler\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
+use christopheraseidl\ModelFiler\Support\FileOperationType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;

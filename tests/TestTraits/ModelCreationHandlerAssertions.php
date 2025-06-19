@@ -1,12 +1,12 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestTraits;
+namespace christopheraseidl\ModelFiler\Tests\TestTraits;
 
-use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
-use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
-use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
-use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\HasUploads\Services\Contracts\UploadService;
+use christopheraseidl\ModelFiler\Handlers\Contracts\BatchManager;
+use christopheraseidl\ModelFiler\Handlers\Contracts\ModelFileChangeTracker;
+use christopheraseidl\ModelFiler\Handlers\ModelCreationHandler;
+use christopheraseidl\ModelFiler\Jobs\Contracts\Builder;
+use christopheraseidl\ModelFiler\Services\Contracts\FileService;
 use christopheraseidl\Reflect\Reflect;
 
 /**
@@ -18,7 +18,7 @@ trait ModelCreationHandlerAssertions
     public function setHandler(): void
     {
         $this->handler = Reflect::on(new ModelCreationHandler(
-            app(UploadService::class),
+            app(FileService::class),
             app(Builder::class),
             app(BatchManager::class),
             app(ModelFileChangeTracker::class)

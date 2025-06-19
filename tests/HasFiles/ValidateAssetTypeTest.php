@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\HasUploads;
+namespace christopheraseidl\ModelFiler\Tests\ModelFiler;
 
 use christopheraseidl\Reflect\Reflect;
 use Exception;

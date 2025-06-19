@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Handlers\Traits;
+namespace christopheraseidl\ModelFiler\Handlers\Traits;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Jobs\Contracts\Builder;
+use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploads;
 use Illuminate\Database\Eloquent\Model;
 
 /**

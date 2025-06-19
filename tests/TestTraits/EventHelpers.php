@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestTraits;
+namespace christopheraseidl\ModelFiler\Tests\TestTraits;
 
-use christopheraseidl\HasUploads\Events\Event;
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
+use christopheraseidl\ModelFiler\Events\Event;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload;
 use Mockery\MockInterface;
 
 /**

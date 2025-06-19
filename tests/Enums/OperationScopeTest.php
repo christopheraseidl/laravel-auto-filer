@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Enums;
+namespace christopheraseidl\ModelFiler\Tests\Enums;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
 
 /**
  * Tests OperationScope enum structure.
  *
- * @covers \christopheraseidl\HasUploads\Enums\OperationScope
+ * @covers \christopheraseidl\ModelFiler\Enums\OperationScope
  */
 beforeEach(function () {
     $this->enum = new \ReflectionEnum(OperationScope::class);
@@ -28,7 +28,7 @@ it('has exactly three cases', function () {
 });
 
 it('has the correct cases with the correct values', function (string $case) {
-    $scopeCase = constant("christopheraseidl\\HasUploads\\Enums\\OperationScope::$case");
+    $scopeCase = constant("christopheraseidl\\ModelFiler\\Enums\\OperationScope::$case");
 
     expect($scopeCase->name)->toBe($case);
     expect($scopeCase->value)->toBe(mb_strtolower($case));
@@ -39,7 +39,7 @@ it('has the correct cases with the correct values', function (string $case) {
 ]);
 
 it('throws an exception for an invalid value', function () {
-    $message = '"nonexistent" is not a valid backing value for enum christopheraseidl\HasUploads\Enums\OperationScope';
+    $message = '"nonexistent" is not a valid backing value for enum christopheraseidl\ModelFiler\Enums\OperationScope';
 
     expect(fn () => OperationScope::from('nonexistent'))
         ->toThrow(\Error::class, $message);

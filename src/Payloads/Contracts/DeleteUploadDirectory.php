@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads\Contracts;
+namespace christopheraseidl\ModelFiler\Payloads\Contracts;
 
-use christopheraseidl\HasUploads\Contracts\SinglePath;
+use christopheraseidl\ModelFiler\Contracts\SinglePath;
 
 /**
  * Provides model and path data to the DeleteUploadDirectory job.

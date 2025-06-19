@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Enums;
+namespace christopheraseidl\ModelFiler\Enums;
 
 enum OperationType: string
 {

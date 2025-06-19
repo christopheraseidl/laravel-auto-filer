@@ -1,15 +1,15 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Job;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Job;
 
 /**
  * Tests the Job getConnection method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Job
+ * @covers \christopheraseidl\ModelFiler\Jobs\Job
  */
 it('gets the default connection if it is defined and job is not', function () {
     $name = 'test_default';
-    config()->set('has-uploads.default_connection', $name);
+    config()->set('model-filer.default_connection', $name);
 
     $connection = $this->job->getConnection();
 
@@ -19,8 +19,8 @@ it('gets the default connection if it is defined and job is not', function () {
 it('prefers the job-specific connection over the default connection', function () {
     $default = 'test_default';
     $jobSpecific = 'test_job_specific';
-    config()->set('has-uploads.default_connection', $default);
-    config()->set('has-uploads.test_job_connection', $jobSpecific);
+    config()->set('model-filer.default_connection', $default);
+    config()->set('model-filer.test_job_connection', $jobSpecific);
 
     $connection = $this->job->getConnection();
 

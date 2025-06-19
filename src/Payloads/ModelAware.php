@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads;
+namespace christopheraseidl\ModelFiler\Payloads;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Payloads\Contracts\ModelAware as ModelAwareContract;
-use christopheraseidl\HasUploads\Traits\HasDisk;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Payloads\Contracts\ModelAware as ModelAwareContract;
+use christopheraseidl\ModelFiler\Traits\HasDisk;
 use Illuminate\Database\Eloquent\Model;
 
 /**

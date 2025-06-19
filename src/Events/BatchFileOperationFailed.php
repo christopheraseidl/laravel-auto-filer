@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Events;
+namespace christopheraseidl\ModelFiler\Events;
 
 class BatchFileOperationFailed extends FailureEvent
 {

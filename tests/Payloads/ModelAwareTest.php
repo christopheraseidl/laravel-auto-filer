@@ -1,16 +1,16 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Payloads;
+namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Payloads\Contracts\ModelAware as ModelAwareContract;
-use christopheraseidl\HasUploads\Payloads\ModelAware;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Payloads\Contracts\ModelAware as ModelAwareContract;
+use christopheraseidl\ModelFiler\Payloads\ModelAware;
 
 /**
  * Tests ModelAware structure and behavior.
  *
- * @covers \christopheraseidl\HasUploads\Payloads\ModelAware
+ * @covers \christopheraseidl\ModelFiler\Payloads\ModelAware
  */
 class TestModelAware extends ModelAware
 {

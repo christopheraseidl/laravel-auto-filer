@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Payloads;
+namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
-use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
+use christopheraseidl\ModelFiler\Payloads\DeleteUploadDirectory;
 
 /**
  * Tests DeleteUploadDirectory structure and behavior.
  *
- * @covers \christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory
+ * @covers \christopheraseidl\ModelFiler\Payloads\DeleteUploadDirectory
  */
 beforeEach(function () {
     $this->class = $this->model::class;

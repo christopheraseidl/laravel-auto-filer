@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestModels;
+namespace christopheraseidl\ModelFiler\Tests\TestModels;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 

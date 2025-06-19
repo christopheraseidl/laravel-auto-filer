@@ -1,12 +1,12 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\HasUploads;
+namespace christopheraseidl\ModelFiler\Tests\ModelFiler;
 
-use christopheraseidl\HasUploads\HasUploads;
+use christopheraseidl\ModelFiler\HasFiles;
 
 class GetUploadableAttributesTestClass
 {
-    use HasUploads;
+    use HasFiles;
 }
 
 it('returns an empty array by default', function () {

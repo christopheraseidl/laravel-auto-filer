@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handler\ModelUpdateHandler;
+namespace christopheraseidl\ModelFiler\Tests\Handler\ModelUpdateHandler;
 
-use christopheraseidl\HasUploads\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
-use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerHelpers;
+use christopheraseidl\ModelFiler\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
+use christopheraseidl\ModelFiler\Tests\TestTraits\ModelUpdateHandlerHelpers;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 
@@ -16,7 +16,7 @@ uses(
 /**
  * Tests ModelUpdateHandler behavior triggered by the update event.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\ModelUpdateHandler
+ * @covers \christopheraseidl\ModelFiler\Handlers\ModelUpdateHandler
  */
 beforeEach(function () {
     $this->model->update([

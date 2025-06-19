@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Handlers;
+namespace christopheraseidl\ModelFiler\Handlers;
 
-use christopheraseidl\HasUploads\Handlers\Traits\CreatesDeleteJob;
-use christopheraseidl\HasUploads\Handlers\Traits\CreatesMoveJob;
+use christopheraseidl\ModelFiler\Handlers\Traits\CreatesDeleteJob;
+use christopheraseidl\ModelFiler\Handlers\Traits\CreatesMoveJob;
 use Illuminate\Database\Eloquent\Model;
 
 /**

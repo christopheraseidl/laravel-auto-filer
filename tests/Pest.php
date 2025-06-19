@@ -1,19 +1,19 @@
 <?php
 
-use christopheraseidl\HasUploads\Handlers\Services\BatchManager;
-use christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads;
-use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryJobContract;
-use christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory;
-use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
-use christopheraseidl\HasUploads\Jobs\Validators\BuilderValidator;
-use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayloadContract;
-use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
-use christopheraseidl\HasUploads\Services\UploadService;
-use christopheraseidl\HasUploads\Tests\TestCase;
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
-use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
-use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
+use christopheraseidl\ModelFiler\Handlers\Services\BatchManager;
+use christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads;
+use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryJobContract;
+use christopheraseidl\ModelFiler\Jobs\DeleteUploadDirectory;
+use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
+use christopheraseidl\ModelFiler\Jobs\Validators\BuilderValidator;
+use christopheraseidl\ModelFiler\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayloadContract;
+use christopheraseidl\ModelFiler\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
+use christopheraseidl\ModelFiler\Services\FileService;
+use christopheraseidl\ModelFiler\Tests\TestCase;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
+use christopheraseidl\ModelFiler\Tests\TestClasses\TestJob;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
@@ -34,14 +34,14 @@ uses()->beforeEach(function () {
 
     $this->model->save();
 
-    $this->disk = config()->get('has-uploads.disk', 'public');
+    $this->disk = config()->get('model-filer.disk', 'public');
 
     Storage::fake($this->disk);
 })->in('*');
 
 // Events
 uses()->beforeEach(function () {
-    config()->set('has-uploads.broadcast_channel', 'test_channel');
+    config()->set('model-filer.broadcast_channel', 'test_channel');
     $this->payload = new TestPayloadNoConstructor;
 })->in('Events');
 
@@ -159,11 +159,11 @@ uses()->beforeEach(function () {
     Carbon::setTestNow(now());
 })->in('Jobs/Services/CircuitBreaker');
 
-// Jobs/Services/UploadService
+// Jobs/Services/FileService
 uses()->beforeEach(function () {
-    $this->service = new UploadService;
+    $this->service = new FileService;
     $this->reflection = new \ReflectionClass($this->service);
-})->in('Jobs/Services/UploadService');
+})->in('Jobs/Services/FileService');
 
 // Jobs/Validators/BuilderValidator
 uses()->beforeEach(function () {

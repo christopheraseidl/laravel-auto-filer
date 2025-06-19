@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploadDirectory;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\DeleteUploadDirectory;
 
-use christopheraseidl\HasUploads\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
+use christopheraseidl\ModelFiler\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 
 /**
  * Tests the DeleteUploadDirectory getPayload method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory
+ * @covers \christopheraseidl\ModelFiler\Jobs\DeleteUploadDirectory
  */
 it('gets the expected payload', function () {
     expect($this->job->getPayload())

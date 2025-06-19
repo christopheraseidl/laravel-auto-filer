@@ -1,16 +1,16 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Payloads;
+namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload as PayloadContract;
-use christopheraseidl\HasUploads\Payloads\Payload;
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayload;
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload as PayloadContract;
+use christopheraseidl\ModelFiler\Payloads\Payload;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayload;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
 
 /**
  * Tests Payload make method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Payloads\Payload
+ * @covers \christopheraseidl\ModelFiler\Payloads\Payload
  */
 beforeEach(function () {
     $this->payloadNoConstructor = new TestPayloadNoConstructor;

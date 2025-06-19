@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\ModelUpdateHandler;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\ModelUpdateHandler;
 
-use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerHelpers;
+use christopheraseidl\ModelFiler\Tests\TestTraits\ModelUpdateHandlerHelpers;
 
 uses(ModelUpdateHandlerHelpers::class);
 
@@ -10,7 +10,7 @@ uses(ModelUpdateHandlerHelpers::class);
  * Tests ModelUpdateHandler createJobsFromAttribute() method with an empty
  * attribute (whether string or array).
  *
- * @covers \christopheraseidl\HasUploads\Handlers\ModelUpdateHandler
+ * @covers \christopheraseidl\ModelFiler\Handlers\ModelUpdateHandler
  */
 beforeEach(function () {
     $this->setHandler();

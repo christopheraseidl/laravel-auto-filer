@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\ModelDeletionHandler;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\ModelDeletionHandler;
 
-use christopheraseidl\HasUploads\Tests\TestTraits\AssertsDeleteUploadDirectory;
+use christopheraseidl\ModelFiler\Tests\TestTraits\AssertsDeleteUploadDirectory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 
@@ -14,7 +14,7 @@ uses(
 /**
  * Tests ModelDeletionHandler behavior triggered by the deletion event.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\ModelDeletionHandler
+ * @covers \christopheraseidl\ModelFiler\Handlers\ModelDeletionHandler
  */
 beforeEach(function () {
     Bus::fake();

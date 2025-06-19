@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\Traits;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\Traits;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Handlers\Traits\CreatesMoveJob;
-use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
-use christopheraseidl\HasUploads\Jobs\Services\Builder;
-use christopheraseidl\HasUploads\Jobs\Validators\BuilderValidator;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Handlers\Traits\CreatesMoveJob;
+use christopheraseidl\ModelFiler\Jobs\Contracts\MoveUploads;
+use christopheraseidl\ModelFiler\Jobs\Services\Builder;
+use christopheraseidl\ModelFiler\Jobs\Validators\BuilderValidator;
 use christopheraseidl\Reflect\Reflect;
 
 class CreatesMoveJobClass
@@ -18,7 +18,7 @@ class CreatesMoveJobClass
 /**
  * Tests CreatesMoveJob behavior.
  *
- * @covers christopheraseidl\HasUploads\Handlers\Traits\CreatesMoveJob
+ * @covers christopheraseidl\ModelFiler\Handlers\Traits\CreatesMoveJob
  */
 beforeEach(function () {
     $this->class = Reflect::on(new CreatesMoveJobClass);
@@ -43,7 +43,7 @@ it('returns a DeleteJob with the correct data', function () {
     $payload = Reflect::on($payload);
 
     expect($job)->toBeInstanceOf(MoveUploads::class);
-    expect($payload->modelClass)->toBe('christopheraseidl\HasUploads\Tests\TestModels\TestModel');
+    expect($payload->modelClass)->toBe('christopheraseidl\ModelFiler\Tests\TestModels\TestModel');
     expect($payload->modelId)->toBe(1);
     expect($payload->modelAttribute)->toBe('string');
     expect($payload->modelAttributeType)->toBe('images');
@@ -80,7 +80,7 @@ it('throws a TypeError with null $builder', function () {
         $this->disk,
         $newFiles
     );
-})->throws(\TypeError::class, 'Argument #1 ($builder) must be of type christopheraseidl\HasUploads\Jobs\Contracts\Builder, null given');
+})->throws(\TypeError::class, 'Argument #1 ($builder) must be of type christopheraseidl\ModelFiler\Jobs\Contracts\Builder, null given');
 
 it('throws a TypeError with null $model', function () {
     $newFiles = ['file1.jpg', 'file2.png'];

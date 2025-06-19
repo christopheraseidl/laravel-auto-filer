@@ -1,16 +1,16 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploads;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\DeleteUploads;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Jobs\DeleteUploads;
-use christopheraseidl\HasUploads\Payloads\DeleteUploads as DeleteUploadsPayload;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Jobs\DeleteUploads;
+use christopheraseidl\ModelFiler\Payloads\DeleteUploads as DeleteUploadsPayload;
 
 /**
  * Tests the DeleteUploads getOperationType and uniqueId methods.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploads
+ * @covers \christopheraseidl\ModelFiler\Jobs\DeleteUploads
  */
 beforeEach(function () {
     $payload = new DeleteUploadsPayload(

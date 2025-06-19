@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\Services\ModelFileChangeTracker;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\Services\ModelFileChangeTracker;
 
-use christopheraseidl\HasUploads\Handlers\Services\ModelFileChangeTracker;
+use christopheraseidl\ModelFiler\Handlers\Services\ModelFileChangeTracker;
 
 /**
  * Tests behavior of ModelFileChangeTracker's getNewFiles() method.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\Services\ModelFileChangeTracker
+ * @covers \christopheraseidl\ModelFiler\Handlers\Services\ModelFileChangeTracker
  */
 beforeEach(function () {
     $this->tracker = new ModelFileChangeTracker;

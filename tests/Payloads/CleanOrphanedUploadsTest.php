@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Payloads;
+namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
-use christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads;
-use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
+use christopheraseidl\ModelFiler\Payloads\CleanOrphanedUploads;
+use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
 
 /**
  * Tests CleanOrphanedUploads structure and behavior.
  *
- * @covers \christopheraseidl\HasUploads\Payloads\CleanOrphanedUploads
+ * @covers \christopheraseidl\ModelFiler\Payloads\CleanOrphanedUploads
  */
 beforeEach(function () {
     $this->payload = new CleanOrphanedUploads(
@@ -61,13 +61,13 @@ test('cleanup threshold defaults to 24 hours', function () {
 });
 
 test('isCleanupEnabled returns the expected value', function (bool $enabled) {
-    config()->set('has-uploads.cleanup.enabled', $enabled);
+    config()->set('model-filer.cleanup.enabled', $enabled);
 
     expect($this->payload->isCleanupEnabled())->toBe($enabled);
 })->with([true, false]);
 
 test('isDryRun returns the expected value', function (bool $enabled) {
-    config()->set('has-uploads.cleanup.dry_run', $enabled);
+    config()->set('model-filer.cleanup.dry_run', $enabled);
 
     expect($this->payload->isDryRun())->toBe($enabled);
 })->with([true, false]);

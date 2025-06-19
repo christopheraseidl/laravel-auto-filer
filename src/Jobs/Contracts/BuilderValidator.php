@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Contracts;
+namespace christopheraseidl\ModelFiler\Jobs\Contracts;
 
 use ReflectionParameter;
 

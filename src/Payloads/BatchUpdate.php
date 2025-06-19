@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads;
+namespace christopheraseidl\ModelFiler\Payloads;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\BatchUpdate as BatchUpdateContract;
+use christopheraseidl\ModelFiler\Payloads\Contracts\BatchUpdate as BatchUpdateContract;
 
 final class BatchUpdate extends ModelAware implements BatchUpdateContract
 {

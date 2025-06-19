@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs;
+namespace christopheraseidl\ModelFiler\Jobs;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
-use christopheraseidl\HasUploads\Jobs\Contracts\FileDeleter;
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
-use christopheraseidl\HasUploads\Support\FileOperationType;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
+use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
+use christopheraseidl\ModelFiler\Support\FileOperationType;
 use Illuminate\Support\Str;
 
 /**

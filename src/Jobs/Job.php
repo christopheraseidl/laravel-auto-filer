@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs;
+namespace christopheraseidl\ModelFiler\Jobs;
 
-use christopheraseidl\HasUploads\Events\FileOperationCompleted;
-use christopheraseidl\HasUploads\Events\FileOperationFailed;
-use christopheraseidl\HasUploads\Jobs\Contracts\Job as JobContract;
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
+use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
+use christopheraseidl\ModelFiler\Events\FileOperationFailed;
+use christopheraseidl\ModelFiler\Jobs\Contracts\Job as JobContract;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -88,8 +88,8 @@ abstract class Job implements JobContract
     public function middleware(): array
     {
         // By default, allow 10 exceptions in 5 minutes
-        $maxAttempts = config('has-uploads.throttle_exception_attempts', 10);
-        $period = config('has-uploads.throttle_exception_period', 5);
+        $maxAttempts = config('model-filer.throttle_exception_attempts', 10);
+        $period = config('model-filer.throttle_exception_period', 5);
 
         return [
             new ThrottlesExceptions($maxAttempts, $period),
@@ -157,7 +157,7 @@ abstract class Job implements JobContract
 
     protected function getDefaultConnection(): ?string
     {
-        return config('has-uploads.default_connection');
+        return config('model-filer.default_connection');
     }
 
     protected function getJobConnection(): ?string
@@ -165,7 +165,7 @@ abstract class Job implements JobContract
         $name = $this->getJobSettingName();
         $name = "{$name}_connection";
 
-        return config("has-uploads.{$name}");
+        return config("model-filer.{$name}");
     }
 
     /**
@@ -181,7 +181,7 @@ abstract class Job implements JobContract
 
     protected function getDefaultQueue(): ?string
     {
-        return config('has-uploads.default_queue');
+        return config('model-filer.default_queue');
     }
 
     protected function getJobQueue(): ?string
@@ -189,7 +189,7 @@ abstract class Job implements JobContract
         $name = $this->getJobSettingName();
         $name = "{$name}_queue";
 
-        return config("has-uploads.{$name}");
+        return config("model-filer.{$name}");
     }
 
     /**

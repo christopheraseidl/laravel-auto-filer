@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Services\CircuitBreaker;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
-use christopheraseidl\HasUploads\Tests\TestTraits\CircuitBreakerHelpers;
+use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -13,7 +13,7 @@ uses(
 /**
  * Tests CircuitBreaker reset method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ * @covers \christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker
  */
 it('closes the circuit breaker', function () {
     Log::shouldReceive('info')->twice();

@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Services;
+namespace christopheraseidl\ModelFiler\Jobs\Services;
 
-use christopheraseidl\HasUploads\Jobs\Contracts\CircuitBreaker as CircuitBreakerContract;
+use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker as CircuitBreakerContract;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -281,7 +281,7 @@ class CircuitBreaker implements CircuitBreakerContract
 
     private function buildEmailContent(string $message, array $stats): string
     {
-        $appName = config()->get('has-uploads.name', 'Laravel application');
+        $appName = config()->get('model-filer.name', 'Laravel application');
 
         return "
         Circuit breaker alert: {$appName}

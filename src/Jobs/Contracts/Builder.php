@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Contracts;
+namespace christopheraseidl\ModelFiler\Jobs\Contracts;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload;
 
 /**
  * Builds jobs with fluent interface for configuration.

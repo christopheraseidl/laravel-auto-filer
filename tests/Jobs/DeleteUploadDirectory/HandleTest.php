@@ -1,16 +1,16 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploadDirectory;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\DeleteUploadDirectory;
 
-use christopheraseidl\HasUploads\Events\FileOperationCompleted;
-use christopheraseidl\HasUploads\Events\FileOperationFailed;
+use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
+use christopheraseidl\ModelFiler\Events\FileOperationFailed;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * Tests the DeleteUploadDirectory handle method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory
+ * @covers \christopheraseidl\ModelFiler\Jobs\DeleteUploadDirectory
  */
 beforeEach(function () {
     Event::fake([

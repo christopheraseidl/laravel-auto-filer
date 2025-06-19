@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Events;
+namespace christopheraseidl\ModelFiler\Events;
 
 class BatchFileOperationCompleted extends Event
 {

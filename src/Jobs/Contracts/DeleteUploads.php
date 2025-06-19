@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Contracts;
+namespace christopheraseidl\ModelFiler\Jobs\Contracts;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsContract;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploadsContract;
 
 /**
  * Deletes a specific uploaded file.

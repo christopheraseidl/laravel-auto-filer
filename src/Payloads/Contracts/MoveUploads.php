@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads\Contracts;
+namespace christopheraseidl\ModelFiler\Payloads\Contracts;
 
 interface MoveUploads extends ModelAware, Payload
 {

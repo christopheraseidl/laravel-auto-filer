@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Services\CircuitBreaker;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Tests CircuitBreaker getter methods behavior.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ * @covers \christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker
  */
 test('getState returns the expected string', function () {
     Cache::shouldReceive('get')

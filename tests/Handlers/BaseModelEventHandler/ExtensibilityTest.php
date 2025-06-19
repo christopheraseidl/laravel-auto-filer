@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\BaseModelEventHandler;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\BaseModelEventHandler;
 
-use christopheraseidl\HasUploads\Handlers\BaseModelEventHandler;
-use christopheraseidl\HasUploads\Tests\TestTraits\BaseModelEventHandlerHelpers;
+use christopheraseidl\ModelFiler\Handlers\BaseModelEventHandler;
+use christopheraseidl\ModelFiler\Tests\TestTraits\BaseModelEventHandlerHelpers;
 use christopheraseidl\Reflect\Reflect;
 
 uses(
@@ -13,7 +13,7 @@ uses(
 /**
  * Tests BaseModelEventHandler class extensibility.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\BaseModelEventHandler
+ * @covers \christopheraseidl\ModelFiler\Handlers\BaseModelEventHandler
  */
 beforeEach(function () {
     $this->setHandler();

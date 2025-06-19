@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Contracts;
+namespace christopheraseidl\ModelFiler\Jobs\Contracts;
 
 /**
  * Attempts to move a file with circuit breaker, retry, and rollback logic.

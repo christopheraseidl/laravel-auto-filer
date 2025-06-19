@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Events;
+namespace christopheraseidl\ModelFiler\Events;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -25,7 +25,7 @@ abstract class Event implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel(config('has-uploads.broadcast_channel')),
+            new PrivateChannel(config('model-filer.broadcast_channel')),
         ];
     }
 }

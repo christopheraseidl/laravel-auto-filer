@@ -1,15 +1,15 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Job;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Job;
 
 /**
  * Tests the Job getQueue method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Job
+ * @covers \christopheraseidl\ModelFiler\Jobs\Job
  */
 it('gets the default queue if it is defined and job is not', function () {
     $name = 'test_default';
-    config()->set('has-uploads.default_queue', $name);
+    config()->set('model-filer.default_queue', $name);
 
     $queue = $this->job->getQueue();
 
@@ -19,8 +19,8 @@ it('gets the default queue if it is defined and job is not', function () {
 it('prefers the job-specific queue over the default queue', function () {
     $default = 'test_default';
     $jobSpecific = 'test_job_specific';
-    config()->set('has-uploads.default_queue', $default);
-    config()->set('has-uploads.test_job_queue', $jobSpecific);
+    config()->set('model-filer.default_queue', $default);
+    config()->set('model-filer.test_job_queue', $jobSpecific);
 
     $queue = $this->job->getQueue();
 

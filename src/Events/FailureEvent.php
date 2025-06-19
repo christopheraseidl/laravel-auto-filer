@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Events;
+namespace christopheraseidl\ModelFiler\Events;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload;
 
 /**
  * Broadcasts upload failure events with exception data.

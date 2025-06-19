@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\DeleteUploadDirectory;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\DeleteUploadDirectory;
 
 /**
  * Tests the CleanOrphanedUploads getOperationType and uniqueId methods.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\DeleteUploadDirectory
+ * @covers \christopheraseidl\ModelFiler\Jobs\DeleteUploadDirectory
  */
 it('returns the expected operation type value', function () {
     expect($this->job->getOperationType())

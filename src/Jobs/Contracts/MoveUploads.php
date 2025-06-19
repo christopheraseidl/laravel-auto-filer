@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Contracts;
+namespace christopheraseidl\ModelFiler\Jobs\Contracts;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
+use christopheraseidl\ModelFiler\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
 use Illuminate\Database\Eloquent\Model;
 
 /**

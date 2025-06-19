@@ -1,26 +1,26 @@
 <?php
 
-namespace christopheraseidl\HasUploads;
+namespace christopheraseidl\ModelFiler;
 
-use christopheraseidl\HasUploads\Handlers\ModelCreationHandler;
-use christopheraseidl\HasUploads\Handlers\ModelDeletionHandler;
-use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
-use christopheraseidl\HasUploads\Services\Contracts\UploadService;
-use christopheraseidl\HasUploads\Support\Contracts\UploadableAttributesBuilder as UploadableAttributesBuilderContract;
-use christopheraseidl\HasUploads\Support\UploadableAttributesBuilder;
+use christopheraseidl\ModelFiler\Handlers\ModelCreationHandler;
+use christopheraseidl\ModelFiler\Handlers\ModelDeletionHandler;
+use christopheraseidl\ModelFiler\Handlers\ModelUpdateHandler;
+use christopheraseidl\ModelFiler\Services\Contracts\FileService;
+use christopheraseidl\ModelFiler\Support\Contracts\UploadableAttributesBuilder as UploadableAttributesBuilderContract;
+use christopheraseidl\ModelFiler\Support\UploadableAttributesBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
  * Provides upload functionality to models with automatic file handling.
  */
-trait HasUploads
+trait HasFiles
 {
-    protected static ?UploadService $uploadService = null;
+    protected static ?FileService $fileService = null;
 
-    public static function bootHasUploads(): void
+    public static function bootHasFiles(): void
     {
-        static::$uploadService = app(UploadService::class);
+        static::$fileService = app(FileService::class);
 
         static::created(fn (Model $model) => app(ModelCreationHandler::class)->handle($model));
         static::saved(fn (Model $model) => app(ModelUpdateHandler::class)->handle($model));
@@ -47,7 +47,7 @@ trait HasUploads
         }
 
         return implode('/', array_filter([
-            $this->getUploadService()->getPath(),
+            $this->getFileService()->getPath(),
             $this->getModelDirName(),
             $this->id,
             $assetType,
@@ -59,9 +59,9 @@ trait HasUploads
         return Str::snake(Str::plural(class_basename($this)));
     }
 
-    protected function getUploadService(): UploadService
+    protected function getFileService(): FileService
     {
-        return static::$uploadService ??= app(UploadService::class);
+        return static::$fileService ??= app(FileService::class);
     }
 
     /**

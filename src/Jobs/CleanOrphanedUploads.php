@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs;
+namespace christopheraseidl\ModelFiler\Jobs;
 
 use Carbon\Carbon;
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Jobs\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
-use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
-use christopheraseidl\HasUploads\Support\FileOperationType;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Jobs\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
+use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
+use christopheraseidl\ModelFiler\Support\FileOperationType;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 

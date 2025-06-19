@@ -1,15 +1,15 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Support;
+namespace christopheraseidl\ModelFiler\Tests\Support;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Support\FileOperationType;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Support\FileOperationType;
 
 /**
  * Tests FileOperationType structure and behavior.
  *
- * @covers \christopheraseidl\HasUploads\Support\FileOperationType
+ * @covers \christopheraseidl\ModelFiler\Support\FileOperationType
  */
 beforeEach(function () {
     $this->support = new FileOperationType;

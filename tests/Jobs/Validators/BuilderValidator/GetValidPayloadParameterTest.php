@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Validators\BuilderValidator;
 
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
-use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
+use christopheraseidl\ModelFiler\Tests\TestClasses\TestJob;
 
 /**
  * Tests BuilderValidator getValidPayloadParameter method.
  *
- * @covers \christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator
+ * @covers \christopheraseidl\ModelFiler\Tests\Jobs\Validators\BuilderValidator
  */
 class TestJobWithoutConstructor {}
 

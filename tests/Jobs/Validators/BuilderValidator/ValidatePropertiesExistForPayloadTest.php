@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Validators\BuilderValidator;
 
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayload;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayload;
 
 /**
  * Tests BuilderValidator validatePropertiesExistForPayload method.
  *
- * @covers \christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator
+ * @covers \christopheraseidl\ModelFiler\Tests\Jobs\Validators\BuilderValidator
  */
 class TestPayloadForValidation extends TestPayload
 {
@@ -44,7 +44,7 @@ it('throws an exception if required properties are missing', function () {
         'array' => 'not required value',
     ];
 
-    $message = 'Missing required properties for christopheraseidl\HasUploads\Tests\Jobs\Validators\BuilderValidator\TestPayloadForValidation: required';
+    $message = 'Missing required properties for christopheraseidl\ModelFiler\Tests\Jobs\Validators\BuilderValidator\TestPayloadForValidation: required';
 
     expect(function () use ($properties) {
         return $this->validator->validatePropertiesExistForPayload($properties, $this->payloadClass);

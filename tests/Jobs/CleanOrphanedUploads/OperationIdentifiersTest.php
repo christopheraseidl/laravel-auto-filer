@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\CleanOrphanedUploads;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\CleanOrphanedUploads;
 
 /**
  * Tests the CleanOrphanedUploads getOperationType and uniqueId methods.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads
+ * @covers \christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads
  */
 it('returns the expected operation type value', function () {
     expect($this->cleaner->getOperationType())->toBe('clean_directory');

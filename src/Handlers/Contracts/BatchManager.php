@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Handlers\Contracts;
+namespace christopheraseidl\ModelFiler\Handlers\Contracts;
 
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;

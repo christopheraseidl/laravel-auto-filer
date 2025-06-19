@@ -1,16 +1,16 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Payloads;
+namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Payloads\Contracts\DeleteUploads as DeleteUploadsContract;
-use christopheraseidl\HasUploads\Payloads\DeleteUploads;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploadsContract;
+use christopheraseidl\ModelFiler\Payloads\DeleteUploads;
 
 /**
  * Tests DeleteUploads structure and behavior.
  *
- * @covers \christopheraseidl\HasUploads\Payloads\DeleteUploads
+ * @covers \christopheraseidl\ModelFiler\Payloads\DeleteUploads
  */
 beforeEach(function () {
     $this->payload = new DeleteUploads(

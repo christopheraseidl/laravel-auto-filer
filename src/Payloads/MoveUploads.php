@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads;
+namespace christopheraseidl\ModelFiler\Payloads;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsContract;
+use christopheraseidl\ModelFiler\Payloads\Contracts\MoveUploads as MoveUploadsContract;
 
 /**
  * Provides model and file data to the MoveUploads job.

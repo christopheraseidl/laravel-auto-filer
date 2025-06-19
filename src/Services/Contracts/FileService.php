@@ -1,17 +1,17 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Services\Contracts;
+namespace christopheraseidl\ModelFiler\Services\Contracts;
 
 use Illuminate\Http\UploadedFile;
 
 /**
  * Manages file uploads with validation and storage operations.
  */
-interface UploadService
+interface FileService
 {
     public function getDisk(): string;
 
     public function getPath(): string;
 
-    public function validateUpload(UploadedFile $file): void;
+    public function validateFile(UploadedFile $file): void;
 }

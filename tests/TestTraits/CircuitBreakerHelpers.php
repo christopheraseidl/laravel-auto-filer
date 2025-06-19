@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestTraits;
+namespace christopheraseidl\ModelFiler\Tests\TestTraits;
 
 use Illuminate\Support\Facades\Cache;
 

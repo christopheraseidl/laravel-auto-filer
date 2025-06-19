@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestModels;
+namespace christopheraseidl\ModelFiler\Tests\TestModels;
 
-use christopheraseidl\HasUploads\HasUploads;
+use christopheraseidl\ModelFiler\HasFiles;
 use Illuminate\Database\Eloquent\Model;
 
 class DummyModel extends Model
 {
-    use HasUploads;
+    use HasFiles;
 }

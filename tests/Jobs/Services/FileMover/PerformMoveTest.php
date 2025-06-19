@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Services\FileMover;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileMover;
 
-use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
-use christopheraseidl\HasUploads\Jobs\Services\FileMover;
+use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
+use christopheraseidl\ModelFiler\Jobs\Services\FileMover;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Storage;
 use Mockery\MockInterface;
@@ -11,7 +11,7 @@ use Mockery\MockInterface;
 /**
  * Tests FileMover performMove method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Services\FileMover
+ * @covers \christopheraseidl\ModelFiler\Jobs\Services\FileMover
  */
 beforeEach(function () {
     $name = 'test.txt';

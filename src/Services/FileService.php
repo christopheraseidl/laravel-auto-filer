@@ -1,29 +1,29 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Services;
+namespace christopheraseidl\ModelFiler\Services;
 
-use christopheraseidl\HasUploads\Services\Contracts\UploadService as UploadServiceContract;
+use christopheraseidl\ModelFiler\Services\Contracts\FileService as FileServiceContract;
 use Illuminate\Http\UploadedFile;
 
 /**
  * Manages file uploads with validation and storage operations.
  */
-class UploadService implements UploadServiceContract
+class FileService implements FileServiceContract
 {
     public function getDisk(): string
     {
-        return config('has-uploads.disk', 'public');
+        return config('model-filer.disk', 'public');
     }
 
     public function getPath(): string
     {
-        return config('has-uploads.path', '');
+        return config('model-filer.path', '');
     }
 
     /**
      * Validate file size and MIME type against configuration limits.
      */
-    public function validateUpload(UploadedFile $file): void
+    public function validateFile(UploadedFile $file): void
     {
         $this->validateFileSize($file);
         $this->validateMimeType($file);
@@ -31,15 +31,15 @@ class UploadService implements UploadServiceContract
 
     protected function validateFileSize(UploadedFile $file): void
     {
-        if ($file->getSize() / 1024 > config('has-uploads.max_size')) {
-            $maxSize = config('has-uploads.max_size');
+        if ($file->getSize() / 1024 > config('model-filer.max_size')) {
+            $maxSize = config('model-filer.max_size');
             throw new \Exception("File size exceeds maximum allowed ({$maxSize}KB).");
         }
     }
 
     protected function validateMimeType(UploadedFile $file): void
     {
-        if (! in_array($file->getClientOriginalExtension(), config('has-uploads.mimes'))) {
+        if (! in_array($file->getClientOriginalExtension(), config('model-filer.mimes'))) {
             throw new \Exception('Invalid file type.');
         }
     }

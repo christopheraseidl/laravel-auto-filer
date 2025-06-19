@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Services\CircuitBreaker;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
-use christopheraseidl\HasUploads\Tests\TestTraits\CircuitBreakerHelpers;
+use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
 use Illuminate\Support\Facades\Log;
 
 uses(
@@ -12,7 +12,7 @@ uses(
 /**
  * Tests CircuitBreaker recordSuccess method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ * @covers \christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker
  */
 describe('OPEN state', function () {
     it('does not close the circuit breaker but it resets failures to 0', function () {

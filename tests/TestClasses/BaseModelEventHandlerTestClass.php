@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestClasses;
+namespace christopheraseidl\ModelFiler\Tests\TestClasses;
 
-use christopheraseidl\HasUploads\Handlers\BaseModelEventHandler;
+use christopheraseidl\ModelFiler\Handlers\BaseModelEventHandler;
 use Illuminate\Database\Eloquent\Model;
 
 class BaseModelEventHandlerTestClass extends BaseModelEventHandler

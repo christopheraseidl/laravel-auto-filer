@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Traits;
+namespace christopheraseidl\ModelFiler\Tests\Traits;
 
-use christopheraseidl\HasUploads\Traits\HasPath;
+use christopheraseidl\ModelFiler\Traits\HasPath;
 
 /**
  * Tests HasPath and behavior.
  *
- * @covers \christopheraseidl\HasUploads\Traits\HasPath
+ * @covers \christopheraseidl\ModelFiler\Traits\HasPath
  */
 class HasPathTestClass
 {

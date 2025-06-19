@@ -1,15 +1,15 @@
 <?php
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Jobs\MoveUploads;
-use christopheraseidl\HasUploads\Payloads\MoveUploads as MoveUploadsPayload;
-use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Jobs\MoveUploads;
+use christopheraseidl\ModelFiler\Payloads\MoveUploads as MoveUploadsPayload;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
 
 /**
  * Tests the MoveUploads getPayload method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\MoveUploads
+ * @covers \christopheraseidl\ModelFiler\Jobs\MoveUploads
  */
 beforeEach(function () {
     $model = new TestModel;

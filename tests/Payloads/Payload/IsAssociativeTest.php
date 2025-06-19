@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Payloads\Payload;
+namespace christopheraseidl\ModelFiler\Tests\Payloads\Payload;
 
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
 use christopheraseidl\Reflect\Reflect;
 
 /**
  * Tests Payload isAssociative method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Payloads\Payload
+ * @covers \christopheraseidl\ModelFiler\Payloads\Payload
  */
 beforeEach(function () {
     $this->payload = new TestPayloadNoConstructor;

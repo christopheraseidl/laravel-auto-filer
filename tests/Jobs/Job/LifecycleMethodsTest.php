@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Tests the Job retryUntil and failed methods.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Job
+ * @covers \christopheraseidl\ModelFiler\Jobs\Job
  */
 test('retryUntil() returns DateTime 5 minutes from now', function () {
     Carbon::setTestNow(now());

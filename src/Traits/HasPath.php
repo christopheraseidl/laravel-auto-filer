@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Traits;
+namespace christopheraseidl\ModelFiler\Traits;
 
 trait HasPath
 {

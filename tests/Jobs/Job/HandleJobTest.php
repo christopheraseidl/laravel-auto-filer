@@ -1,15 +1,15 @@
 <?php
 
-use christopheraseidl\HasUploads\Events\FileOperationCompleted;
-use christopheraseidl\HasUploads\Events\FileOperationFailed;
-use christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayloadNoConstructor;
-use christopheraseidl\HasUploads\Tests\TestClasses\TestJob;
+use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
+use christopheraseidl\ModelFiler\Events\FileOperationFailed;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
+use christopheraseidl\ModelFiler\Tests\TestClasses\TestJob;
 use Illuminate\Support\Facades\Event;
 
 /**
  * Tests the Job handleJob method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Job
+ * @covers \christopheraseidl\ModelFiler\Jobs\Job
  */
 class HandleJobTestBraodcastFalsePayload extends TestPayloadNoConstructor
 {

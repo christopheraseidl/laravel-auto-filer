@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestTraits;
+namespace christopheraseidl\ModelFiler\Tests\TestTraits;
 
-use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
-use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
-use christopheraseidl\HasUploads\Handlers\ModelUpdateHandler;
-use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
-use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
-use christopheraseidl\HasUploads\Services\Contracts\UploadService;
+use christopheraseidl\ModelFiler\Handlers\Contracts\BatchManager;
+use christopheraseidl\ModelFiler\Handlers\Contracts\ModelFileChangeTracker;
+use christopheraseidl\ModelFiler\Handlers\ModelUpdateHandler;
+use christopheraseidl\ModelFiler\Jobs\Contracts\Builder;
+use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploads;
+use christopheraseidl\ModelFiler\Jobs\Contracts\MoveUploads;
+use christopheraseidl\ModelFiler\Services\Contracts\FileService;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Bus;
 
@@ -20,7 +20,7 @@ trait ModelUpdateHandlerHelpers
     public function setHandler(): void
     {
         $this->handler = Reflect::on(new ModelUpdateHandler(
-            app(UploadService::class),
+            app(FileService::class),
             app(Builder::class),
             app(BatchManager::class),
             app(ModelFileChangeTracker::class)

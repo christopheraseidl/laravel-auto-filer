@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Support\Contracts;
+namespace christopheraseidl\ModelFiler\Support\Contracts;
 
 use Illuminate\Contracts\Support\Arrayable;
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads;
+namespace christopheraseidl\ModelFiler\Payloads;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
-use christopheraseidl\HasUploads\Traits\HasDisk;
-use christopheraseidl\HasUploads\Traits\HasPath;
+use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
+use christopheraseidl\ModelFiler\Traits\HasDisk;
+use christopheraseidl\ModelFiler\Traits\HasPath;
 
 /**
  * Provides relevant data to the CleanOrphanedUploads job based on threshold and configuration.
@@ -49,17 +49,17 @@ final class CleanOrphanedUploads extends Payload implements CleanOrphanedUploads
     {
         return max(
             0,
-            $this->cleanupThresholdHours ?? config('has-uploads.cleanup.threshold_hours')
+            $this->cleanupThresholdHours ?? config('model-filer.cleanup.threshold_hours')
         );
     }
 
     public function isCleanupEnabled(): bool
     {
-        return $this->isCleanupEnabled ??= config('has-uploads.cleanup.enabled', false);
+        return $this->isCleanupEnabled ??= config('model-filer.cleanup.enabled', false);
     }
 
     public function isDryRun(): bool
     {
-        return $this->isDryRun ??= config('has-uploads.cleanup.dry_run', false);
+        return $this->isDryRun ??= config('model-filer.cleanup.dry_run', false);
     }
 }

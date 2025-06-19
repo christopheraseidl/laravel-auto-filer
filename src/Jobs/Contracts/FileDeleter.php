@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Jobs\Contracts;
+namespace christopheraseidl\ModelFiler\Jobs\Contracts;
 
 /**
  * Attempts to delete a file with circuit breaker and retry logic.

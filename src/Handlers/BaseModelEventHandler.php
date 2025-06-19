@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Handlers;
+namespace christopheraseidl\ModelFiler\Handlers;
 
-use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager;
-use christopheraseidl\HasUploads\Handlers\Contracts\ModelFileChangeTracker;
-use christopheraseidl\HasUploads\Jobs\Contracts\Builder;
-use christopheraseidl\HasUploads\Services\Contracts\UploadService;
+use christopheraseidl\ModelFiler\Handlers\Contracts\BatchManager;
+use christopheraseidl\ModelFiler\Handlers\Contracts\ModelFileChangeTracker;
+use christopheraseidl\ModelFiler\Jobs\Contracts\Builder;
+use christopheraseidl\ModelFiler\Services\Contracts\FileService;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -20,12 +20,12 @@ abstract class BaseModelEventHandler
     abstract protected function getBatchDescription(): string;
 
     public function __construct(
-        protected UploadService $uploadService,
+        protected FileService $fileService,
         protected Builder $builder,
         protected BatchManager $batch,
         protected ModelFileChangeTracker $fileTracker
     ) {
-        $this->disk = $uploadService->getDisk();
+        $this->disk = $fileService->getDisk();
     }
 
     public function handle(Model $model): void

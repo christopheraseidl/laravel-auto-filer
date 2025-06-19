@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\Traits;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\Traits;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Handlers\Traits\CreatesDeleteJob;
-use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
-use christopheraseidl\HasUploads\Jobs\Services\Builder;
-use christopheraseidl\HasUploads\Jobs\Validators\BuilderValidator;
-use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Handlers\Traits\CreatesDeleteJob;
+use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploads;
+use christopheraseidl\ModelFiler\Jobs\Services\Builder;
+use christopheraseidl\ModelFiler\Jobs\Validators\BuilderValidator;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
 use christopheraseidl\Reflect\Reflect;
 
 class CreatesDeleteJobClass
@@ -19,7 +19,7 @@ class CreatesDeleteJobClass
 /**
  * Tests CreatesDeleteJob behavior.
  *
- * @covers christopheraseidl\HasUploads\Handlers\Traits\CreatesDeleteJob
+ * @covers christopheraseidl\ModelFiler\Handlers\Traits\CreatesDeleteJob
  */
 beforeEach(function () {
     $this->class = Reflect::on(new CreatesDeleteJobClass);
@@ -81,7 +81,7 @@ it('throws a TypeError with null $builder', function () {
         $this->disk,
         $removedFiles
     );
-})->throws(\TypeError::class, 'Argument #1 ($builder) must be of type christopheraseidl\HasUploads\Jobs\Contracts\Builder, null given');
+})->throws(\TypeError::class, 'Argument #1 ($builder) must be of type christopheraseidl\ModelFiler\Jobs\Contracts\Builder, null given');
 
 it('throws a TypeError with null $model', function () {
     $removedFiles = ['file1.jpg', 'file2.png'];

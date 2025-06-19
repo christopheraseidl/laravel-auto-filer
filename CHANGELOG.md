@@ -1,3 +1,3 @@
 # Changelog
 
-All notable changes to `laravel-has-uploads` will be documented in this file.
+All notable changes to `laravel-model-filer` will be documented in this file.

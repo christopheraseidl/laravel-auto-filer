@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Payloads;
+namespace christopheraseidl\ModelFiler\Payloads;
 
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload as PayloadContract;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload as PayloadContract;
 
 /**
  * Creates payload instances with dynamic parameter resolution.

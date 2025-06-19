@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\ModelUpdateHandler;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\ModelUpdateHandler;
 
-use christopheraseidl\HasUploads\Jobs\Contracts\DeleteUploads;
-use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
-use christopheraseidl\HasUploads\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
-use christopheraseidl\HasUploads\Tests\TestTraits\ModelUpdateHandlerHelpers;
+use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploads;
+use christopheraseidl\ModelFiler\Jobs\Contracts\MoveUploads;
+use christopheraseidl\ModelFiler\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
+use christopheraseidl\ModelFiler\Tests\TestTraits\ModelUpdateHandlerHelpers;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 uses(
@@ -17,7 +17,7 @@ uses(
 /**
  * Tests ModelUpdateHandler behavior triggered directly by methods.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\ModelUpdateHandler
+ * @covers \christopheraseidl\ModelFiler\Handlers\ModelUpdateHandler
  */
 beforeEach(function () {
     $this->model->fill([

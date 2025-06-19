@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Handlers\Services;
+namespace christopheraseidl\ModelFiler\Handlers\Services;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Events\FileOperationCompleted;
-use christopheraseidl\HasUploads\Events\FileOperationFailed;
-use christopheraseidl\HasUploads\Handlers\Contracts\BatchManager as BatchManagerContract;
-use christopheraseidl\HasUploads\Payloads\BatchUpdate;
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
+use christopheraseidl\ModelFiler\Events\FileOperationFailed;
+use christopheraseidl\ModelFiler\Handlers\Contracts\BatchManager as BatchManagerContract;
+use christopheraseidl\ModelFiler\Payloads\BatchUpdate;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload;
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Bus;

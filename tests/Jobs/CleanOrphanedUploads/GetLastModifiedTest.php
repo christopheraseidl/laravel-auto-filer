@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\CleanOrphanedUploads;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\CleanOrphanedUploads;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Tests the CleanOrphanedUploads getLastModified method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads
+ * @covers \christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads
  */
 beforeEach(function () {
-    config()->set('has-uploads.path', 'uploads');
+    config()->set('model-filer.path', 'uploads');
 
     $upload = UploadedFile::fake()->create('file1.txt', 100);
     $name = $upload->hashName();

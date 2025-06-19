@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Traits;
+namespace christopheraseidl\ModelFiler\Tests\Traits;
 
-use christopheraseidl\HasUploads\Traits\HasDisk;
+use christopheraseidl\ModelFiler\Traits\HasDisk;
 
 /**
  * Tests HasDisk and behavior.
  *
- * @covers \christopheraseidl\HasUploads\Traits\HasDisk
+ * @covers \christopheraseidl\ModelFiler\Traits\HasDisk
  */
 class HasDiskTestClass
 {

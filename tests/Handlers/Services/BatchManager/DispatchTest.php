@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\Services;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\Services;
 
 use Illuminate\Support\Facades\Bus;
 
@@ -11,7 +11,7 @@ class DispatchTestJobTwo {}
 /**
  * Tests BatchManager dispatch() method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\Services\BatchManager
+ * @covers \christopheraseidl\ModelFiler\Handlers\Services\BatchManager
  */
 it('dispatches batch with the correct parameters', function (array $jobs) {
     $description = 'Test Batch';

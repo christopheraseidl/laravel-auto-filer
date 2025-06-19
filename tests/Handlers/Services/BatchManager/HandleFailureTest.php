@@ -1,10 +1,10 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\Services;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\Services;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Events\FileOperationFailed;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Events\FileOperationFailed;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -13,7 +13,7 @@ use Mockery\MockInterface;
 /**
  * Tests BatchManager handleFailure() behavior.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\Services\BatchManager
+ * @covers \christopheraseidl\ModelFiler\Handlers\Services\BatchManager
  */
 it('broadcasts FileOperationFailed with correct data', function () {
     $this->batchManager->handleFailure($this->batch, $this->model, $this->disk, $this->error);

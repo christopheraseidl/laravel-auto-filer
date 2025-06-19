@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\Services\CircuitBreaker;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
-use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
-use christopheraseidl\HasUploads\Tests\TestTraits\CircuitBreakerHelpers;
+use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
+use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -15,7 +15,7 @@ uses(
 /**
  * Tests CircuitBreaker recordFailure method behavior.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker
+ * @covers \christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker
  */
 beforeEach(function () {
     $this->breakerWithEmail = new CircuitBreaker(

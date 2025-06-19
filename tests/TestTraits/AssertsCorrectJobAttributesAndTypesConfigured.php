@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestTraits;
+namespace christopheraseidl\ModelFiler\Tests\TestTraits;
 
 use Illuminate\Support\Facades\Bus;
 
@@ -14,7 +14,7 @@ trait AssertsCorrectJobAttributesAndTypesConfigured
         int $expectedjobsWithArrayCount = 1
     ): void {
         Bus::assertBatched(function ($batch) use ($expectedjobsWithStringCount, $expectedjobsWithArrayCount) {
-            // Attributes set up on christopheraseidl\HasUploads\Tests\TestModels\TestModel
+            // Attributes set up on christopheraseidl\ModelFiler\Tests\TestModels\TestModel
             $stringAttribute = 'string';
             $stringAttributeType = 'images';
             $arrayAttrribute = 'array';
@@ -50,7 +50,7 @@ trait AssertsCorrectJobAttributesAndTypesConfigured
                 fn ($type) => $type === $arrayAttributeType
             )->count();
 
-            // Assert based on parameters and christopheraseidl\HasUploads\Tests\TestModels\TestModel
+            // Assert based on parameters and christopheraseidl\ModelFiler\Tests\TestModels\TestModel
             return $jobAttributes->contains('string')
                 && $jobAttributes->contains('array')
                 && $jobAttributeTypes->contains('images')

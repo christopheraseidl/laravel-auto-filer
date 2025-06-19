@@ -1,10 +1,10 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Support;
+namespace christopheraseidl\ModelFiler\Support;
 
-use christopheraseidl\HasUploads\Contracts\FileOperationTypeFormatter;
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\ModelFiler\Contracts\FileOperationTypeFormatter;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
 
 /**
  * Formats operation type and scope combinations into string identifiers.

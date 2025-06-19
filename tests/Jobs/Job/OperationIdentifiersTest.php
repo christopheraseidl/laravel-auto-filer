@@ -3,7 +3,7 @@
 /**
  * Tests the Job getOperationType and uniqueId methods.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\Job
+ * @covers \christopheraseidl\ModelFiler\Jobs\Job
  */
 it('returns the expected operation type value', function () {
     $result = $this->job->getOperationType();

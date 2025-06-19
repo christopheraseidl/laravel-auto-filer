@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Enums;
+namespace christopheraseidl\ModelFiler\Tests\Enums;
 
-use christopheraseidl\HasUploads\Enums\OperationType;
+use christopheraseidl\ModelFiler\Enums\OperationType;
 
 /**
  * Tests OperationType enum structure.
  *
- * @covers \christopheraseidl\HasUploads\Enums\OperationType
+ * @covers \christopheraseidl\ModelFiler\Enums\OperationType
  */
 beforeEach(function () {
     $this->enum = new \ReflectionEnum(OperationType::class);
@@ -28,7 +28,7 @@ it('has exactly four cases', function () {
 });
 
 it('has the correct cases with the correct values', function (string $case) {
-    $scopeCase = constant("christopheraseidl\\HasUploads\\Enums\\OperationType::$case");
+    $scopeCase = constant("christopheraseidl\\ModelFiler\\Enums\\OperationType::$case");
 
     expect($scopeCase->name)->toBe($case);
     expect($scopeCase->value)->toBe(mb_strtolower($case));
@@ -40,7 +40,7 @@ it('has the correct cases with the correct values', function (string $case) {
 ]);
 
 it('throws an exception for an invalid value', function () {
-    $message = '"nonexistent" is not a valid backing value for enum christopheraseidl\HasUploads\Enums\OperationType';
+    $message = '"nonexistent" is not a valid backing value for enum christopheraseidl\ModelFiler\Enums\OperationType';
 
     expect(fn () => OperationType::from('nonexistent'))
         ->toThrow(\Error::class, $message);

@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestClasses\Payload;
+namespace christopheraseidl\ModelFiler\Tests\TestClasses\Payload;
 
 class TestPayload extends TestPayloadNoConstructor
 {

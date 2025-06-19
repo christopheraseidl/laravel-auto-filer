@@ -1,14 +1,14 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestModels;
+namespace christopheraseidl\ModelFiler\Tests\TestModels;
 
-use christopheraseidl\HasUploads\HasUploads;
+use christopheraseidl\ModelFiler\HasFiles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class TestModel extends Model
 {
-    use HasFactory, HasUploads;
+    use HasFactory, HasFiles;
 
     protected $table = 'test_models';
 

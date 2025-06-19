@@ -1,20 +1,20 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Events;
+namespace christopheraseidl\ModelFiler\Tests\Events;
 
 use Illuminate\Broadcasting\PrivateChannel;
 
 /**
  * Tests structure and behavior of all child events.
  *
- * @covers \christopheraseidl\HasUploads\Events\BatchFileOperationCompleted
- * @covers \christopheraseidl\HasUploads\Events\BatchFileOperationFailed
- * @covers \christopheraseidl\HasUploads\Events\FileOperationCompleted
- * @covers \christopheraseidl\HasUploads\Events\FileOperationFailed
- * @covers \christopheraseidl\HasUploads\Events\FileOperationStarted
+ * @covers \christopheraseidl\ModelFiler\Events\BatchFileOperationCompleted
+ * @covers \christopheraseidl\ModelFiler\Events\BatchFileOperationFailed
+ * @covers \christopheraseidl\ModelFiler\Events\FileOperationCompleted
+ * @covers \christopheraseidl\ModelFiler\Events\FileOperationFailed
+ * @covers \christopheraseidl\ModelFiler\Events\FileOperationStarted
  */
 it('returns the expected payload and structure', function (string $event) {
-    $event = "christopheraseidl\\HasUploads\\Events\\$event";
+    $event = "christopheraseidl\\ModelFiler\\Events\\$event";
     $event = new $event($this->payload);
 
     expect($event->payload)->toBe($this->payload);
@@ -33,7 +33,7 @@ it('returns the expected payload and structure', function (string $event) {
 
 test('failure events return the expected exception', function (string $event) {
     $exception = new \Exception('Test exception');
-    $event = "christopheraseidl\\HasUploads\\Events\\$event";
+    $event = "christopheraseidl\\ModelFiler\\Events\\$event";
     $event = new $event($this->payload, $exception);
 
     expect($event->exception)->toBe($exception);
@@ -44,7 +44,7 @@ test('failure events return the expected exception', function (string $event) {
 ]);
 
 it('broadcasts on the correct channel', function (string $event) {
-    $event = "christopheraseidl\\HasUploads\\Events\\$event";
+    $event = "christopheraseidl\\ModelFiler\\Events\\$event";
     $event = new $event($this->payload);
 
     expect($event->broadcastOn())->toEqual(

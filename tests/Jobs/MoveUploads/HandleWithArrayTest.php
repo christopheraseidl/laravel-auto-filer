@@ -1,22 +1,22 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\MoveUploads;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\MoveUploads;
 
-use christopheraseidl\HasUploads\Enums\OperationScope;
-use christopheraseidl\HasUploads\Enums\OperationType;
-use christopheraseidl\HasUploads\Events\FileOperationCompleted;
-use christopheraseidl\HasUploads\Events\FileOperationFailed;
-use christopheraseidl\HasUploads\Jobs\MoveUploads;
-use christopheraseidl\HasUploads\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
-use christopheraseidl\HasUploads\Payloads\ModelAware;
-use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
+use christopheraseidl\ModelFiler\Enums\OperationScope;
+use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
+use christopheraseidl\ModelFiler\Events\FileOperationFailed;
+use christopheraseidl\ModelFiler\Jobs\MoveUploads;
+use christopheraseidl\ModelFiler\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
+use christopheraseidl\ModelFiler\Payloads\ModelAware;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * Tests the MoveUploads handle method with array (multiple file) attributes.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\MoveUploads
+ * @covers \christopheraseidl\ModelFiler\Jobs\MoveUploads
  */
 class TestArrayMoveUploadsPayload extends ModelAware implements MoveUploadsPayload
 {

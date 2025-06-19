@@ -1,13 +1,13 @@
 # A simple package for automating file upload storage and locations associated with models.
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/christopheraseidl/laravel-has-uploads.svg?style=flat-square)](https://packagist.org/packages/christopheraseidl/laravel-has-uploads)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/christopheraseidl/laravel-has-uploads/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/christopheraseidl/laravel-has-uploads/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/christopheraseidl/laravel-has-uploads/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/christopheraseidl/laravel-has-uploads/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/christopheraseidl/laravel-has-uploads.svg?style=flat-square)](https://packagist.org/packages/christopheraseidl/laravel-has-uploads)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/christopheraseidl/laravel-model-filer.svg?style=flat-square)](https://packagist.org/packages/christopheraseidl/laravel-model-filer)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/christopheraseidl/laravel-model-filer/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/christopheraseidl/laravel-model-filer/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/christopheraseidl/laravel-model-filer/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/christopheraseidl/laravel-model-filer/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/christopheraseidl/laravel-model-filer.svg?style=flat-square)](https://packagist.org/packages/christopheraseidl/laravel-model-filer)
 
 The idea of this package is simple:
 
-1. Add the `HasUploads` trait to your model.
+1. Add the `ModelFiler` trait to your model.
 2. Set up your model and database for storing uploaded file paths (see **Usage** below).
 3. Your files will be stored in logical, human-readable file paths unique for each model.
 
@@ -18,20 +18,20 @@ Files will be automatically deleted when their associated model is deleted. Ther
 You can install the package via composer:
 
 ```bash
-composer require christopheraseidl/laravel-has-uploads
+composer require christopheraseidl/laravel-model-filer
 ```
 
 You can publish and run the migrations with:
 
 ```bash
-php artisan vendor:publish --tag="laravel-has-uploads-migrations"
+php artisan vendor:publish --tag="laravel-model-filer-migrations"
 php artisan migrate
 ```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="laravel-has-uploads-config"
+php artisan vendor:publish --tag="laravel-model-filer-config"
 ```
 
 This is the contents of the published config file:
@@ -71,11 +71,11 @@ return [
 To set up the model, add a `use` statement and the `getUploadableAttributes` method, which returns a key-value array where the keys are the attribute names and the values are the sub-directories where you want their uploaded files to be stored.
 
 ```php
-use christopheraseidl\HasUploads\HasUploads;
+use christopheraseidl\ModelFiler\HasFiles;
 
 class Product extends Model
 {
-    use HasUploads;
+    use HasFiles;
 
     protected $fillable = [
         'images',

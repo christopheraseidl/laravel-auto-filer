@@ -1,11 +1,11 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Handlers\ModelCreationHandler;
+namespace christopheraseidl\ModelFiler\Tests\Handlers\ModelCreationHandler;
 
-use christopheraseidl\HasUploads\Jobs\Contracts\MoveUploads;
-use christopheraseidl\HasUploads\Tests\TestModels\TestModel;
-use christopheraseidl\HasUploads\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
-use christopheraseidl\HasUploads\Tests\TestTraits\ModelCreationHandlerAssertions;
+use christopheraseidl\ModelFiler\Jobs\Contracts\MoveUploads;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
+use christopheraseidl\ModelFiler\Tests\TestTraits\AssertsCorrectJobAttributesAndTypesConfigured;
+use christopheraseidl\ModelFiler\Tests\TestTraits\ModelCreationHandlerAssertions;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 
@@ -18,7 +18,7 @@ uses(
 /**
  * Tests ModelCreationHandler behavior triggered directly by methods.
  *
- * @covers \christopheraseidl\HasUploads\Handlers\ModelCreationHandler
+ * @covers \christopheraseidl\ModelFiler\Handlers\ModelCreationHandler
  */
 beforeEach(function () {
     $this->model = TestModel::factory()

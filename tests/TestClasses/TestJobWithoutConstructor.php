@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\TestClasses;
+namespace christopheraseidl\ModelFiler\Tests\TestClasses;
 
-use christopheraseidl\HasUploads\Jobs\Job;
-use christopheraseidl\HasUploads\Payloads\Contracts\Payload as PayloadContract;
+use christopheraseidl\ModelFiler\Jobs\Job;
+use christopheraseidl\ModelFiler\Payloads\Contracts\Payload as PayloadContract;
 
 class TestJobWithoutConstructor extends Job
 {

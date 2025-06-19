@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\HasUploads\Tests\Jobs\CleanOrphanedUploads;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\CleanOrphanedUploads;
 
-use christopheraseidl\HasUploads\Events\FileOperationCompleted;
-use christopheraseidl\HasUploads\Events\FileOperationFailed;
+use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
+use christopheraseidl\ModelFiler\Events\FileOperationFailed;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Tests the CleanOrphanedUploads handle method.
  *
- * @covers \christopheraseidl\HasUploads\Jobs\CleanOrphanedUploads
+ * @covers \christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads
  */
 beforeEach(function () {
-    config()->set('has-uploads.path', 'uploads');
+    config()->set('model-filer.path', 'uploads');
 
     Event::fake([
         FileOperationCompleted::class,
@@ -33,8 +33,8 @@ beforeEach(function () {
 });
 
 it('deletes files older than the threshold and broadcasts completion event', function () {
-    config()->set('has-uploads.cleanup.enabled', true);
-    config()->set('has-uploads.cleanup.dry_run', false);
+    config()->set('model-filer.cleanup.enabled', true);
+    config()->set('model-filer.cleanup.dry_run', false);
 
     $this->cleaner->handle();
 
@@ -45,8 +45,8 @@ it('deletes files older than the threshold and broadcasts completion event', fun
 });
 
 it('broadcasts failure event when exception is thrown', function () {
-    config()->set('has-uploads.cleanup.enabled', true);
-    config()->set('has-uploads.cleanup.dry_run', false);
+    config()->set('model-filer.cleanup.enabled', true);
+    config()->set('model-filer.cleanup.dry_run', false);
 
     Storage::shouldReceive($this->disk)->andThrow(new \Exception('Disk error'));
 
@@ -65,8 +65,8 @@ it('does not run at all when disabled', function () {
 });
 
 it('logs the expected messages when dry run enabled', function () {
-    config()->set('has-uploads.cleanup.enabled', true);
-    config()->set('has-uploads.cleanup.dry_run', true);
+    config()->set('model-filer.cleanup.enabled', true);
+    config()->set('model-filer.cleanup.dry_run', true);
 
     $disk = $this->cleaner->getPayload()->getDisk();
     $path = $this->cleaner->getPayload()->getPath();
