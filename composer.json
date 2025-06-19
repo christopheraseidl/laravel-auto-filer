@@ -1,6 +1,6 @@
 {
     "name": "christopheraseidl/laravel-model-filer",
-    "description": "A simple package for automating the organization of files associated with models. ",
+    "description": "A simple package for automating the organization of files associated with models.",
     "keywords": [
         "christopheraseidl",
         "laravel",
