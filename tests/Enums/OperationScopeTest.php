@@ -30,8 +30,8 @@ it('has exactly three cases', function () {
 it('has the correct cases with the correct values', function (string $case) {
     $scopeCase = constant("christopheraseidl\\HasUploads\\Enums\\OperationScope::$case");
 
-    expect($scopeCase->name)->toBe($case)
-        ->and($scopeCase->value)->toBe(mb_strtolower($case));
+    expect($scopeCase->name)->toBe($case);
+    expect($scopeCase->value)->toBe(mb_strtolower($case));
 })->with([
     ['Batch'],
     ['File'],
@@ -39,5 +39,8 @@ it('has the correct cases with the correct values', function (string $case) {
 ]);
 
 it('throws an exception for an invalid value', function () {
-    OperationScope::from('nonexistent');
-})->throws(\Error::class, '"nonexistent" is not a valid backing value for enum christopheraseidl\HasUploads\Enums\OperationScope');
+    $message = '"nonexistent" is not a valid backing value for enum christopheraseidl\HasUploads\Enums\OperationScope';
+
+    expect(fn () => OperationScope::from('nonexistent'))
+        ->toThrow(\Error::class, $message);
+});

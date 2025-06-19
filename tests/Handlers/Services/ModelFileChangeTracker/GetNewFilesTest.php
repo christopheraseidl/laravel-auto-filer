@@ -22,10 +22,10 @@ it('returns the correct new files', function () {
     $newStringFiles = $this->tracker->getNewFiles($this->model, 'string');
     $newArrayFiles = $this->tracker->getNewFiles($this->model, 'array');
 
-    expect($newStringFiles)->toBeArray()
-        ->and($newStringFiles[0])->toBe('new-image.png')
-        ->and($newArrayFiles)->toBeArray()
-        ->and($newArrayFiles[0])->toBe('new-doc.txt');
+    expect($newStringFiles)->toBeArray();
+    expect($newStringFiles[0])->toBe('new-image.png');
+    expect($newArrayFiles)->toBeArray();
+    expect($newArrayFiles[0])->toBe('new-doc.txt');
 });
 
 it('returns an empty array if no files are being added', function () {
@@ -33,8 +33,8 @@ it('returns an empty array if no files are being added', function () {
     $newArrayFiles = $this->tracker->getNewFiles($this->model, 'array');
 
     expect($newStringFiles)->toBeArray()
-        ->and($newStringFiles)->toBeEmpty()
-        ->and($newArrayFiles)->toBeArray()
+        ->and($newStringFiles)->toBeEmpty();
+    expect($newArrayFiles)->toBeArray()
         ->and($newArrayFiles)->toBeEmpty();
 });
 

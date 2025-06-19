@@ -6,6 +6,7 @@ use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
 use christopheraseidl\HasUploads\Jobs\Services\FileDeleter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Mockery\MockInterface;
 
 /**
  * Tests FileDeleter method behavior.
@@ -56,8 +57,6 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
 ]);
 
 it('throws an exception and logs an error after 3 errors when maxAttempts is 3', function () {
-    Log::spy();
-
     $diskMock = \Mockery::mock();
     $diskMock->shouldReceive('delete')
         ->andThrow(new \Exception('Deletion failed.'));
@@ -65,6 +64,8 @@ it('throws an exception and logs an error after 3 errors when maxAttempts is 3',
     Storage::shouldReceive('disk')
         ->with($this->disk)
         ->andReturn($diskMock);
+
+    Log::spy();
 
     expect(fn () => $this->deleter->attemptDelete($this->disk, $this->path))
         ->toThrow(\Exception::class);
@@ -78,24 +79,23 @@ it('throws exception when maxAttempts is 0', function () {
 });
 
 it('throws an exception and logs a warning when circuit breaker blocks attempt', function () {
-    Log::spy();
-
-    $breaker = \Mockery::mock(CircuitBreaker::class)->makePartial();
-    $breaker->shouldReceive('canAttempt')
-        ->once()
-        ->andReturn(false);
-    $breaker->shouldReceive('getStats')->andReturn([
-        'name' => 'test-breaker',
-        'state' => 'open',
-        'failure_count' => 5,
-        'failure_threshold' => 5,
-        'opened_at' => now()->timestamp,
-        'recovery_timeout' => 60,
-    ]);
+    $breaker = $this->partialMock(CircuitBreaker::class, function (MockInterface $mock) {
+        $mock->shouldReceive('canAttempt')->once()->andReturn(false);
+        $mock->shouldReceive('getStats')->andReturn([
+            'name' => 'test-breaker',
+            'state' => 'open',
+            'failure_count' => 5,
+            'failure_threshold' => 5,
+            'opened_at' => now()->timestamp,
+            'recovery_timeout' => 60,
+        ]);
+    });
 
     $deleter = new FileDeleter(
         $breaker
     );
+
+    Log::spy();
 
     expect(fn () => $deleter->attemptDelete($this->disk, $this->path))
         ->toThrow(
@@ -107,8 +107,6 @@ it('throws an exception and logs a warning when circuit breaker blocks attempt',
 });
 
 it('records a circuit breaker failure and throws an exception when deletion fails', function () {
-    Log::spy();
-
     $diskMock = \Mockery::mock();
     $diskMock->shouldReceive('directoryExists')->andReturnFalse();
     $diskMock->shouldReceive('delete')
@@ -116,6 +114,8 @@ it('records a circuit breaker failure and throws an exception when deletion fail
 
     Storage::shouldReceive('disk')
         ->andReturn($diskMock);
+
+    Log::spy();
 
     expect(fn () => $this->deleter->attemptDelete($this->disk, 'path'))
         ->toThrow(\Exception::class, 'Failed to delete file after 3 attempts.');

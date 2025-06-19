@@ -20,6 +20,6 @@ it('returns an empty array when creating jobs for unchanged attributes', functio
     $stringJobs = $this->handler->createJobsFromAttribute($this->model, 'string', 'images');
     $arrayJobs = $this->handler->createJobsFromAttribute($this->model, 'array', 'documents');
 
-    expect($stringJobs)->toBeEmpty()
-        ->and($arrayJobs)->toBeEmpty();
+    expect($stringJobs)->toBeEmpty();
+    expect($arrayJobs)->toBeEmpty();
 });

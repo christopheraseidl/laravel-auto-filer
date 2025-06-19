@@ -27,9 +27,9 @@ beforeEach(function () {
 it('makes a new Payload instance from provided parameters', function () {
     $instance = $this->payloadWithConstructor::make('new value', 'second param');
 
-    expect($instance)->toBeInstanceOf(PayloadContract::class)
-        ->and($instance->required)->toBe('new value')
-        ->and($instance->paramOne)->toBe('second param');
+    expect($instance)->toBeInstanceOf(PayloadContract::class);
+    expect($instance->required)->toBe('new value');
+    expect($instance->paramOne)->toBe('second param');
 });
 
 it('returns null if the calling class is abstract', function () {

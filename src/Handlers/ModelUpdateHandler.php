@@ -41,6 +41,6 @@ class ModelUpdateHandler extends BaseModelEventHandler
 
     protected function getBatchDescription(): string
     {
-        return 'Handle uploads for modal update.';
+        return 'Handle uploads for model update.';
     }
 }

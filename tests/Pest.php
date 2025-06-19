@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
+use Mockery\MockInterface;
 
 uses(TestCase::class)->in(__DIR__);
 
@@ -93,12 +94,13 @@ uses()->beforeEach(function () {
     Bus::fake();
     Event::fake();
 
-    $this->batch = \Mockery::mock(Batch::class);
+    $this->batch = $this->mock(Batch::class);
 
     $this->batchManager = new BatchManager;
 
-    $this->model = \Mockery::mock(Model::class);
-    $this->model->shouldReceive('getAttribute')->with('id')->andReturn(1);
+    $this->model = $this->mock(Model::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getAttribute')->with('id')->andReturn(1);
+    });
 
     $this->disk = 'local';
 

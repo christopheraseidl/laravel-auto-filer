@@ -8,6 +8,7 @@ use christopheraseidl\HasUploads\Events\FileOperationCompleted;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
+use Mockery\MockInterface;
 
 /**
  * Tests BatchManager handleSuccess() method behavior.
@@ -34,8 +35,9 @@ it('broadcasts FileOperationCompleted with correct data', function () {
 });
 
 it('throws a TypeError with null model ID', function () {
-    $model = \Mockery::mock(Model::class);
-    $model->shouldReceive('getAttribute')->with('id')->andReturn(null);
+    $model = $this->mock(Model::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getAttribute')->with('id')->andReturn(null);
+    });
 
     $this->batchManager->handleSuccess($this->batch, $model, $this->disk);
 })->throws(\TypeError::class, 'Argument #2 ($modelId) must be of type int, null given');

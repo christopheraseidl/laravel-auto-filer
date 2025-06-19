@@ -43,9 +43,9 @@ it('configures jobs with the correct model attributes and types when handle() is
 it('gets all jobs for a model with uploadable attributes', function () {
     $jobs = $this->handler->getAllJobs($this->model);
 
-    expect($jobs)->toHaveCount(4)
-        ->and(array_filter($jobs, fn ($job) => $job instanceof DeleteUploads))->toHaveCount(2)
-        ->and(array_filter($jobs, fn ($job) => $job instanceof MoveUploads))->toHaveCount(2);
+    expect($jobs)->toHaveCount(4);
+    expect(array_filter($jobs, fn ($job) => $job instanceof DeleteUploads))->toHaveCount(2);
+    expect(array_filter($jobs, fn ($job) => $job instanceof MoveUploads))->toHaveCount(2);
 });
 
 it('creates jobs from attribute correctly', function (string $attribute, string $type) {
@@ -63,20 +63,20 @@ it('creates jobs from attribute correctly', function (string $attribute, string 
         return $job->getPayload()->getModelAttributeType();
     }, $jobs);
 
-    expect($jobs)->toHaveCount(2)
-        ->and($deleteJobs)->toHaveCount(1)
-        ->and($moveJobs)->toHaveCount(1)
-        ->and($jobAttributes)->toHaveCount(2)
-        ->and($jobAttributes)->toContain($attribute)
-        ->and(array_unique($jobAttributes))->toHaveCount(1)
-        ->and($jobTypes)->toHaveCount(2)
-        ->and($jobTypes)->toContain($type)
-        ->and(array_unique($jobTypes))->toHaveCount(1);
+    expect($jobs)->toHaveCount(2);
+    expect($deleteJobs)->toHaveCount(1);
+    expect($moveJobs)->toHaveCount(1);
+    expect($jobAttributes)->toHaveCount(2)
+        ->and($jobAttributes)->toContain($attribute);
+    expect(array_unique($jobAttributes))->toHaveCount(1);
+    expect($jobTypes)->toHaveCount(2)
+        ->and($jobTypes)->toContain($type);
+    expect(array_unique($jobTypes))->toHaveCount(1);
 })->with([
     ['string', 'images'],
     ['array', 'documents'],
 ]);
 
 it('returns the correct batch description', function () {
-    expect($this->handler->getBatchDescription())->toBe('Handle uploads for modal update.');
+    expect($this->handler->getBatchDescription())->toBe('Handle uploads for model update.');
 });

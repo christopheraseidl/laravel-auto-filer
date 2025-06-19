@@ -13,8 +13,7 @@ use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Bus;
 
 /**
- * A trait providing re-usable methods for tests in
- * /tests/Handlers/ModelUpdateHandler.
+ * A trait providing re-usable methods for tests in /tests/Handlers/ModelUpdateHandler.
  */
 trait ModelUpdateHandlerHelpers
 {
@@ -33,7 +32,7 @@ trait ModelUpdateHandlerHelpers
         int $expectedMoveCount = 1
     ): void {
         Bus::assertBatched(function ($batch) use ($expectedDeleteCount, $expectedMoveCount) {
-            $batchCount = count($batch->jobs);
+            $batchJobCount = count($batch->jobs);
 
             $deleteJobsCount = $batch->jobs->filter(
                 fn ($job) => $job instanceof DeleteUploads
@@ -43,7 +42,7 @@ trait ModelUpdateHandlerHelpers
                 fn ($job) => $job instanceof MoveUploads
             )->count();
 
-            return $batchCount === 4
+            return $batchJobCount === 4 // Based on setup in /tests/Handlers/ModelUpdateHandler and Pest.php
                 && $deleteJobsCount === $expectedDeleteCount
                 && $moveJobsCount === $expectedMoveCount;
         });

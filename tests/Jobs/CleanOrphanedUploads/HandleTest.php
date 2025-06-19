@@ -38,10 +38,8 @@ it('deletes files older than the threshold and broadcasts completion event', fun
 
     $this->cleaner->handle();
 
-    expect(Storage::disk($this->disk)->exists($this->oldFile))
-        ->toBeFalse()
-        ->and(Storage::disk($this->disk)->exists($this->newFile))
-        ->toBeTrue();
+    expect(Storage::disk($this->disk)->exists($this->oldFile))->toBeFalse();
+    expect(Storage::disk($this->disk)->exists($this->newFile))->toBeTrue();
 
     Event::assertDispatched(FileOperationCompleted::class);
 });
@@ -60,10 +58,8 @@ it('broadcasts failure event when exception is thrown', function () {
 it('does not run at all when disabled', function () {
     $this->cleaner->handle();
 
-    expect(Storage::disk($this->disk)->exists($this->oldFile))
-        ->toBeTrue()
-        ->and(Storage::disk($this->disk)->exists($this->newFile))
-        ->toBeTrue();
+    expect(Storage::disk($this->disk)->exists($this->oldFile))->toBeTrue();
+    expect(Storage::disk($this->disk)->exists($this->newFile))->toBeTrue();
 
     Event::assertNothingDispatched();
 });
@@ -72,11 +68,11 @@ it('logs the expected messages when dry run enabled', function () {
     config()->set('has-uploads.cleanup.enabled', true);
     config()->set('has-uploads.cleanup.dry_run', true);
 
-    Log::spy();
-
     $disk = $this->cleaner->getPayload()->getDisk();
     $path = $this->cleaner->getPayload()->getPath();
     $thresholdHours = $this->cleaner->getPayload()->getCleanupThresholdHours();
+
+    Log::spy();
 
     $this->cleaner->handle();
 

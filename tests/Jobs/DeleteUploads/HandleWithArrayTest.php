@@ -98,10 +98,10 @@ it('deletes only the provided files and handles a sparse array gracefully', func
 
     Event::assertDispatched(FileOperationCompleted::class);
 
-    expect(Storage::disk($this->disk)->exists($this->files[0]))->toBeTrue()
-        ->and(Storage::disk($this->disk)->exists($this->files[2]))->toBeTrue()
-        ->and(Storage::disk($this->disk)->exists($this->files[1]))->toBeFalse()
-        ->and(Storage::disk($this->disk)->exists($this->files[3]))->toBeFalse();
+    expect(Storage::disk($this->disk)->exists($this->files[0]))->toBeTrue();
+    expect(Storage::disk($this->disk)->exists($this->files[2]))->toBeTrue();
+    expect(Storage::disk($this->disk)->exists($this->files[1]))->toBeFalse();
+    expect(Storage::disk($this->disk)->exists($this->files[3]))->toBeFalse();
 });
 
 it('handles null array attribute gracefully', function () {

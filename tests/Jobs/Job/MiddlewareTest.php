@@ -11,8 +11,7 @@ use Illuminate\Queue\Middleware\ThrottlesExceptions;
 it('returns correct throttling and rate limiting', function () {
     $middleware = $this->job->middleware();
 
-    expect($middleware)
-        ->toHaveCount(2)
-        ->and($middleware[0])->toBeInstanceOf(ThrottlesExceptions::class)
-        ->and($middleware[1])->toBeInstanceOf(RateLimited::class);
+    expect($middleware)->toHaveCount(2);
+    expect($middleware[0])->toBeInstanceOf(ThrottlesExceptions::class);
+    expect($middleware[1])->toBeInstanceOf(RateLimited::class);
 });

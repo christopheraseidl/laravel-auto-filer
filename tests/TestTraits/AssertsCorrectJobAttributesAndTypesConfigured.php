@@ -5,48 +5,60 @@ namespace christopheraseidl\HasUploads\Tests\TestTraits;
 use Illuminate\Support\Facades\Bus;
 
 /**
- * A trait providing re-usable methods for tests in
- * /tests/Handlers/ModelUpdateHandler and /tests/Handlers/ModelCreationHandler.
+ * A trait providing re-usable methods to make standard assertions about job batches.
  */
 trait AssertsCorrectJobAttributesAndTypesConfigured
 {
     public function assertCorrectJobAttributesAndTypesConfigured(
-        int $expectedStringCount = 1,
-        int $expectedArrayCount = 1
+        int $expectedjobsWithStringCount = 1,
+        int $expectedjobsWithArrayCount = 1
     ): void {
-        Bus::assertBatched(function ($batch) use ($expectedStringCount, $expectedArrayCount) {
-            $attributes = $batch->jobs->map(
+        Bus::assertBatched(function ($batch) use ($expectedjobsWithStringCount, $expectedjobsWithArrayCount) {
+            // Attributes set up on christopheraseidl\HasUploads\Tests\TestModels\TestModel
+            $stringAttribute = 'string';
+            $stringAttributeType = 'images';
+            $arrayAttrribute = 'array';
+            $arrayAttributeType = 'documents';
+
+            // Get a list of job model attributes
+            $jobAttributes = $batch->jobs->map(
                 fn ($job) => $job->getPayload()->getModelAttribute()
             );
 
-            $stringCount = $attributes->filter(
-                fn ($attr) => $attr === 'string'
+            // Get a count of jobs with model attributes called "string"
+            $jobsWithStringCount = $jobAttributes->filter(
+                fn ($attr) => $attr === $stringAttribute
             )->count();
 
-            $arrayCount = $attributes->filter(
-                fn ($attr) => $attr === 'array'
+            // Get a count of jobs with model attributes called "array"
+            $jobsWithArrayCount = $jobAttributes->filter(
+                fn ($attr) => $attr === $arrayAttrribute
             )->count();
 
-            $types = $batch->jobs->map(
+            // Get a list of job model attribute types
+            $jobAttributeTypes = $batch->jobs->map(
                 fn ($job) => $job->getPayload()->getModelAttributeType()
             );
 
-            $imagesCount = $types->filter(
-                fn ($type) => $type === 'images'
+            // Get a count of jobs with "images" model attribute type
+            $jobsWithImagesCount = $jobAttributeTypes->filter(
+                fn ($type) => $type === $stringAttributeType
             )->count();
 
-            $documentsCount = $types->filter(
-                fn ($type) => $type === 'documents'
+            // Get a count of jobs with "documents" model attribute type
+            $jobsWithDocumentsCount = $jobAttributeTypes->filter(
+                fn ($type) => $type === $arrayAttributeType
             )->count();
 
-            return $attributes->contains('string')
-                && $attributes->contains('array')
-                && $types->contains('images')
-                && $types->contains('documents')
-                && $stringCount === $expectedStringCount
-                && $arrayCount === $expectedArrayCount
-                && $imagesCount === $expectedStringCount
-                && $documentsCount === $expectedArrayCount;
+            // Assert based on parameters and christopheraseidl\HasUploads\Tests\TestModels\TestModel
+            return $jobAttributes->contains('string')
+                && $jobAttributes->contains('array')
+                && $jobAttributeTypes->contains('images')
+                && $jobAttributeTypes->contains('documents')
+                && $jobsWithStringCount === $expectedjobsWithStringCount
+                && $jobsWithArrayCount === $expectedjobsWithArrayCount
+                && $jobsWithImagesCount === $expectedjobsWithStringCount
+                && $jobsWithDocumentsCount === $expectedjobsWithArrayCount;
         });
     }
 }

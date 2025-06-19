@@ -47,8 +47,8 @@ it('configures the move upload jobs with correct attributes and types when handl
 it('gets all jobs for a model with uploadable attributes', function () {
     $jobs = $this->handler->getAllJobs($this->model);
 
-    expect($jobs)->toHaveCount(2)
-        ->and(array_filter($jobs, fn ($job) => $job instanceof MoveUploads))->toHaveCount(2);
+    expect($jobs)->toHaveCount(2);
+    expect(array_filter($jobs, fn ($job) => $job instanceof MoveUploads))->toHaveCount(2);
 });
 
 it('creates jobs from attribute correctly', function (string $attribute, string $type) {
@@ -64,11 +64,11 @@ it('creates jobs from attribute correctly', function (string $attribute, string 
         return $job->getPayload()->getModelAttributeType();
     }, $jobs);
 
-    expect($jobs)->toHaveCount(1)
-        ->and($moveJobs)->toHaveCount(1)
-        ->and($jobAttributes)->toHaveCount(1)
-        ->and($jobAttributes)->toContain($attribute)
-        ->and($jobTypes)->toHaveCount(1)
+    expect($jobs)->toHaveCount(1);
+    expect($moveJobs)->toHaveCount(1);
+    expect($jobAttributes)->toHaveCount(1)
+        ->and($jobAttributes)->toContain($attribute);
+    expect($jobTypes)->toHaveCount(1)
         ->and($jobTypes)->toContain($type);
 })->with([
     ['string', 'images'],

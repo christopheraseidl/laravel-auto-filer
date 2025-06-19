@@ -16,7 +16,7 @@ beforeEach(function () {
     $this->oldPath = 'old/path/to/file.jpg';
     $this->newPath = 'new/path/to/file.jpg';
 
-    $circuitBreaker = \Mockery::mock(CircuitBreaker::class);
+    $circuitBreaker = $this->mock(CircuitBreaker::class);
     $this->fileMover = Reflect::on(new FileMover($circuitBreaker));
 });
 

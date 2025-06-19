@@ -21,8 +21,8 @@ it('returns the expected value', function () {
     ];
     $notAssociative = ['value3', 'value4'];
 
-    expect(Reflect::on($this->payload)->isAssociative($associative))->toBeTrue()
-        ->and(Reflect::on($this->payload)->isAssociative($notAssociative))->toBeFalse();
+    expect(Reflect::on($this->payload)->isAssociative($associative))->toBeTrue();
+    expect(Reflect::on($this->payload)->isAssociative($notAssociative))->toBeFalse();
 });
 
 it('returns false if empty array parameter is provided', function () {

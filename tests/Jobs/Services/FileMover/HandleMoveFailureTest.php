@@ -5,6 +5,7 @@ namespace christopheraseidl\HasUploads\Tests\Jobs\Services\FileMover;
 use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
 use christopheraseidl\HasUploads\Jobs\Services\FileMover;
 use Illuminate\Support\Facades\Log;
+use Mockery\MockInterface;
 
 /**
  * Tests FileMover handleMoveFailure method behavior.
@@ -12,9 +13,10 @@ use Illuminate\Support\Facades\Log;
  * @covers \christopheraseidl\HasUploads\Jobs\Services\FileMover
  */
 it('logs unexpected exception when attemptUndoMove throws during move failure handling', function () {
-    $circuitBreaker = \Mockery::mock(CircuitBreaker::class);
-    $circuitBreaker->shouldReceive('maxAttemptsReached')->andReturnTrue();
-    $circuitBreaker->shouldReceive('canAttempt')->andReturnTrue();
+    $circuitBreaker = $this->mock(CircuitBreaker::class, function (MockInterface $mock) {
+        $mock->shouldReceive('maxAttemptsReached')->andReturnTrue();
+        $mock->shouldReceive('canAttempt')->andReturnTrue();
+    });
 
     $fileMover = \Mockery::mock(FileMover::class, [$circuitBreaker, [
         'old_1' => 'new_path_1',

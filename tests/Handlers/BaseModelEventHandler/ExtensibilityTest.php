@@ -3,11 +3,11 @@
 namespace christopheraseidl\HasUploads\Tests\Handlers\BaseModelEventHandler;
 
 use christopheraseidl\HasUploads\Handlers\BaseModelEventHandler;
-use christopheraseidl\HasUploads\Tests\TestTraits\BaseModelEventHandlerAssertions;
+use christopheraseidl\HasUploads\Tests\TestTraits\BaseModelEventHandlerHelpers;
 use christopheraseidl\Reflect\Reflect;
 
 uses(
-    BaseModelEventHandlerAssertions::class
+    BaseModelEventHandlerHelpers::class
 );
 
 /**
@@ -25,6 +25,7 @@ it('can be extended with concrete implementations', function () {
 
 it('sets disk property correctly from upload service', function () {
     $disk = Reflect::on($this->handler)->disk;
+
     expect($disk)->toBe($this->diskTestValue);
 });
 

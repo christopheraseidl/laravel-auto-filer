@@ -25,6 +25,7 @@ beforeEach(function () {
 });
 
 it('dispatches the correctly configured delete upload directory job when handle() is called', function () {
+    // See Pest.php for arrangement of test conditions
     $this->handler->handle($this->model);
 
     $this->assertDeleteUploadDirectoryJobDispatched();

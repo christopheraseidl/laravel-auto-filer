@@ -27,7 +27,7 @@ beforeEach(function () {
 
 it('dispatches the jobs with the correct batch name', function () {
     Bus::assertBatched(function ($batch) {
-        return $batch->name === 'Handle uploads for modal update.';
+        return $batch->name === 'Handle uploads for model update.';
     });
 });
 

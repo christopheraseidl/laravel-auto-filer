@@ -91,8 +91,8 @@ it('respects custom upload path for array from type parameter', function () {
     Event::assertDispatched(FileOperationCompleted::class);
 
     foreach ($this->model->refresh()->array as $file) {
-        expect(Storage::disk($this->disk)->exists($file))->toBeTrue()
-            ->and($file)->toStartWith($this->newDir);
+        expect(Storage::disk($this->disk)->exists($file))->toBeTrue();
+        expect($file)->toStartWith($this->newDir);
     }
 });
 
@@ -104,8 +104,8 @@ it('handles null array attribute gracefully', function () {
 
     Event::assertDispatched(FileOperationCompleted::class);
 
-    expect($this->model->array)->toBeNull()
-        ->and(count($this->model->refresh()->array))->toBe(4);
+    expect($this->model->array)->toBeNull();
+    expect(count($this->model->refresh()->array))->toBe(4);
 });
 
 it('handles empty array attribute gracefully', function () {
@@ -116,8 +116,8 @@ it('handles empty array attribute gracefully', function () {
 
     Event::assertDispatched(FileOperationCompleted::class);
 
-    expect($this->model->array)->toBeEmpty()
-        ->and(count($this->model->refresh()->array))->toBe(4);
+    expect($this->model->array)->toBeEmpty();
+    expect(count($this->model->refresh()->array))->toBe(4);
 });
 
 it('broadcasts failure event when moving array fails', function () {

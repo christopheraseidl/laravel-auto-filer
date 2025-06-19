@@ -51,7 +51,6 @@ it('does not set a queue if it is undefined', function () {
 });
 
 it('throws an exception and logs an error for failures', function () {
-    Log::spy();
 
     $this->mock->shouldReceive('getConnection')
         ->once()
@@ -61,6 +60,8 @@ it('throws an exception and logs an error for failures', function () {
     $message = '';
     $expectation = 'The job configuration is invalid';
 
+    Log::spy();
+
     try {
         $this->mock->config();
     } catch (\Exception $e) {
@@ -68,8 +69,8 @@ it('throws an exception and logs an error for failures', function () {
         $message = $e->getMessage();
     }
 
-    expect($exception)->toBeTrue()
-        ->and($message)->toBe($expectation);
+    expect($exception)->toBeTrue();
+    expect($message)->toBe($expectation);
 
     Log::shouldHaveReceived('error')
         ->with($expectation, [

@@ -6,6 +6,7 @@ use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
 use christopheraseidl\HasUploads\Jobs\Services\FileMover;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Storage;
+use Mockery\MockInterface;
 
 /**
  * Tests FileMover performMove method behavior.
@@ -20,8 +21,9 @@ beforeEach(function () {
 });
 
 it('records a circuit breaker failure and throws an exception when copied file not found at destination', function () {
-    $breakerMock = \Mockery::mock(CircuitBreaker::class);
-    $breakerMock->shouldReceive('recordFailure')->once();
+    $breakerMock = $this->mock(CircuitBreaker::class, function (MockInterface $mock) {
+        $mock->shouldReceive('recordFailure')->once();
+    });
 
     $mover = new FileMover($breakerMock);
     $moverReflection = Reflect::on($mover);

@@ -22,12 +22,12 @@ it('only has one static get() method with the correct parameters and return type
     $type = $parameters[0];
     $scope = $parameters[1];
 
-    expect($reflection->getMethods())->toHaveCount(1)
-        ->and($parameters)->toHaveCount(2)
-        ->and($type->getName())->toBe('type')
-        ->and($type->getType()->getName())->toBe(OperationType::class)
-        ->and($scope->getName())->toBe('scope')
-        ->and($scope->getType()->getName())->toBe(OperationScope::class);
+    expect($reflection->getMethods())->toHaveCount(1);
+    expect($parameters)->toHaveCount(2);
+    expect($type->getName())->toBe('type');
+    expect($type->getType()->getName())->toBe(OperationType::class);
+    expect($scope->getName())->toBe('scope');
+    expect($scope->getType()->getName())->toBe(OperationScope::class);
 });
 
 it('returns the expected value', function () {

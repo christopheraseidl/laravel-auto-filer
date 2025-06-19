@@ -32,9 +32,9 @@ it('moves a file and returns the new path', function () {
 
     $result = $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir);
 
-    expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeFalse()
-        ->and(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue()
-        ->and($result)->toBe($this->newPath);
+    expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeFalse();
+    expect(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue();
+    expect($result)->toBe($this->newPath);
 });
 
 it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures) {

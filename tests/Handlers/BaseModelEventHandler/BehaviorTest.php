@@ -7,12 +7,12 @@ use christopheraseidl\HasUploads\Handlers\Services\ModelFileChangeTracker;
 use christopheraseidl\HasUploads\Jobs\Services\Builder;
 use christopheraseidl\HasUploads\Services\UploadService;
 use christopheraseidl\HasUploads\Tests\TestClasses\BaseModelEventHandlerTestClass;
-use christopheraseidl\HasUploads\Tests\TestTraits\BaseModelEventHandlerAssertions;
+use christopheraseidl\HasUploads\Tests\TestTraits\BaseModelEventHandlerHelpers;
 use Illuminate\Support\Facades\Bus;
 use Mockery\MockInterface;
 
 uses(
-    BaseModelEventHandlerAssertions::class
+    BaseModelEventHandlerHelpers::class
 );
 
 /**
@@ -25,16 +25,19 @@ beforeEach(function () {
 
     $this->setHandler();
 
-    $uploadService = $this->mock(UploadService::class, function (MockInterface $mock) {
+    $this->mock(UploadService::class, function (MockInterface $mock) {
         $mock->shouldReceive('getDisk')->andReturn($this->diskTestValue);
     });
 
-    $builder = $this->mock(Builder::class);
+    $this->mock(Builder::class);
     $this->batchManager = $this->mock(BatchManager::class);
-    $fileTracker = $this->mock(ModelFileChangeTracker::class);
+    $this->mock(ModelFileChangeTracker::class);
 
     $this->handler = \Mockery::mock(BaseModelEventHandlerTestClass::class, [
-        $uploadService, $builder, $this->batchManager, $fileTracker,
+        app(UploadService::class),
+        app(Builder::class),
+        $this->batchManager,
+        app(ModelFileChangeTracker::class),
     ])->makePartial();
 
     $this->handler->shouldAllowMockingProtectedMethods();
@@ -44,13 +47,13 @@ beforeEach(function () {
         $this->mock('Job2'),
     ];
 
-    $this->model = $this->partialMock($this->model::class);
-
-    $this->model->shouldReceive('getUploadableAttributes')
-        ->andReturn([
-            'image' => 'image',
-            'document' => 'document',
-        ]);
+    $this->model = $this->partialMock($this->model::class, function ($mock) {
+        $mock->shouldReceive('getUploadableAttributes')
+            ->andReturn([
+                'image' => 'image',
+                'document' => 'document',
+            ]);
+    });
 });
 
 it('dispatches batch with jobs when handle is called', function () {
@@ -93,11 +96,11 @@ it('filters jobs based on provided criteria', function (array $expectedJobIndexe
     expect($jobs)->toEqual($expectedJobs);
 })->with([
     'no filter' => [
-        [0, 1],
-        null,
+        [0, 1], // Expected job indexes
+        null, // Null value for edge cases
     ],
     'filter images' => [
-        [0],
-        fn ($model, $attribute) => $attribute === 'image',
+        [0], // Only one expected job index
+        fn ($model, $attribute) => $attribute === 'image', // Filter by attribute name 'image'
     ],
 ]);

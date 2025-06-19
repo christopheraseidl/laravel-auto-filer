@@ -24,6 +24,6 @@ it('returns the expected last modified value', function () {
     $lastModifiedFromStorage = Storage::disk($this->disk)->lastModified($this->file);
     $lastModifiedFromService = $this->cleaner->getLastModified($this->file);
 
-    expect($lastModifiedFromService)->toBeInstanceOf(\DateTimeInterface::class)
-        ->and($lastModifiedFromService->getTimestamp())->toBe($lastModifiedFromStorage);
+    expect($lastModifiedFromService)->toBeInstanceOf(\DateTimeInterface::class);
+    expect($lastModifiedFromService->getTimestamp())->toBe($lastModifiedFromStorage);
 });

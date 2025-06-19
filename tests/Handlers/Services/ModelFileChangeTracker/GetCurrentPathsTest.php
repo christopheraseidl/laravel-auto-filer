@@ -25,9 +25,9 @@ it('returns the correct values for a changed model attribute', function () {
     $stringPaths = $this->tracker->getCurrentPaths($this->model, 'string');
     $arrayPaths = $this->tracker->getCurrentPaths($this->model, 'array');
 
-    expect($stringPaths)->toBeArray()
-        ->and($stringPaths[0])->toBe($currentString)
-        ->and($arrayPaths)->toBeArray()
+    expect($stringPaths)->toBeArray();
+    expect($stringPaths[0])->toBe($currentString);
+    expect($arrayPaths)->toBeArray()
         ->and($arrayPaths)->toBe($currentArray);
 });
 
@@ -35,9 +35,9 @@ it('returns the correct values if nothing has been changed', function () {
     $stringPaths = $this->tracker->getCurrentPaths($this->model, 'string');
     $arrayPaths = $this->tracker->getCurrentPaths($this->model, 'array');
 
-    expect($stringPaths)->toBeArray()
-        ->and($stringPaths[0])->toBe($this->model->string)
-        ->and($arrayPaths)->toBeArray()
+    expect($stringPaths)->toBeArray();
+    expect($stringPaths[0])->toBe($this->model->string);
+    expect($arrayPaths)->toBeArray()
         ->and($arrayPaths)->toBe($this->model->array);
 });
 

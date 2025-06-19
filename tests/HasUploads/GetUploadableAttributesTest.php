@@ -19,6 +19,6 @@ it('returns an empty array by default', function () {
 it('retrieves the uploadable attributes when used by a model', function () {
     $attributes = $this->model->getUploadableAttributes();
 
-    expect($attributes['string'])->toBe('images')
-        ->and($attributes['array'])->toBe('documents');
+    expect($attributes['string'])->toBe('images');
+    expect($attributes['array'])->toBe('documents');
 });

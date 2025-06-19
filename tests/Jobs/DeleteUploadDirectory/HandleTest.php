@@ -27,17 +27,13 @@ beforeEach(function () {
 });
 
 it('deletes the correct directory and broadcasts completion event', function () {
-    expect(Storage::disk($this->disk)->exists($this->file))
-        ->toBeTrue()
-        ->and(Storage::disk($this->disk)->exists($this->dir))
-        ->toBeTrue();
+    expect(Storage::disk($this->disk)->exists($this->file))->toBeTrue();
+    expect(Storage::disk($this->disk)->exists($this->dir))->toBeTrue();
 
     $this->job->handle();
 
-    expect(Storage::disk($this->disk)->exists($this->file))
-        ->toBeFalse()
-        ->and(Storage::disk($this->disk)->exists($this->dir))
-        ->toBeFalse();
+    expect(Storage::disk($this->disk)->exists($this->file))->toBeFalse();
+    expect(Storage::disk($this->disk)->exists($this->dir))->toBeFalse();
 
     Event::assertDispatched(FileOperationCompleted::class);
 });

@@ -17,12 +17,12 @@ it('returns the expected payload and structure', function (string $event) {
     $event = "christopheraseidl\\HasUploads\\Events\\$event";
     $event = new $event($this->payload);
 
-    expect($event->payload)->toBe($this->payload)
-        ->and($event->payload->getKey())->toBe('test_payload_key')
-        ->and($event->payload->getDisk())->toBe('test_payload_disk')
-        ->and($event->payload->toArray())->toBe([
-            'key' => 'value',
-        ]);
+    expect($event->payload)->toBe($this->payload);
+    expect($event->payload->getKey())->toBe('test_payload_key');
+    expect($event->payload->getDisk())->toBe('test_payload_disk');
+    expect($event->payload->toArray())->toBe([
+        'key' => 'value',
+    ]);
 })->with([
     'BatchFileOperationCompleted',
     'BatchFileOperationFailed',
@@ -36,8 +36,8 @@ test('failure events return the expected exception', function (string $event) {
     $event = "christopheraseidl\\HasUploads\\Events\\$event";
     $event = new $event($this->payload, $exception);
 
-    expect($event->exception)->toBe($exception)
-        ->and($exception->getMessage())->toBe('Test exception');
+    expect($event->exception)->toBe($exception);
+    expect($exception->getMessage())->toBe('Test exception');
 })->with([
     'BatchFileOperationFailed',
     'FileOperationFailed',

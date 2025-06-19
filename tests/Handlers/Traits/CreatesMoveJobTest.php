@@ -42,16 +42,16 @@ it('returns a DeleteJob with the correct data', function () {
     $payload = Reflect::on($job)->payload;
     $payload = Reflect::on($payload);
 
-    expect($job)->toBeInstanceOf(MoveUploads::class)
-        ->and($payload->modelClass)->toBe('christopheraseidl\HasUploads\Tests\TestModels\TestModel')
-        ->and($payload->modelId)->toBe(1)
-        ->and($payload->modelAttribute)->toBe('string')
-        ->and($payload->modelAttributeType)->toBe('images')
-        ->and($payload->operationType)->toBe(OperationType::Move)
-        ->and($payload->operationScope)->toBe(OperationScope::File)
-        ->and($payload->disk)->toBe($this->disk)
-        ->and($payload->filePaths)->toBe($newFiles)
-        ->and($payload->newDir)->toBe('test_models/1/images');
+    expect($job)->toBeInstanceOf(MoveUploads::class);
+    expect($payload->modelClass)->toBe('christopheraseidl\HasUploads\Tests\TestModels\TestModel');
+    expect($payload->modelId)->toBe(1);
+    expect($payload->modelAttribute)->toBe('string');
+    expect($payload->modelAttributeType)->toBe('images');
+    expect($payload->operationType)->toBe(OperationType::Move);
+    expect($payload->operationScope)->toBe(OperationScope::File);
+    expect($payload->disk)->toBe($this->disk);
+    expect($payload->filePaths)->toBe($newFiles);
+    expect($payload->newDir)->toBe('test_models/1/images');
 });
 
 it('returns null if $newFiles is empty', function () {

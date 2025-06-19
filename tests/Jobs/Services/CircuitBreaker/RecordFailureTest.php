@@ -59,10 +59,10 @@ describe('CLOSED state', function () {
     });
 
     it('sends email notification when enabled and threshold met', function () {
-        Log::spy();
-        Mail::spy();
-
         $this->setFailureCount(1, 'test-circuit-email');
+
+        Mail::spy();
+        Log::spy();
 
         $this->breakerWithEmail->recordFailure();
 
@@ -72,12 +72,6 @@ describe('CLOSED state', function () {
         );
 
         expect($this->breakerWithEmail->getState())->toBe('open');
-
-        Log::shouldHaveReceived('warning')->once();
-        Log::shouldHaveReceived('info')->with(
-            'Circuit breaker notification sent to admin.',
-            ['breaker' => 'test-circuit-email']
-        )->once();
 
         Mail::shouldHaveReceived('raw')->once()->withArgs(function ($actualMessage, $closure) use ($message) {
             if ($actualMessage !== $message) {
@@ -98,14 +92,21 @@ describe('CLOSED state', function () {
 
             return true;
         });
+
+        Log::shouldHaveReceived('warning')->once();
+        Log::shouldHaveReceived('info')->with(
+            'Circuit breaker notification sent to admin.',
+            ['breaker' => 'test-circuit-email']
+        )->once();
     });
 
     it('does not send email when disabled', function () {
-        Log::spy();
 
         Mail::shouldReceive('raw')->never();
 
         $this->setFailureCount(1);
+
+        Log::spy();
 
         $this->breaker->recordFailure();
 
@@ -130,9 +131,9 @@ describe('HALF_OPEN state', function () {
     });
 
     it('transitions to open when max half-open attempts reached', function () {
-        Log::spy();
-
         $this->setHalfOpenAttempts(2);
+
+        Log::spy();
 
         $this->breaker->recordFailure();
 
@@ -143,11 +144,11 @@ describe('HALF_OPEN state', function () {
     });
 
     it('sends notification when transitioning from half-open to open', function () {
-        Log::spy();
-        Mail::spy();
-
         $this->transitionToHalfOpen('test-circuit-email');
         $this->setHalfOpenAttempts(2, 'test-circuit-email');
+
+        Mail::spy();
+        Log::spy();
 
         $this->breakerWithEmail->recordFailure();
 
@@ -157,12 +158,6 @@ describe('HALF_OPEN state', function () {
         );
 
         expect($this->breakerWithEmail->getState())->toBe('open');
-
-        Log::shouldHaveReceived('warning')->once();
-        Log::shouldHaveReceived('info')->with(
-            'Circuit breaker notification sent to admin.',
-            ['breaker' => 'test-circuit-email']
-        )->once();
 
         Mail::shouldHaveReceived('raw')->once()->withArgs(function ($actualMessage, $closure) use ($message) {
             if ($actualMessage !== $message) {
@@ -183,6 +178,12 @@ describe('HALF_OPEN state', function () {
 
             return true;
         });
+
+        Log::shouldHaveReceived('warning')->once();
+        Log::shouldHaveReceived('info')->with(
+            'Circuit breaker notification sent to admin.',
+            ['breaker' => 'test-circuit-email']
+        )->once();
     });
 });
 
@@ -193,11 +194,11 @@ it('handles cache failures gracefully', function () {
 });
 
 it('handles email sending failures gracefully', function () {
-    Log::spy();
-
     Mail::shouldReceive('raw')->once()->andThrow(new \Exception('SMTP connection failed.'));
 
     $this->setFailureCount(1, 'test-circuit-email');
+
+    Log::spy();
 
     expect(fn () => $this->breakerWithEmail->recordFailure())->not->toThrow(\Exception::class);
 
@@ -209,10 +210,9 @@ it('handles email sending failures gracefully', function () {
 });
 
 it('ignores failures when already in open state', function () {
-    Log::spy();
-
     $this->transitionToOpen();
-    $initialFailureCount = $this->breaker->getFailureCount();
+
+    Log::spy();
 
     $this->breaker->recordFailure();
 

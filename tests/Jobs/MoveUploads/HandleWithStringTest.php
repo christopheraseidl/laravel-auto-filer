@@ -64,9 +64,9 @@ it('moves a single file to the new path and updates the model with the new locat
 
     Event::assertDispatched(FileOperationCompleted::class);
 
-    expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeFalse()
-        ->and(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue()
-        ->and($this->model->refresh()->string)->toBe($this->newPath);
+    expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeFalse();
+    expect(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue();
+    expect($this->model->refresh()->string)->toBe($this->newPath);
 });
 
 it('respects custom upload path for string from type parameter', function () {
@@ -74,8 +74,8 @@ it('respects custom upload path for string from type parameter', function () {
 
     Event::assertDispatched(FileOperationCompleted::class);
 
-    expect(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue()
-        ->and($this->model->refresh()->string)->toBe($this->newPath);
+    expect(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue();
+    expect($this->model->refresh()->string)->toBe($this->newPath);
 });
 
 it('handles null model string attribute gracefully', function () {
@@ -119,7 +119,6 @@ it('broadcasts failure event when single file move fails', function () {
 
 it('saves model string changes quietly', function () {
     $modelMock = \Mockery::mock($this->model)->makePartial();
-
     $modelMock->expects('saveQuietly')
         ->once()
         ->andReturnSelf();

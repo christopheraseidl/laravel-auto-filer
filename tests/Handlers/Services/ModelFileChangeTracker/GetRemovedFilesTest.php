@@ -22,10 +22,10 @@ it('returns the correct files marked for deletion', function () {
     $removedStringFiles = $this->tracker->getRemovedFiles($this->model, 'string');
     $removedArrayFiles = $this->tracker->getRemovedFiles($this->model, 'array');
 
-    expect($removedStringFiles)->toBeArray()
-        ->and($removedStringFiles[0])->toBe('image.jpg')
-        ->and($removedArrayFiles)->toBeArray()
-        ->and($removedArrayFiles[0])->toBe('document1.doc');
+    expect($removedStringFiles)->toBeArray();
+    expect($removedStringFiles[0])->toBe('image.jpg');
+    expect($removedArrayFiles)->toBeArray();
+    expect($removedArrayFiles[0])->toBe('document1.doc');
 });
 
 it('returns an empty array if no files are marked for deletion', function () {
@@ -33,8 +33,8 @@ it('returns an empty array if no files are marked for deletion', function () {
     $removedArrayFiles = $this->tracker->getRemovedFiles($this->model, 'array');
 
     expect($removedStringFiles)->toBeArray()
-        ->and($removedStringFiles)->toBeEmpty()
-        ->and($removedArrayFiles)->toBeArray()
+        ->and($removedStringFiles)->toBeEmpty();
+    expect($removedArrayFiles)->toBeArray()
         ->and($removedArrayFiles)->toBeEmpty();
 });
 

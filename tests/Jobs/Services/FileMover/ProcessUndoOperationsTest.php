@@ -6,6 +6,7 @@ use christopheraseidl\HasUploads\Jobs\Services\CircuitBreaker;
 use christopheraseidl\HasUploads\Jobs\Services\FileMover;
 use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Log;
+use Mockery\MockInterface;
 
 /**
  * Tests FileMover processUndoOperations method behavior.
@@ -18,9 +19,10 @@ it('logs a warning and returns empty results when circuit breaker blocks undo op
         'test_stat_2' => 'valued',
     ];
 
-    $circuitBreaker = \Mockery::mock(CircuitBreaker::class);
-    $circuitBreaker->shouldReceive('canAttempt')->andReturn(false);
-    $circuitBreaker->shouldReceive('getStats')->andReturn($breakerStats);
+    $circuitBreaker = $this->mock(CircuitBreaker::class, function (MockInterface $mock) use ($breakerStats) {
+        $mock->shouldReceive('canAttempt')->andReturn(false);
+        $mock->shouldReceive('getStats')->andReturn($breakerStats);
+    });
 
     $fileMover = new FileMover($circuitBreaker);
     $moverReflection = Reflect::on($fileMover);

@@ -43,16 +43,16 @@ it('returns a DeleteJob with the correct data', function () {
     $payload = Reflect::on($job)->payload;
     $payload = Reflect::on($payload);
 
-    expect($job)->toBeInstanceOf(DeleteUploads::class)
-        ->and($payload->modelClass)->toBe(TestModel::class)
-        ->and($payload->modelId)->toBe(1)
-        ->and($payload->modelAttribute)->toBe('string')
-        ->and($payload->modelAttributeType)->toBe('images')
-        ->and($payload->operationType)->toBe(OperationType::Delete)
-        ->and($payload->operationScope)->toBe(OperationScope::File)
-        ->and($payload->disk)->toBe($this->disk)
-        ->and($payload->filePaths)->toBe($removedFiles)
-        ->and($payload->newDir)->toBeNull();
+    expect($job)->toBeInstanceOf(DeleteUploads::class);
+    expect($payload->modelClass)->toBe(TestModel::class);
+    expect($payload->modelId)->toBe(1);
+    expect($payload->modelAttribute)->toBe('string');
+    expect($payload->modelAttributeType)->toBe('images');
+    expect($payload->operationType)->toBe(OperationType::Delete);
+    expect($payload->operationScope)->toBe(OperationScope::File);
+    expect($payload->disk)->toBe($this->disk);
+    expect($payload->filePaths)->toBe($removedFiles);
+    expect($payload->newDir)->toBeNull();
 });
 
 it('returns null if $removedFiles is empty', function () {
