@@ -32,19 +32,20 @@ it('moves a file and returns the new path', function () {
 
     $result = $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir);
 
-    expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeFalse();
-    expect(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue();
-    expect($result)->toBe($this->newPath);
+    expect(Storage::disk($this->disk)->exists($this->oldPath))->toBeFalse()
+        ->and(Storage::disk($this->disk)->exists($this->newPath))->toBeTrue()
+        ->and($result)->toBe($this->newPath);
 });
 
 it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures) {
     $count = 0;
-    $diskMock = \Mockery::mock();
+    $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
 
     Storage::shouldReceive('disk')
         ->with($this->disk)
         ->andReturn($diskMock);
 
+    // Mock limited failures
     $diskMock->shouldReceive('copy')
         ->times($failures + 1)
         ->andReturnUsing(function () use (&$count, $failures) {
@@ -56,10 +57,27 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
             return true;
         });
 
-    // Mock file operations.
-    $diskMock->shouldReceive('exists')->andReturn(true);
-    $diskMock->shouldReceive('size')->andReturn(100);
-    $diskMock->shouldReceive('delete')->andReturn(true);
+    // Mock exists() for generateUniqueFileName - return false so no renaming needed
+    $diskMock->shouldReceive('exists')
+        ->with($this->newPath)
+        ->andReturn(false)
+        ->times($failures + 1);
+
+    // Mock exists() and size() for validateCopiedFile - return true and >0 to pass validation
+    $diskMock->shouldReceive('exists')
+        ->with($this->newPath)
+        ->andReturn(true)
+        ->once();
+
+    $diskMock->shouldReceive('size')
+        ->with($this->newPath)
+        ->andReturn(100);
+
+    // Mock delete() of old copy of file
+    $diskMock->shouldReceive('delete')
+        ->with($this->oldPath)
+        ->andReturn(true)
+        ->once();
 
     $result = $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir);
 
@@ -70,30 +88,30 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
 ]);
 
 it('calls attemptUndoMove when move fails and there are moved files', function () {
-    $this->mover->movedFiles = [
-        $this->oldPath => $this->newPath,
-    ];
+    $this->mover->movedFiles = ['old/file.txt' => 'new/file.txt'];
 
-    $diskMock = \Mockery::mock();
+    $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
+    $diskMock->shouldReceive('copy')->andThrow(new \Exception('Copy failed.'));
+    $diskMock->shouldReceive('exists')->andReturn(false); // For generateUniqueFileName
 
-    Storage::shouldReceive('disk')->with($this->disk)->andReturn($diskMock);
-
-    // Mock the failed copy attempt.
-    $diskMock->shouldReceive('copy')->times(3)->andThrow(new \Exception('Copy failed.'));
-
-    // Mock the undo operation.
-    $diskMock->shouldReceive('exists')->andReturn(true);
-    $diskMock->shouldReceive('size')->andReturn(100);
-    $diskMock->shouldReceive('delete')->andReturn(true);
+    Storage::shouldReceive('disk')->andReturn($diskMock);
 
     expect(fn () => $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir))
         ->toThrow(\Exception::class);
+
+    // If attemptUndoMove fired and succeeded, movedFiles should be cleared
+    expect($this->mover->movedFiles)->toBeEmpty();
 });
 
 it('logs an error and throws an exception after 3 errors when maxAttempts is 3', function () {
     $diskMock = \Mockery::mock();
     $diskMock->shouldReceive('copy')
         ->andThrow(new \Exception('Copy failed.'));
+
+    $diskMock->shouldReceive('exists')
+        ->with($this->newPath) // First call in generateUniqueFileName
+        ->andReturn(false) // Return false so the loop exits immediately
+        ->times(3);
 
     Storage::shouldReceive('disk')
         ->with($this->disk)

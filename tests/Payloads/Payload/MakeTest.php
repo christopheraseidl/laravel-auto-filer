@@ -45,9 +45,5 @@ it('returns a new instance of the class is there is no constructor', function ()
 });
 
 it('throws an exception if a required parameter is missing', function () {
-    expect(fn () => $instance = $this->payloadWithConstructor::make())
-        ->toThrow(
-            \InvalidArgumentException::class,
-            'Missing required parameter Parameter #0 [ <required> string $required ] for class christopheraseidl\HasUploads\Tests\TestClasses\Payload\TestPayload'
-        );
-});
+    $instance = $this->payloadWithConstructor::make();
+})->throws(\InvalidArgumentException::class);

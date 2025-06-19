@@ -35,8 +35,6 @@ it('does nothing if the file marked for deletion does not exist', function () {
 });
 
 it('throws an exception when it fails to restore the file to its original location', function () {
-    $count = 0;
-
     $diskMock = \Mockery::mock();
     $diskMock->shouldReceive('exists')
         ->once()

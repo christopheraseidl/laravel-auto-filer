@@ -89,10 +89,12 @@ class FileMover extends FileOperator implements FileMoverContract
      */
     protected function performMove(string $disk, string $oldPath, string $newPath): string
     {
-        $this->copyFile($disk, $oldPath, $newPath);
-        $this->validateCopiedFile($disk, $newPath);
+        $uniquePath = $this->generateUniqueFileName($disk, $newPath);
+
+        $this->copyFile($disk, $oldPath, $uniquePath);
+        $this->validateCopiedFile($disk, $uniquePath);
         Storage::disk($disk)->delete($oldPath);
-        $commit = $this->commitMovedFile($oldPath, $newPath);
+        $commit = $this->commitMovedFile($oldPath, $uniquePath);
         $this->breaker->recordSuccess();
 
         return $commit;
@@ -106,7 +108,7 @@ class FileMover extends FileOperator implements FileMoverContract
         }
     }
 
-    protected function validateCopiedFile($disk, $newPath): void
+    protected function validateCopiedFile(string $disk, string $newPath): void
     {
         if (! $this->exists($disk, $newPath)) {
             $this->breaker->recordFailure();
@@ -257,6 +259,22 @@ class FileMover extends FileOperator implements FileMoverContract
     protected function exists(string $disk, string $path): bool
     {
         return Storage::disk($disk)->exists($path) && Storage::disk($disk)->size($path) > 0;
+    }
+
+    /**
+     * Append a number to the end of the file name if necessary.
+     */
+    protected function generateUniqueFileName(string $disk, string $path): string
+    {
+        $info = pathinfo($path);
+        $counter = 1;
+
+        while (Storage::disk($disk)->exists($path)) {
+            $path = $info['dirname'].'/'.$info['filename'].'_'.$counter.'.'.$info['extension'];
+            $counter++;
+        }
+
+        return $path;
     }
 
     private function commitMovedFile(string $oldPath, string $newPath): string
