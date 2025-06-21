@@ -9,7 +9,7 @@ use christopheraseidl\ModelFiler\Traits\HasPath;
 /**
  * Provides relevant data to the CleanOrphanedUploads job based on threshold and configuration.
  */
-final class CleanOrphanedUploads extends Payload implements CleanOrphanedUploadsContract
+class CleanOrphanedUploads extends Payload implements CleanOrphanedUploadsContract
 {
     use HasDisk, HasPath;
 

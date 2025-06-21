@@ -9,7 +9,7 @@ use christopheraseidl\ModelFiler\Traits\HasPath;
 /**
  * Provides model and path data to the DeleteUploadDirectory job.
  */
-final class DeleteUploadDirectory extends Payload implements DeleteUploadDirectoryContract
+class DeleteUploadDirectory extends Payload implements DeleteUploadDirectoryContract
 {
     use HasDisk, HasPath;
 

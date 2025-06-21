@@ -2,9 +2,9 @@
 
 namespace christopheraseidl\ModelFiler\Support;
 
-use christopheraseidl\ModelFiler\Contracts\FileOperationTypeFormatter;
 use christopheraseidl\ModelFiler\Enums\OperationScope;
 use christopheraseidl\ModelFiler\Enums\OperationType;
+use christopheraseidl\ModelFiler\Support\Contracts\FileOperationTypeFormatter;
 
 /**
  * Formats operation type and scope combinations into string identifiers.

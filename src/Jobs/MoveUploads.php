@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 /**
  * Moves uploaded files from temporary locations to permanent model directories.
  */
-final class MoveUploads extends Job implements MoveUploadsContract
+class MoveUploads extends Job implements MoveUploadsContract
 {
     protected FileMover $mover;
 

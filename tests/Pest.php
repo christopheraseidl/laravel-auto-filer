@@ -3,18 +3,19 @@
 use christopheraseidl\ModelFiler\Handlers\Services\BatchManager;
 use christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads;
 use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryJobContract;
+use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
 use christopheraseidl\ModelFiler\Jobs\DeleteUploadDirectory;
+use christopheraseidl\ModelFiler\Jobs\DeleteUploads;
 use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
 use christopheraseidl\ModelFiler\Jobs\Validators\BuilderValidator;
-use christopheraseidl\ModelFiler\Payloads\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
+use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayloadContract;
-use christopheraseidl\ModelFiler\Payloads\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
+use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploadsPayloadContract;
 use christopheraseidl\ModelFiler\Services\FileService;
 use christopheraseidl\ModelFiler\Tests\TestCase;
 use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
 use christopheraseidl\ModelFiler\Tests\TestClasses\TestJob;
 use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
-use christopheraseidl\Reflect\Reflect;
 use Illuminate\Bus\Batch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -111,31 +112,50 @@ uses()->beforeEach(function () {
 uses()->beforeEach(function () {
     $this->path = '/uploads';
 
-    $this->payload = new CleanOrphanedUploadsPayload(
-        $this->disk,
-        $this->path,
-        24
-    );
+    // Create and bind the deleter mock FIRST
+    $this->deleter = $this->mock(FileDeleter::class);
 
-    $this->cleaner = Reflect::on(
-        new CleanOrphanedUploads($this->payload)
-    );
+    $this->payload = $this->partialMock(CleanOrphanedUploadsPayload::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getDisk')->andReturn($this->disk);
+        $mock->shouldReceive('getPath')->andReturn('uploads');
+        $mock->shouldReceive('getCleanupThresholdHours')->andReturn(24);
+    });
+
+    $this->cleaner = new CleanOrphanedUploads($this->payload);
+
+    $this->cleaner = $this->partialMock(CleanOrphanedUploads::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getPayload')
+            ->andReturn($this->payload);
+        $mock->shouldReceive('getDeleter')
+            ->andReturn($this->deleter);
+    });
 })->in('Jobs/CleanOrphanedUploads');
 
 // Jobs/DeleteUploadDirectory
 uses()->beforeEach(function () {
     $this->path = 'test_models/1';
-    $this->payload = new DeleteUploadDirectoryPayload(
-        TestModel::class,
-        $this->model->id,
-        $this->disk,
-        $this->path
-    );
+    $this->payload = $this->mock(DeleteUploadDirectoryPayloadContract::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getDisk')->andReturn($this->disk);
+        $mock->shouldReceive('getPath')->andReturn($this->path);
+    });
 
-    $this->job = Reflect::on(
-        new DeleteUploadDirectory($this->payload)
-    );
+    $this->deleter = $this->partialMock(DeleteUploadDirectory::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getPayload')->andReturn($this->payload);
+    });
 })->in('Jobs/DeleteUploadDirectory');
+
+// Jobs/DeleteUploads
+uses()->beforeEach(function () {
+    $this->path = 'test_models/1';
+    $this->payload = $this->mock(DeleteUploadsPayloadContract::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getDisk')->andReturn($this->disk);
+        $mock->shouldReceive('getPath')->andReturn($this->path);
+    });
+
+    $this->deleter = $this->partialMock(DeleteUploads::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getPayload')->andReturn($this->payload);
+    });
+})->in('Jobs/DeleteUploads');
 
 // Jobs/Job
 uses()->beforeEach(function () {
@@ -149,12 +169,12 @@ uses()->beforeEach(function () {
     config(['cache.default' => 'array']);
     Cache::flush();
 
-    $this->breaker = new CircuitBreaker(
-        name: 'test-circuit',
-        failureThreshold: 2,
-        recoveryTimeout: 10,
-        halfOpenMaxAttempts: 3
-    );
+    $this->breaker = \Mockery::mock(CircuitBreaker::class, [
+        'test-circuit', // Name
+        2,             // Failure threshold
+        10,            // Recovery timeout in seconds
+        3,             // Half-open max attempts
+    ])->makePartial();
 
     Carbon::setTestNow(now());
 })->in('Jobs/Services/CircuitBreaker');

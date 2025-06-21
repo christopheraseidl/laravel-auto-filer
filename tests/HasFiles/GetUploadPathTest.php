@@ -2,7 +2,6 @@
 
 namespace christopheraseidl\ModelFiler\Tests\ModelFiler;
 
-use christopheraseidl\ModelFiler\Facades\FileService;
 use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -25,7 +24,7 @@ it('gets the correct path with assetType', function () {
     $imagePath = $this->model->getUploadPath('images');
     $expectedImagePath = "uploads/{$this->model->getModelDirName()}/{$this->model->id}/images";
     $documentPath = $this->model->getUploadPath('documents');
-    $expectedDocumentPath = FileService::getPath()."/{$this->model->getModelDirName()}/{$this->model->id}/documents";
+    $expectedDocumentPath = "uploads/{$this->model->getModelDirName()}/{$this->model->id}/documents";
 
     expect($imagePath)->toBe($expectedImagePath);
     expect($documentPath)->toBe($expectedDocumentPath);

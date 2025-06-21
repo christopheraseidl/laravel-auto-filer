@@ -12,8 +12,8 @@ use christopheraseidl\ModelFiler\Payloads\DeleteUploads as DeleteUploadsPayload;
  *
  * @covers \christopheraseidl\ModelFiler\Jobs\DeleteUploads
  */
-beforeEach(function () {
-    $this->payload = new DeleteUploadsPayload(
+it('gets the expected payload', function () {
+    $payload = new DeleteUploadsPayload(
         'TestModel',
         1,
         'string',
@@ -24,11 +24,9 @@ beforeEach(function () {
         ['test_models/1/file.txt']
     );
 
-    $this->job = new DeleteUploads($this->payload);
-});
+    $job = new DeleteUploads($payload);
 
-it('gets the expected payload', function () {
-    expect($this->job->getPayload())
+    expect($job->getPayload())
         ->toBeInstanceOf(DeleteUploadsPayload::class)
-        ->toBe($this->payload);
+        ->toBe($payload);
 });

@@ -6,13 +6,14 @@ use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploads as DeleteUploadsCo
 use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
 use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploadsPayload;
 use christopheraseidl\ModelFiler\Support\FileOperationType;
+use christopheraseidl\ModelFiler\Traits\HasFileDeleter;
 
 /**
  * Deletes multiple upload files using retry mechanism with circuit breaker protection.
  */
-final class DeleteUploads extends Job implements DeleteUploadsContract
+class DeleteUploads extends Job implements DeleteUploadsContract
 {
-    protected FileDeleter $deleter;
+    use HasFileDeleter;
 
     public function __construct(
         private readonly DeleteUploadsPayload $payload
@@ -26,8 +27,8 @@ final class DeleteUploads extends Job implements DeleteUploadsContract
     public function handle(): void
     {
         $this->handleJob(function () {
-            foreach ($this->getPayload()->getFilePaths() as $file) {
-                $this->deleter->attemptDelete($this->getPayload()->getDisk(), $file);
+            foreach ($this->getPayload()->getFilePaths() ?? [] as $file) {
+                $this->getDeleter()->attemptDelete($this->getPayload()->getDisk(), $file);
             }
         });
     }

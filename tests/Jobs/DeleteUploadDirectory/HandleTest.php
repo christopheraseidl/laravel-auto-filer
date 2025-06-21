@@ -4,8 +4,8 @@ namespace christopheraseidl\ModelFiler\Tests\Jobs\DeleteUploadDirectory;
 
 use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
 use christopheraseidl\ModelFiler\Events\FileOperationFailed;
+use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Tests the DeleteUploadDirectory handle method.
@@ -17,31 +17,38 @@ beforeEach(function () {
         FileOperationCompleted::class,
         FileOperationFailed::class,
     ]);
-
-    $this->dir = 'test_models/1';
-    $this->file = $this->dir.'/my_file.txt';
-    Storage::disk($this->disk)->put($this->file, 'content');
-
-    $this->model->string = $this->file;
-    $this->model->saveQuietly();
 });
 
 it('deletes the correct directory and broadcasts completion event', function () {
-    expect(Storage::disk($this->disk)->exists($this->file))->toBeTrue();
-    expect(Storage::disk($this->disk)->exists($this->dir))->toBeTrue();
+    $deleterService = $this->mock(FileDeleter::class);
+    $deleterService->shouldReceive('attemptDelete')
+        ->once()
+        ->with($this->disk, $this->path)
+        ->andReturnTrue();
 
-    $this->job->handle();
+    $this->deleter->shouldReceive('getDeleter')
+        ->once()
+        ->andReturn($deleterService);
 
-    expect(Storage::disk($this->disk)->exists($this->file))->toBeFalse();
-    expect(Storage::disk($this->disk)->exists($this->dir))->toBeFalse();
+    $this->payload->shouldReceive('shouldBroadcastIndividualEvents')
+        ->once()
+        ->andReturnTrue();
+
+    $this->deleter->handle();
 
     Event::assertDispatched(FileOperationCompleted::class);
 });
 
 it('broadcasts failure event when exception is thrown', function () {
-    Storage::shouldReceive($this->disk)->andThrow(new \Exception('Disk error'));
+    $this->deleter->shouldReceive('getDeleter')
+        ->once()
+        ->andThrow(new \Exception('Disk error'));
 
-    $this->job->handle();
+    $this->payload->shouldReceive('shouldBroadcastIndividualEvents')
+        ->once()
+        ->andReturnTrue();
+
+    $this->deleter->handle();
 
     Event::assertDispatched(FileOperationFailed::class);
 });

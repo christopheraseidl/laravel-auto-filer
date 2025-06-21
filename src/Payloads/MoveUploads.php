@@ -7,7 +7,7 @@ use christopheraseidl\ModelFiler\Payloads\Contracts\MoveUploads as MoveUploadsCo
 /**
  * Provides model and file data to the MoveUploads job.
  */
-final class MoveUploads extends ModelAware implements MoveUploadsContract
+class MoveUploads extends ModelAware implements MoveUploadsContract
 {
     /**
      * Generate unique key including destination directory hash.

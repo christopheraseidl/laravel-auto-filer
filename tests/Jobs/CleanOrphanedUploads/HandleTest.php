@@ -5,7 +5,6 @@ namespace christopheraseidl\ModelFiler\Tests\Jobs\CleanOrphanedUploads;
 use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
 use christopheraseidl\ModelFiler\Events\FileOperationFailed;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -23,32 +22,46 @@ beforeEach(function () {
 
     $this->oldFile = 'uploads/old_file.txt';
     $this->newFile = 'uploads/new_file.txt';
-    Storage::disk($this->disk)->put($this->oldFile, 'content');
-    Storage::disk($this->disk)->put($this->newFile, 'content');
-
-    $storagePath = Storage::disk($this->disk)->path('');
-
-    touch($storagePath.$this->oldFile, now()->subHours(25)->timestamp);
-    touch($storagePath.$this->newFile, now()->subHours(12)->timestamp);
 });
 
 it('deletes files older than the threshold and broadcasts completion event', function () {
-    config()->set('model-filer.cleanup.enabled', true);
-    config()->set('model-filer.cleanup.dry_run', false);
+    $this->payload->shouldReceive('isCleanupEnabled')->once()->andReturnTrue();
+    $this->payload->shouldReceive('isDryRun')->andReturnFalse();
+    $this->payload->shouldReceive('shouldBroadcastIndividualEvents')->andReturnTrue();
+
+    // Mock Storage to return files
+    Storage::shouldReceive('disk')->with($this->disk)->andReturnSelf();
+    Storage::shouldReceive('files')->with('uploads')->andReturn([
+        $this->oldFile,
+        $this->newFile,
+    ]);
+
+    // Mock last modified times
+    $this->cleaner->shouldReceive('getLastModified')
+        ->with($this->oldFile)
+        ->andReturn(now()->subHours(25));
+    $this->cleaner->shouldReceive('getLastModified')
+        ->with($this->newFile)
+        ->andReturn(now()->subHours(12));
+
+    // Expect only old file to be deleted
+    $this->deleter->shouldReceive('attemptDelete')
+        ->once()
+        ->with($this->disk, $this->oldFile);
 
     $this->cleaner->handle();
-
-    expect(Storage::disk($this->disk)->exists($this->oldFile))->toBeFalse();
-    expect(Storage::disk($this->disk)->exists($this->newFile))->toBeTrue();
 
     Event::assertDispatched(FileOperationCompleted::class);
 });
 
 it('broadcasts failure event when exception is thrown', function () {
-    config()->set('model-filer.cleanup.enabled', true);
-    config()->set('model-filer.cleanup.dry_run', false);
+    $this->payload->shouldReceive('isCleanupEnabled')->andReturnTrue();
+    $this->payload->shouldReceive('isDryRun')->andReturnFalse();
+    $this->payload->shouldReceive('shouldBroadcastIndividualEvents')->andReturnTrue();
 
-    Storage::shouldReceive($this->disk)->andThrow(new \Exception('Disk error'));
+    $this->cleaner->shouldReceive('processFiles')
+        ->once()
+        ->andThrow(new \Exception('Disk error'));
 
     $this->cleaner->handle();
 
@@ -56,39 +69,56 @@ it('broadcasts failure event when exception is thrown', function () {
 });
 
 it('does not run at all when disabled', function () {
-    $this->cleaner->handle();
+    $this->payload->shouldReceive('isCleanupEnabled')->once()->andReturn(false);
+    $this->payload->shouldReceive('isDryRun')->andReturnFalse();
 
-    expect(Storage::disk($this->disk)->exists($this->oldFile))->toBeTrue();
-    expect(Storage::disk($this->disk)->exists($this->newFile))->toBeTrue();
+    $this->cleaner->shouldReceive('processFiles')->never();
+
+    $this->cleaner->handle();
 
     Event::assertNothingDispatched();
 });
 
 it('logs the expected messages when dry run enabled', function () {
-    config()->set('model-filer.cleanup.enabled', true);
-    config()->set('model-filer.cleanup.dry_run', true);
+    $this->payload->shouldReceive('isCleanupEnabled')->andReturnTrue();
+    $this->payload->shouldReceive('isDryRun')->andReturnTrue();
+    $this->payload->shouldReceive('shouldBroadcastIndividualEvents')->andReturnFalse();
+
+    // Mock Storage to return files
+    Storage::shouldReceive('disk')->with($this->disk)->andReturnSelf();
+    Storage::shouldReceive('files')->with('uploads')->andReturn([
+        $this->oldFile,
+        $this->newFile,
+    ]);
+
+    // Mock last modified times
+    $this->cleaner->shouldReceive('getLastModified')
+        ->with($this->oldFile)
+        ->andReturn(now()->subHours(25));
+    $this->cleaner->shouldReceive('getLastModified')
+        ->with($this->newFile)
+        ->andReturn(now()->subHours(12));
 
     $disk = $this->cleaner->getPayload()->getDisk();
     $path = $this->cleaner->getPayload()->getPath();
     $thresholdHours = $this->cleaner->getPayload()->getCleanupThresholdHours();
 
-    Log::spy();
-
-    $this->cleaner->handle();
-
-    Log::shouldHaveReceived('info')
+    $this->cleaner->shouldReceive('logInfo')
+        ->once()
         ->with('Initiating dry run of CleanOrphanedUploads job', [
             'disk' => $disk,
             'path' => $path,
             'threshold_hours' => $thresholdHours,
             'total_files' => 2,
         ]);
-
-    Log::shouldHaveReceived('info')
+    $this->cleaner->shouldReceive('logInfo')
+        ->once()
         ->with("Would delete file: {$this->oldFile}");
-
-    Log::shouldHaveReceived('info')
+    $this->cleaner->shouldReceive('logInfo')
+        ->once()
         ->with('Concluding dry run of CleanOrphanedUploads job', [
             'files_that_would_be_deleted' => 1,
         ]);
+
+    $this->cleaner->handle();
 });

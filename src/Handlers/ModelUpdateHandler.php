@@ -16,7 +16,7 @@ class ModelUpdateHandler extends BaseModelEventHandler
     /**
      * Get jobs only for attributes that have been modified.
      */
-    protected function getAllJobs(Model $model, ?\Closure $filter = null): array
+    public function getAllJobs(Model $model, ?\Closure $filter = null): array
     {
         return parent::getAllJobs(
             $model,
@@ -27,7 +27,7 @@ class ModelUpdateHandler extends BaseModelEventHandler
     /**
      * Create delete and move jobs based on file changes during update.
      */
-    protected function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array
+    public function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array
     {
         $removedFiles = $this->fileTracker->getRemovedFiles($model, $attribute);
         $newFiles = $this->fileTracker->getNewFiles($model, $attribute);
@@ -39,7 +39,10 @@ class ModelUpdateHandler extends BaseModelEventHandler
         return array_filter([$deleteJob, $moveJob]);
     }
 
-    protected function getBatchDescription(): string
+    /**
+     * Get batch description for job processing.
+     */
+    public function getBatchDescription(): string
     {
         return 'Handle uploads for model update.';
     }

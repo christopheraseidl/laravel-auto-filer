@@ -2,16 +2,21 @@
 
 namespace christopheraseidl\ModelFiler\Jobs\Services;
 
+use christopheraseidl\ModelFiler\Contracts\Cacheable;
+use christopheraseidl\ModelFiler\Contracts\Loggable;
 use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker as CircuitBreakerContract;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
+use christopheraseidl\ModelFiler\Traits\InteractsWithCache;
+use christopheraseidl\ModelFiler\Traits\InteractsWithLog;
 use Illuminate\Support\Facades\Mail;
 
 /**
  * Prevents cascading failures by monitoring failure rates and blocking requests when thresholds are exceeded.
  */
-class CircuitBreaker implements CircuitBreakerContract
+class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
 {
+    use InteractsWithCache;
+    use InteractsWithLog;
+
     const STATE_CLOSED = 'closed';
 
     const STATE_OPEN = 'open';
@@ -29,7 +34,7 @@ class CircuitBreaker implements CircuitBreakerContract
     ) {}
 
     /**
-     * Check if the circuit breaker is in the closed state (normal operation).
+     * Check if circuit is in closed state.
      */
     public function isClosed(): bool
     {
@@ -37,7 +42,7 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Check if the circuit breaker is in the open state (blocking requests).
+     * Check if circuit is in open state.
      */
     public function isOpen(): bool
     {
@@ -45,7 +50,7 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Check if the circuit breaker is in the half-open state (testing recovery).
+     * Check if circuit is in half-open state.
      */
     public function isHalfOpen(): bool
     {
@@ -53,19 +58,17 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Determine if request attempt is allowed based on current state.
+     * Determine if operation can be attempted in current state.
      */
     public function canAttempt(): bool
     {
         try {
-            $state = $this->getState();
-
             if ($this->isClosed()) {
                 return true;
             }
 
             if ($this->isOpen()) {
-                $openedAt = Cache::get($this->getKey('opened_at'));
+                $openedAt = $this->cacheGet($this->getKey('opened_at'));
 
                 if ($openedAt && (now()->timestamp - $openedAt) >= $this->recoveryTimeout) {
                     $this->transitionToHalfOpen();
@@ -77,38 +80,36 @@ class CircuitBreaker implements CircuitBreakerContract
             }
 
             if ($this->isHalfOpen()) {
-                $attempts = Cache::get($this->getKey('half_open_attempts'), 0);
+                $attempts = $this->cacheGet($this->getKey('half_open_attempts'), 0);
 
                 return $attempts < $this->halfOpenMaxAttempts;
             }
 
             return false;
         } catch (\Exception $e) {
-            Log::warning('CircuitBreaker cache failure, failing open', [
+            $this->logWarning('CircuitBreaker cache failure, failing open', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);
 
-            return true;
+            return false;
         }
     }
 
     /**
-     * Record successful operation and transition from half-open to closed if applicable.
+     * Record successful operation.
      */
     public function recordSuccess(): void
     {
         try {
-            $state = $this->getState();
-
             if ($this->isHalfOpen()) {
                 $this->transitionToClosed();
-                Log::info("CircuitBreaker '{$this->name}' recovered and transitioned to CLOSED state at {$this->getTimestamp()}.");
+                $this->logInfo("CircuitBreaker '{$this->name}' recovered and transitioned to CLOSED state at {$this->getTimestamp()}.");
             }
 
-            Cache::forget($this->getKey('failures'));
+            $this->cacheForget($this->getKey('failures'));
         } catch (\Exception $e) {
-            Log::warning('CircuitBreaker cache failure on recordSuccess', [
+            $this->logWarning('CircuitBreaker cache failure on recordSuccess', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);
@@ -116,21 +117,20 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Record failure and potentially transition circuit breaker state.
+     * Record failed operation.
      */
     public function recordFailure(): void
     {
         try {
-            $state = $this->getState();
-            $failures = Cache::get($this->getKey('failures'), 0) + 1;
+            $failures = $this->cacheGet($this->getKey('failures'), 0) + 1;
             $this->setKey('failures', $failures);
 
             if ($this->isClosed() && $failures >= $this->failureThreshold) {
                 $this->transitionToOpen();
                 $this->sendAdminNotification("Circuit breaker opened after {$failures} failures.");
             } elseif ($this->isHalfOpen()) {
-                Cache::increment($this->getKey('half_open_attempts'));
-                $halfOpenAttempts = Cache::get($this->getKey('half_open_attempts'), 0);
+                $this->cacheIncrement($this->getKey('half_open_attempts'));
+                $halfOpenAttempts = $this->cacheGet($this->getKey('half_open_attempts'), 0);
 
                 if ($halfOpenAttempts >= $this->halfOpenMaxAttempts) {
                     $this->transitionToOpen();
@@ -138,7 +138,7 @@ class CircuitBreaker implements CircuitBreakerContract
                 }
             }
         } catch (\Exception $e) {
-            Log::warning('CircuitBreaker cache failure during recordFailure', [
+            $this->logWarning('CircuitBreaker cache failure during recordFailure', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);
@@ -146,15 +146,15 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Reset circuit breaker to closed state.
+     * Reset circuit to closed state.
      */
     public function reset(): void
     {
         try {
             $this->transitionToClosed();
-            Log::info("CircuitBreaker '{$this->name}' manually reset to CLOSED state at {$this->getTimestamp()}.");
+            $this->logInfo("CircuitBreaker '{$this->name}' manually reset to CLOSED state at {$this->getTimestamp()}.");
         } catch (\Exception $e) {
-            Log::warning('CircuitBreaker cache failure during reset', [
+            $this->logWarning('CircuitBreaker cache failure during reset', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);
@@ -162,29 +162,23 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
-     * Get the current state of the circuit breaker.
-     *
-     * @return string The current state (closed, open, or half_open)
+     * Return current state as string.
      */
     public function getState(): string
     {
-        return Cache::get($this->getKey('state'), self::STATE_CLOSED);
+        return $this->cacheGet($this->getKey('state'), self::STATE_CLOSED);
     }
 
     /**
-     * Get the current failure count.
-     *
-     * @return int Number of recorded failures
+     * Return current failure count.
      */
     public function getFailureCount(): int
     {
-        return Cache::get($this->getKey('failures'), 0);
+        return $this->cacheGet($this->getKey('failures'), 0);
     }
 
     /**
-     * Get comprehensive statistics about the circuit breaker's current state.
-     *
-     * @return array Associative array containing name, state, failure counts, and timing information
+     * Return circuit breaker statistics.
      */
     public function getStats(): array
     {
@@ -193,7 +187,7 @@ class CircuitBreaker implements CircuitBreakerContract
             'state' => $this->getState(),
             'failure_count' => $this->getFailureCount(),
             'failure_threshold' => $this->failureThreshold,
-            'opened_at' => Cache::get($this->getKey('opened_at')),
+            'opened_at' => $this->cacheGet($this->getKey('opened_at')),
             'recovery_timeout' => $this->recoveryTimeout,
         ];
     }
@@ -206,51 +200,72 @@ class CircuitBreaker implements CircuitBreakerContract
         return $attempts >= $maxAttempts;
     }
 
-    private function transitionToOpen(): void
+    /**
+     * Transition circuit to open state when failure threshold is exceeded.
+     */
+    public function transitionToOpen(): void
     {
         $this->setKey('state', self::STATE_OPEN);
         $this->setKey('opened_at', now()->timestamp);
-        Cache::forget($this->getKey('half_open_attempts'));
+        $this->cacheForget($this->getKey('half_open_attempts'));
 
-        Log::warning("CircuitBreaker '{$this->name}' transitioned to OPEN state at {$this->getTimestamp()}.", $this->getStats());
+        $this->logWarning("CircuitBreaker '{$this->name}' transitioned to OPEN state at {$this->getTimestamp()}.", $this->getStats());
     }
 
-    private function transitionToHalfOpen(): void
+    /**
+     * Transition circuit to half-open state for recovery testing.
+     */
+    public function transitionToHalfOpen(): void
     {
         $this->setKey('state', self::STATE_HALF_OPEN);
         $this->setKey('half_open_attempts', 0);
 
-        Log::warning("CircuitBreaker '{$this->name}' transitioned to HALF_OPEN state at {$this->getTimestamp()}.", $this->getStats());
+        $this->logWarning("CircuitBreaker '{$this->name}' transitioned to HALF_OPEN state at {$this->getTimestamp()}.", $this->getStats());
     }
 
-    private function transitionToClosed(): void
+    /**
+     * Transition circuit to closed state after successful recovery.
+     */
+    public function transitionToClosed(): void
     {
-        Cache::forget($this->getKey('state'));
-        Cache::forget($this->getKey('failures'));
-        Cache::forget($this->getKey('opened_at'));
-        Cache::forget($this->getKey('half_open_attempts'));
+        $this->cacheForget($this->getKey('state'));
+        $this->cacheForget($this->getKey('failures'));
+        $this->cacheForget($this->getKey('opened_at'));
+        $this->cacheForget($this->getKey('half_open_attempts'));
 
-        Log::info("CircuitBreaker '{$this->name}' transitioned to CLOSED state at {$this->getTimestamp()}.", $this->getStats());
+        $this->logInfo("CircuitBreaker '{$this->name}' transitioned to CLOSED state at {$this->getTimestamp()}.", $this->getStats());
     }
 
-    private function getKey(string $name): string
+    /**
+     * Generate cache key for storing circuit breaker state data.
+     */
+    public function getKey(string $name): string
     {
         return "circuit_breaker:{$this->name}:$name";
     }
 
-    private function setKey(string $name, mixed $value, ?\DateTime $time = null)
+    /**
+     * Store value in cache with configured TTL.
+     */
+    public function setKey(string $name, mixed $value, ?\DateTime $time = null): void
     {
         $time = $time ?? now()->addHours($this->cacheTtlHours);
 
-        Cache::put($this->getKey($name), $value, $time);
+        $this->cachePut($this->getKey($name), $value, $time);
     }
 
-    private function getTimestamp(): string
+    /**
+     * Return current timestamp in standardized format.
+     */
+    public function getTimestamp(): string
     {
         return now()->format('Y-m-d H:i:s T');
     }
 
-    private function sendAdminNotification(string $message): void
+    /**
+     * Send admin notification about circuit breaker state changes.
+     */
+    public function sendAdminNotification(string $message): void
     {
         if (! $this->emailNotificationEnabled || ! $this->adminEmail) {
             return;
@@ -268,18 +283,21 @@ class CircuitBreaker implements CircuitBreakerContract
                 }
             );
 
-            Log::info('Circuit breaker notification sent to admin.', [
+            $this->logInfo('Circuit breaker notification sent to admin.', [
                 'breaker' => $this->name,
             ]);
         } catch (\Exception $e) {
-            Log::error('Failed to send circuit breaker notification.', [
+            $this->logError('Failed to send circuit breaker notification.', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);
         }
     }
 
-    private function buildEmailContent(string $message, array $stats): string
+    /**
+     * Build email content for admin notifications with circuit breaker details.
+     */
+    public function buildEmailContent(string $message, array $stats): string
     {
         $appName = config()->get('model-filer.name', 'Laravel application');
 

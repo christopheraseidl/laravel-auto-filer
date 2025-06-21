@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Contracts;
+namespace christopheraseidl\ModelFiler\Support\Contracts;
 
 use christopheraseidl\ModelFiler\Enums\OperationScope;
 use christopheraseidl\ModelFiler\Enums\OperationType;

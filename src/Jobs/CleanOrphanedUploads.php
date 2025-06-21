@@ -6,9 +6,10 @@ use Carbon\Carbon;
 use christopheraseidl\ModelFiler\Enums\OperationScope;
 use christopheraseidl\ModelFiler\Enums\OperationType;
 use christopheraseidl\ModelFiler\Jobs\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
+use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
 use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\ModelFiler\Support\FileOperationType;
-use Illuminate\Support\Facades\Log;
+use christopheraseidl\ModelFiler\Traits\HasFileDeleter;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -17,8 +18,12 @@ use Illuminate\Support\Facades\Storage;
  * CAUTION: Deletes files from specified disk and path older than 24 hours by default.
  * Only use if temporary uploads are stored exclusively in the target location.
  */
-final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
+class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
 {
+    use HasFileDeleter;
+
+    protected FileDeleter $deleter;
+
     public function __construct(
         private readonly CleanOrphanedUploadsPayload $payload
     ) {
@@ -42,23 +47,56 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
 
             $files = Storage::disk($disk)->files($path);
 
-            if ($dryRun) {
-                Log::info('Initiating dry run of CleanOrphanedUploads job', [
+            try {
+                if ($dryRun) {
+                    $this->logInfo('Initiating dry run of CleanOrphanedUploads job', [
+                        'disk' => $disk,
+                        'path' => $path,
+                        'threshold_hours' => $thresholdHours,
+                        'total_files' => count($files),
+                    ]);
+                }
+
+                $processedCount = $this->processFiles($files, $dryRun, $thresholdHours);
+
+                if ($dryRun) {
+                    $this->logInfo('Concluding dry run of CleanOrphanedUploads job', [
+                        'files_that_would_be_deleted' => $processedCount,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                $this->logError('Failed to run CleanOrphanedUploads job', [
                     'disk' => $disk,
                     'path' => $path,
                     'threshold_hours' => $thresholdHours,
                     'total_files' => count($files),
                 ]);
-            }
 
-            $processedCount = $this->processFiles($files, $dryRun, $thresholdHours);
-
-            if ($dryRun) {
-                Log::info('Concluding dry run of CleanOrphanedUploads job', [
-                    'files_that_would_be_deleted' => $processedCount,
-                ]);
+                throw new \Exception($e->getMessage());
             }
         });
+    }
+
+    public function processFiles(array $files, bool $dryRun, int $thresholdHours): int
+    {
+        $processedCount = 0;
+        $cutoffTime = now()->subHours($thresholdHours);
+
+        foreach ($files as $file) {
+            // Check if file is older than threshold
+            if ($cutoffTime->isAfter($this->getLastModified($file))) {
+                $processedCount++;
+
+                if ($dryRun) {
+                    $this->logInfo("Would delete file: {$file}");
+                } else {
+                    $disk = $this->getPayload()->getDisk();
+                    $this->getDeleter()->attemptDelete($disk, $file);
+                }
+            }
+        }
+
+        return $processedCount;
     }
 
     public function getLastModified(string $file): \DateTimeInterface
@@ -89,24 +127,9 @@ final class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsCont
         return $this->payload;
     }
 
-    private function processFiles(array $files, bool $dryRun, int $thresholdHours): int
+    protected function config()
     {
-        $processedCount = 0;
-        $cutoffTime = now()->subHours($thresholdHours);
-
-        foreach ($files as $file) {
-            // Check if file is older than threshold
-            if ($cutoffTime->isAfter($this->getLastModified($file))) {
-                $processedCount++;
-
-                if ($dryRun) {
-                    Log::info("Would delete file: {$file}");
-                } else {
-                    Storage::disk($this->getPayload()->getDisk())->delete($file);
-                }
-            }
-        }
-
-        return $processedCount;
+        parent::config();
+        $this->deleter = app()->make(FileDeleter::class); // Initialize file deleter service
     }
 }

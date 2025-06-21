@@ -4,7 +4,6 @@ namespace christopheraseidl\ModelFiler\Jobs\Services;
 
 use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker;
 use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter as FileDeleterContract;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -17,7 +16,7 @@ class FileDeleter extends FileOperator implements FileDeleterContract
     ) {}
 
     /**
-     * Attempt to delete a file with retry logic.
+     * Attempt file deletion with retry logic and circuit breaker protection.
      */
     public function attemptDelete(string $disk, string $path, int $maxAttempts = 3): bool
     {
@@ -29,14 +28,14 @@ class FileDeleter extends FileOperator implements FileDeleterContract
         $lastException = null;
         $attempts = 0;
 
-        while ($attempts < $maxAttempts && $this->breaker->canAttempt()) {
+        while ($attempts < $maxAttempts && $this->getBreaker()->canAttempt()) {
             try {
                 return $this->performDeletion($disk, $path);
             } catch (\Exception $e) {
                 $attempts++;
                 $lastException = $e;
 
-                Log::warning("File delete attempt {$attempts} failed.", [
+                $this->logWarning("File delete attempt {$attempts} failed.", [
                     'disk' => $disk,
                     'path' => $path,
                     'error' => $e->getMessage(),
@@ -48,9 +47,9 @@ class FileDeleter extends FileOperator implements FileDeleterContract
             }
         }
 
-        $this->breaker->recordFailure();
+        $this->getBreaker()->recordFailure();
 
-        Log::error("File deletion failed after {$attempts} attempts.", [
+        $this->logError("File deletion failed after {$attempts} attempts.", [
             'disk' => $disk,
             'path' => $path,
             'max_attempts' => $attempts,
@@ -60,34 +59,69 @@ class FileDeleter extends FileOperator implements FileDeleterContract
         throw new \Exception("Failed to delete file after {$attempts} attempts.");
     }
 
-    protected function performDeletion(string $disk, string $path): bool
+    /**
+     * Execute deletion operation and update circuit breaker state.
+     */
+    public function performDeletion(string $disk, string $path): bool
     {
         $result = $this->deleteDirectoryOrFile($disk, $path);
 
         if ($result) {
-            $this->breaker->recordSuccess();
+            $this->getBreaker()->recordSuccess();
 
             return true;
         } else {
-            $this->breaker->recordFailure();
+            $this->getBreaker()->recordFailure();
 
             throw new \Exception('Deletion operation returned false.');
         }
     }
 
-    protected function handleDeletionFailure(int $attempts, int $maxAttempts): void
+    /**
+     * Handle deletion failure between retry attempts.
+     */
+    public function handleDeletionFailure(int $attempts, int $maxAttempts): void
     {
-        if ($this->breaker->maxAttemptsReached($attempts, $maxAttempts) || ! $this->breaker->canAttempt()) {
+        if ($this->getBreaker()->maxAttemptsReached($attempts, $maxAttempts) || ! $this->getBreaker()->canAttempt()) {
             return;
         }
 
         $this->waitBeforeRetry();
     }
 
-    protected function deleteDirectoryOrFile(string $disk, string $path): bool
+    /**
+     * Delete directory or file based on path type.
+     */
+    public function deleteDirectoryOrFile(string $disk, string $path): bool
     {
         return Storage::disk($disk)->directoryExists($path)
             ? Storage::disk($disk)->deleteDirectory($path)
             : Storage::disk($disk)->delete($path);
+    }
+
+    /**
+     * Validate maximum attempts parameter is within acceptable range.
+     */
+    public function validateMaxAttempts(int $maxAttempts): void
+    {
+        // Implementation would be in parent FileOperator class
+        parent::validateMaxAttempts($maxAttempts);
+    }
+
+    /**
+     * Check circuit breaker state before operation.
+     */
+    public function checkCircuitBreaker(string $operation, string $disk, array $context): void
+    {
+        parent::checkCircuitBreaker($operation, $disk, $context);
+    }
+
+    /**
+     * Wait before retrying failed operation.
+     */
+    public function waitBeforeRetry(): void
+    {
+        // Implementation would be in parent FileOperator class
+        parent::waitBeforeRetry();
     }
 }

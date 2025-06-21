@@ -3,7 +3,6 @@
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * Tests CircuitBreaker getter methods behavior.
@@ -11,14 +10,16 @@ use Illuminate\Support\Facades\Cache;
  * @covers \christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker
  */
 test('getState returns the expected string', function () {
-    Cache::shouldReceive('get')
+    $this->breaker->shouldReceive('cacheGet')
+        ->with('circuit_breaker:test-circuit:state', 'closed')
         ->andReturn('test_state');
 
     expect($this->breaker->getState())->toBe('test_state');
 });
 
 test('getFailureCount returns the expected integer', function () {
-    Cache::shouldReceive('get')
+    $this->breaker->shouldReceive('cacheGet')
+        ->with('circuit_breaker:test-circuit:failures', 0)
         ->andReturn(50);
 
     expect($this->breaker->getFailureCount())->toBe(50);
@@ -27,15 +28,11 @@ test('getFailureCount returns the expected integer', function () {
 test('getStats returns the expected array', function () {
     Carbon::setTestNow(now());
 
-    Cache::shouldReceive('get')
-        ->with('circuit_breaker:test-circuit:state', 'closed')
+    $this->breaker->shouldReceive('getState')
         ->andReturn('test_state');
-
-    Cache::shouldReceive('get')
-        ->with('circuit_breaker:test-circuit:failures', 0)
+    $this->breaker->shouldReceive('getFailureCount')
         ->andReturn(50);
-
-    Cache::shouldReceive('get')
+    $this->breaker->shouldReceive('cacheGet')
         ->with('circuit_breaker:test-circuit:opened_at')
         ->andReturn(now()->subHours(1));
 

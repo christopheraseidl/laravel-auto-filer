@@ -8,14 +8,15 @@ use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploadDirectory as DeleteU
 use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
 use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayload;
 use christopheraseidl\ModelFiler\Support\FileOperationType;
+use christopheraseidl\ModelFiler\Traits\HasFileDeleter;
 use Illuminate\Support\Str;
 
 /**
  * Deletes entire upload directory and all its contents.
  */
-final class DeleteUploadDirectory extends Job implements DeleteUploadDirectoryContract
+class DeleteUploadDirectory extends Job implements DeleteUploadDirectoryContract
 {
-    protected FileDeleter $deleter;
+    use HasFileDeleter;
 
     public function __construct(
         private readonly DeleteUploadDirectoryPayload $payload
@@ -29,7 +30,7 @@ final class DeleteUploadDirectory extends Job implements DeleteUploadDirectoryCo
     public function handle(): void
     {
         $this->handleJob(function () {
-            $this->deleter->attemptDelete($this->getPayload()->getDisk(), $this->payload->getPath());
+            $this->getDeleter()->attemptDelete($this->getPayload()->getDisk(), $this->getPayload()->getPath());
         });
     }
 
@@ -46,7 +47,7 @@ final class DeleteUploadDirectory extends Job implements DeleteUploadDirectoryCo
      */
     public function uniqueId(): string
     {
-        return "{$this->getOperationType()}_".Str::snake(class_basename($this->payload->getModelClass()))."_{$this->payload->getId()}";
+        return "{$this->getOperationType()}_".Str::snake(class_basename($this->getPayload()->getModelClass()))."_{$this->getPayload()->getId()}";
     }
 
     public function getPayload(): DeleteUploadDirectoryPayload

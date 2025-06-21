@@ -2,10 +2,12 @@
 
 namespace christopheraseidl\ModelFiler\Jobs;
 
+use christopheraseidl\ModelFiler\Contracts\Loggable;
 use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
 use christopheraseidl\ModelFiler\Events\FileOperationFailed;
 use christopheraseidl\ModelFiler\Jobs\Contracts\Job as JobContract;
 use christopheraseidl\ModelFiler\Payloads\Contracts\Payload;
+use christopheraseidl\ModelFiler\Traits\InteractsWithLog;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,9 +21,9 @@ use Illuminate\Support\Str;
 /**
  * Provides standardized configuration and error handling for file operation jobs.
  */
-abstract class Job implements JobContract
+abstract class Job implements JobContract, Loggable
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithLog, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
      * Provides standardized configuration and error handling for file operation jobs.
@@ -63,6 +65,8 @@ abstract class Job implements JobContract
                     $e
                 ));
             }
+
+            throw $e; // Rethrow to maintain Laravel's job lifecycle
         }
     }
 
@@ -79,7 +83,7 @@ abstract class Job implements JobContract
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error("Job failed: {$this->getOperationType()}.", $this->getPayload()->toArray());
+        $this->logError("Job failed: {$this->getOperationType()}.", $this->getPayload()->toArray());
     }
 
     /**

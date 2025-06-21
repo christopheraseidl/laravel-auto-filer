@@ -2,7 +2,6 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\CleanOrphanedUploads;
 
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -11,13 +10,9 @@ use Illuminate\Support\Facades\Storage;
  * @covers \christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads
  */
 beforeEach(function () {
-    config()->set('model-filer.path', 'uploads');
+    $this->file = 'uploads/old_file.txt';
 
-    $upload = UploadedFile::fake()->create('file1.txt', 100);
-    $name = $upload->hashName();
-    $this->file = "{$this->path}/{$name}";
-
-    Storage::disk($this->disk)->putFileAs($this->path, $upload, $name);
+    Storage::disk($this->disk)->put($this->file, 'content');
 });
 
 it('returns the expected last modified value', function () {

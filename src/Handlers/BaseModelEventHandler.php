@@ -3,6 +3,7 @@
 namespace christopheraseidl\ModelFiler\Handlers;
 
 use christopheraseidl\ModelFiler\Handlers\Contracts\BatchManager;
+use christopheraseidl\ModelFiler\Handlers\Contracts\ModelEventHandler;
 use christopheraseidl\ModelFiler\Handlers\Contracts\ModelFileChangeTracker;
 use christopheraseidl\ModelFiler\Jobs\Contracts\Builder;
 use christopheraseidl\ModelFiler\Services\Contracts\FileService;
@@ -11,13 +12,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Handles model events by creating and dispatching upload jobs.
  */
-abstract class BaseModelEventHandler
+abstract class BaseModelEventHandler implements ModelEventHandler
 {
     protected string $disk;
-
-    abstract protected function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array;
-
-    abstract protected function getBatchDescription(): string;
 
     public function __construct(
         protected FileService $fileService,
@@ -28,6 +25,9 @@ abstract class BaseModelEventHandler
         $this->disk = $fileService->getDisk();
     }
 
+    /**
+     * Handle model events for file processing.
+     */
     public function handle(Model $model): void
     {
         $jobs = $this->getAllJobs($model);
@@ -45,9 +45,9 @@ abstract class BaseModelEventHandler
     }
 
     /**
-     * Collect jobs from all uploadable attributes, applying optional filter.
+     * Get all jobs from uploadable attributes with optional filtering.
      */
-    protected function getAllJobs(Model $model, ?\Closure $filter = null): array
+    public function getAllJobs(Model $model, ?\Closure $filter = null): array
     {
         // Default filter accepts all attributes
         $filter = $filter ?? fn ($model, $attribute) => true;
@@ -59,4 +59,14 @@ abstract class BaseModelEventHandler
             ->filter()
             ->all();
     }
+
+    /**
+     * Create jobs from model attribute for file processing.
+     */
+    abstract public function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array;
+
+    /**
+     * Get batch description for job processing.
+     */
+    abstract public function getBatchDescription(): string;
 }

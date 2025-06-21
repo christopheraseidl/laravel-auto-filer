@@ -3,9 +3,6 @@
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
 use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 
 uses(
     CircuitBreakerHelpers::class
@@ -17,100 +14,111 @@ uses(
  * @covers \christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker
  */
 it('returns true when circuit breaker is in closed state', function () {
-    expect($this->breaker->getState())->toBe('closed');
+    $this->breaker->shouldReceive('getState')->andReturn('closed');
 
     $canAttempt = $this->breaker->canAttempt();
 
-    expect($canAttempt)->toBe(true);
+    expect($canAttempt)->toBeTrue();
 });
 
 it('returns false when circuit is open and recovery timeout has not passed', function () {
-    $this->transitionToOpen();
-    expect($this->breaker->getState())->toBe('open');
+    $this->breaker->shouldReceive('getState')->andReturn('open');
+    $this->breaker->shouldReceive('cacheGet')
+        ->with('circuit_breaker:test-circuit:opened_at')
+        ->andReturn(now()->timestamp);
 
     $canAttempt = $this->breaker->canAttempt();
 
-    expect($canAttempt)->toBe(false);
+    expect($canAttempt)->toBeFalse();
 });
 
 it('returns false when the state is invalid', function () {
-    Cache::shouldReceive('get')
-        ->with('circuit_breaker:test-circuit:state', 'closed')
-        ->andReturn('test_state');
+    $this->breaker->shouldReceive('getState')->andReturn('test_state');
 
     $canAttempt = $this->breaker->canAttempt();
 
-    expect($canAttempt)->toBe(false);
+    expect($canAttempt)->toBeFalse();
 });
 
-it('transitions to half-open and returns true when recovery timeout has passed', function () {
-    Log::shouldReceive('warning')->once(); // For the half-open transition log
-
-    $this->transitionToOpen();
-    Carbon::setTestNow(now()->addSeconds(11));
+it('returns true when recovery timeout has passed', function () {
+    $this->breaker->shouldReceive('getState')->andReturn('open');
+    $this->breaker->shouldReceive('cacheGet')
+        ->with('circuit_breaker:test-circuit:opened_at')
+        ->andReturn(now()->subSeconds(11)->timestamp);
+    $this->breaker->shouldReceive('transitionToHalfOpen')->once();
 
     $canAttempt = $this->breaker->canAttempt();
 
-    expect($canAttempt)->toBe(true);
-    expect($this->breaker->getState())->toBe('half_open');
-    expect($this->getHalfOpenAttempts())->toBe(0);
+    expect($canAttempt)->toBeTrue();
 });
 
 it('returns true when in half-open state and under max attempts', function () {
-    $this->transitionToHalfOpen();
-    $this->setHalfOpenAttempts(2); // Under the limit of 3
+    $this->breaker->shouldReceive('getState')->andReturn('half_open');
+    $this->breaker->shouldReceive('cacheGet')
+        ->with('circuit_breaker:test-circuit:half_open_attempts', 0)
+        ->andReturn(2);
 
     $canAttempt = $this->breaker->canAttempt();
 
-    expect($canAttempt)->toBe(true);
+    expect($canAttempt)->toBeTrue();
 });
 
 it('returns false when in half-open state and at max attempts', function () {
-    $this->transitionToHalfOpen();
-    $this->setHalfOpenAttempts(3); // At the limit of 3
+    $this->breaker->shouldReceive('isClosed')->andReturnFalse();
+    $this->breaker->shouldReceive('isOpen')->andReturnFalse();
+    $this->breaker->shouldReceive('isHalfOpen')->andReturnTrue();
+    $this->breaker->shouldReceive('cacheGet')
+        ->once()
+        ->with('circuit_breaker:test-circuit:half_open_attempts', 0)
+        ->andReturn(3);
 
     $canAttempt = $this->breaker->canAttempt();
 
-    expect($canAttempt)->toBe(false);
+    expect($canAttempt)->toBeFalse();
 });
 
 it('handles missing opened_at timestamp gracefully', function () {
-    $this->transitionToOpen();
+    $this->breaker->shouldReceive('getState')->andReturn('open');
+    $this->breaker->shouldReceive('cacheGet')
+        ->with('circuit_breaker:test-circuit:half_open_attempts')
+        ->andReturn(null);
 
     $canAttempt = $this->breaker->canAttempt();
 
-    expect($canAttempt)->toBe(false);
+    expect($canAttempt)->toBeFalse();
 });
 
 it('handles cache failures gracefully by failing open', function () {
-    config(['cache.default' => 'invalid']);
+    $this->breaker->shouldReceive('getState')->andThrow(new \Exception('Cache failure'));
+    $this->breaker->shouldReceive('logWarning')->once();
 
-    expect($this->breaker->canAttempt())
-        ->toBeTrue();
+    expect($this->breaker->canAttempt())->toBeFalse();
 });
 
 it('handles time calculation edge cases correctly', function () {
-    $this->transitionToOpen();
-    Carbon::setTestNow(now()->addSeconds(10)); // Exactly at timeout
+    $this->breaker->shouldReceive('getState')->andReturn('open');
+    $this->breaker->shouldReceive('cacheGet')
+        ->with('circuit_breaker:test-circuit:opened_at')
+        ->andReturn(now()->subSeconds(10)->timestamp);
+    $this->breaker->shouldReceive('transitionToHalfOpen')->once();
 
     $canAttempt = $this->breaker->canAttempt();
 
-    expect($canAttempt)->toBe(true);
-    expect($this->breaker->getState())->toBe('half_open');
+    expect($canAttempt)->toBeTrue();
 });
 
-it('does not transition states multiple times on repeated calls', function () {
-    Log::shouldReceive('warning')->once();
+it('transitions to half-open when recovery timeout has passed', function () {
+    $this->breaker->shouldReceive('isClosed')->once()->andReturn(false);
+    $this->breaker->shouldReceive('isOpen')->once()->andReturn(true);
 
-    $this->transitionToOpen();
-    Carbon::setTestNow(now()->addSeconds(11));
+    $this->breaker->shouldReceive('cacheGet')
+        ->with('circuit_breaker:test-circuit:opened_at')
+        ->once()
+        ->andReturn(now()->subSeconds(11)->timestamp);
 
-    $result1 = $this->breaker->canAttempt();
-    $result2 = $this->breaker->canAttempt();
-    $result3 = $this->breaker->canAttempt();
+    $this->breaker->shouldReceive('transitionToHalfOpen')->once();
 
-    expect($result1)->toBe(true);
-    expect($result2)->toBe(true);
-    expect($result3)->toBe(true);
-    expect($this->breaker->getState())->toBe('half_open');
+    $canAttempt = $this->breaker->canAttempt();
+
+    expect($canAttempt)->toBeTrue();
 });

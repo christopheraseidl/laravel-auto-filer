@@ -2,7 +2,6 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
@@ -14,7 +13,7 @@ it('returns expected value', function (string $name) {
     $method = Str::pascal($name);
     $method = "is{$method}";
 
-    Cache::shouldReceive('get')
+    $this->breaker->shouldReceive('cacheGet')
         ->with('circuit_breaker:test-circuit:state', 'closed')
         ->andReturn($name);
 

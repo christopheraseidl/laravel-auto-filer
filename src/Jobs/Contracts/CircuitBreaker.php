@@ -74,4 +74,44 @@ interface CircuitBreaker
      * Determine if maximum retry attempts have been reached.
      */
     public function maxAttemptsReached(int $attempts, int $maxAttempts): bool;
+
+    /**
+     * Transition circuit to open state when failure threshold is exceeded.
+     */
+    public function transitionToOpen(): void;
+
+    /**
+     * Transition circuit to half-open state for recovery testing.
+     */
+    public function transitionToHalfOpen(): void;
+
+    /**
+     * Transition circuit to closed state after successful recovery.
+     */
+    public function transitionToClosed(): void;
+
+    /**
+     * Generate cache key for storing circuit breaker state data.
+     */
+    public function getKey(string $name): string;
+
+    /**
+     * Store value in cache with configured TTL.
+     */
+    public function setKey(string $name, mixed $value, ?\DateTime $time = null): void;
+
+    /**
+     * Return current timestamp in standardized format.
+     */
+    public function getTimestamp(): string;
+
+    /**
+     * Send admin notification about circuit breaker state changes.
+     */
+    public function sendAdminNotification(string $message): void;
+
+    /**
+     * Build email content for admin notifications with circuit breaker details.
+     */
+    public function buildEmailContent(string $message, array $stats): string;
 }

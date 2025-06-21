@@ -119,7 +119,8 @@ class FileMover extends FileOperator implements FileMoverContract
     protected function processUndoOperations(string $disk, int $maxAttempts): array
     {
         if (! $this->breaker->canAttempt()) {
-            $this->logCircuitBreakerBlock('process undo operations', $disk, [
+            $this->logWarning('File move undo blocked by circuit breaker', [
+                'disk' => $disk,
                 'pending_undos' => count($this->movedFiles),
             ]);
 

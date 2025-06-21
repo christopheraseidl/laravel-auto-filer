@@ -16,7 +16,7 @@ class ModelCreationHandler extends BaseModelEventHandler
     /**
      * Get jobs only for attributes with non-null values.
      */
-    protected function getAllJobs(Model $model, ?\Closure $filter = null): array
+    public function getAllJobs(Model $model, ?\Closure $filter = null): array
     {
         return parent::getAllJobs(
             $model,
@@ -27,7 +27,7 @@ class ModelCreationHandler extends BaseModelEventHandler
     /**
      * Create move jobs for files attached during model creation.
      */
-    protected function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array
+    public function createJobsFromAttribute(Model $model, string $attribute, ?string $type = null): ?array
     {
         $newFiles = $model->$attribute;
 
@@ -40,7 +40,10 @@ class ModelCreationHandler extends BaseModelEventHandler
         return Arr::wrap($job);
     }
 
-    protected function getBatchDescription(): string
+    /**
+     * Get batch description for job processing.
+     */
+    public function getBatchDescription(): string
     {
         return 'Handle uploads for model creation.';
     }
