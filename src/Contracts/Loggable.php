@@ -8,17 +8,12 @@ namespace christopheraseidl\ModelFiler\Contracts;
 interface Loggable
 {
     /**
-     * Log info message.
+     * Resolve intercoming method calls as Log facade methods.
      */
-    public function logInfo(string $message, array $context = []): void;
+    public function __call(string $method, array $arguments): self;
 
     /**
-     * Log warning message.
+     * Validate method existence on the Laravel Log facade.
      */
-    public function logWarning(string $message, array $context = []): void;
-
-    /**
-     * Log error message.
-     */
-    public function logError(string $message, array $context = []): void;
+    public function validateMacro(string $method, array $arguments): void;
 }

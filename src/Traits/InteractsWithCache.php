@@ -10,34 +10,41 @@ use Illuminate\Support\Facades\Cache;
 trait InteractsWithCache
 {
     /**
-     * Get cached value.
+     * Resolve intercoming method calls as Cache facade methods.
      */
-    public function cacheGet(string $key, mixed $default = null): mixed
+    public function __call(string $method, array $arguments): self
     {
-        return Cache::get($key, $default);
+        $prefix = 'cache';
+        $method = str_replace($prefix, '', $method);
+
+        $this->validateMacro($method, $arguments);
+
+        return Cache::$method(...$arguments);
     }
 
     /**
-     * Store value in cache.
+     * Validate method existence on the Laravel Cache facade.
      */
-    public function cachePut(string $key, mixed $value, int|\DateTimeInterface|\DateInterval|null $ttl = null): bool
+    public function validateMacro(string $method, array $arguments): void
     {
-        return Cache::put($key, $value, $ttl);
+        if (! $this->cacheMethodExists($method)) {
+            $message = "Method '{$method}' does not exist on the Cache facade";
+
+            throw new \BadMethodCallException($message);
+        }
     }
 
     /**
-     * Increment cached numeric value.
+     * Check if method exists on Cache facade (either regular method or macro).
      */
-    public function cacheIncrement(string $key, int $value = 1): int|bool
+    private function cacheMethodExists(string $method): bool
     {
-        return Cache::increment($key, $value);
-    }
+        if (Cache::hasMacro($method)) {
+            return true;
+        }
 
-    /**
-     * Remove value from cache.
-     */
-    public function cacheForget(string $key): bool
-    {
-        return Cache::forget($key);
+        $cacher = Cache::getFacadeRoot();
+
+        return method_exists($cacher, $method);
     }
 }

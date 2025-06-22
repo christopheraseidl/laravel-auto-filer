@@ -5,6 +5,7 @@ namespace christopheraseidl\ModelFiler\Tests\Jobs\CleanOrphanedUploads;
 use christopheraseidl\ModelFiler\Events\FileOperationCompleted;
 use christopheraseidl\ModelFiler\Events\FileOperationFailed;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -103,7 +104,7 @@ it('logs the expected messages when dry run enabled', function () {
     $path = $this->cleaner->getPayload()->getPath();
     $thresholdHours = $this->cleaner->getPayload()->getCleanupThresholdHours();
 
-    $this->cleaner->shouldReceive('logInfo')
+    Log::shouldReceive('info')
         ->once()
         ->with('Initiating dry run of CleanOrphanedUploads job', [
             'disk' => $disk,
@@ -111,10 +112,10 @@ it('logs the expected messages when dry run enabled', function () {
             'threshold_hours' => $thresholdHours,
             'total_files' => 2,
         ]);
-    $this->cleaner->shouldReceive('logInfo')
+    Log::shouldReceive('info')
         ->once()
         ->with("Would delete file: {$this->oldFile}");
-    $this->cleaner->shouldReceive('logInfo')
+    Log::shouldReceive('info')
         ->once()
         ->with('Concluding dry run of CleanOrphanedUploads job', [
             'files_that_would_be_deleted' => 1,

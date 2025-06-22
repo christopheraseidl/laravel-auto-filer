@@ -3,6 +3,7 @@
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
 use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
+use Illuminate\Support\Facades\Log;
 
 uses(
     CircuitBreakerHelpers::class
@@ -31,7 +32,9 @@ describe('HALF_OPEN state', function () {
     it('closes the circuit breaker and resets failures to 0', function () {
         $this->breaker->shouldReceive('getState')->andReturn('half_open');
         $this->breaker->shouldReceive('transitionToClosed')->once();
-        $this->breaker->shouldReceive('logInfo')->once();
+
+        Log::shouldReceive('info')->once();
+
         $this->breaker->shouldReceive('cacheForget')
             ->with('circuit_breaker:test-circuit:failures')
             ->once();
@@ -42,7 +45,8 @@ describe('HALF_OPEN state', function () {
 
 it('handles cache failures gracefully', function () {
     $this->breaker->shouldReceive('getState')->andThrow(new \Exception('Cache failure'));
-    $this->breaker->shouldReceive('logWarning')->once();
+
+    Log::shouldReceive('warning')->once();
 
     expect(fn () => $this->breaker->recordSuccess())->not->toThrow(\Exception::class);
 });
@@ -50,7 +54,9 @@ it('handles cache failures gracefully', function () {
 it('ignores successes when already in closed state', function () {
     $this->breaker->shouldReceive('getState')->andReturn('closed');
     $this->breaker->shouldReceive('transitionToClosed')->never();
-    $this->breaker->shouldReceive('logInfo')->never();
+
+    Log::shouldReceive('info')->never();
+
     $this->breaker->shouldReceive('cacheForget')
         ->with('circuit_breaker:test-circuit:failures')
         ->once();

@@ -10,26 +10,41 @@ use Illuminate\Support\Facades\Log;
 trait InteractsWithLog
 {
     /**
-     * Log info message.
+     * Resolve intercoming method calls as Log facade methods.
      */
-    public function logInfo(string $message, array $context = []): void
+    public function __call(string $method, array $arguments): self
     {
-        Log::info($message, $context);
+        $prefix = 'log';
+        $method = str_replace($prefix, '', $method);
+
+        $this->validateMacro($method, $arguments);
+
+        return Log::$method(...$arguments);
     }
 
     /**
-     * Log warning message.
+     * Validate method existence on the Laravel Log facade.
      */
-    public function logWarning(string $message, array $context = []): void
+    public function validateMacro(string $method, array $arguments): void
     {
-        Log::warning($message, $context);
+        if (! $this->logMethodExists($method)) {
+            $message = "Method '{$method}' does not exist on the Log facade";
+
+            throw new \BadMethodCallException($message);
+        }
     }
 
     /**
-     * Log error message.
+     * Check if method exists on Log facade (either regular method or macro).
      */
-    public function logError(string $message, array $context = []): void
+    private function logMethodExists(string $method): bool
     {
-        Log::error($message, $context);
+        if (Log::hasMacro($method)) {
+            return true;
+        }
+
+        $logger = Log::getFacadeRoot();
+
+        return method_exists($logger, $method);
     }
 }

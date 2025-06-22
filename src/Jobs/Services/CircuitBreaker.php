@@ -2,21 +2,16 @@
 
 namespace christopheraseidl\ModelFiler\Jobs\Services;
 
-use christopheraseidl\ModelFiler\Contracts\Cacheable;
-use christopheraseidl\ModelFiler\Contracts\Loggable;
 use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker as CircuitBreakerContract;
-use christopheraseidl\ModelFiler\Traits\InteractsWithCache;
-use christopheraseidl\ModelFiler\Traits\InteractsWithLog;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 /**
  * Prevents cascading failures by monitoring failure rates and blocking requests when thresholds are exceeded.
  */
-class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
+class CircuitBreaker implements CircuitBreakerContract
 {
-    use InteractsWithCache;
-    use InteractsWithLog;
-
     const STATE_CLOSED = 'closed';
 
     const STATE_OPEN = 'open';
@@ -68,7 +63,7 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
             }
 
             if ($this->isOpen()) {
-                $openedAt = $this->cacheGet($this->getKey('opened_at'));
+                $openedAt = Cache::get($this->getKey('opened_at'));
 
                 if ($openedAt && (now()->timestamp - $openedAt) >= $this->recoveryTimeout) {
                     $this->transitionToHalfOpen();
@@ -80,14 +75,14 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
             }
 
             if ($this->isHalfOpen()) {
-                $attempts = $this->cacheGet($this->getKey('half_open_attempts'), 0);
+                $attempts = Cache::get($this->getKey('half_open_attempts'), 0);
 
                 return $attempts < $this->halfOpenMaxAttempts;
             }
 
             return false;
         } catch (\Exception $e) {
-            $this->logWarning('CircuitBreaker cache failure, failing open', [
+            Log::warning('CircuitBreaker cache failure, failing open', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);
@@ -104,12 +99,12 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
         try {
             if ($this->isHalfOpen()) {
                 $this->transitionToClosed();
-                $this->logInfo("CircuitBreaker '{$this->name}' recovered and transitioned to CLOSED state at {$this->getTimestamp()}.");
+                Log::info("CircuitBreaker '{$this->name}' recovered and transitioned to CLOSED state at {$this->getTimestamp()}.");
             }
 
-            $this->cacheForget($this->getKey('failures'));
+            Cache::forget($this->getKey('failures'));
         } catch (\Exception $e) {
-            $this->logWarning('CircuitBreaker cache failure on recordSuccess', [
+            Log::warning('CircuitBreaker cache failure on recordSuccess', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);
@@ -122,15 +117,15 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
     public function recordFailure(): void
     {
         try {
-            $failures = $this->cacheGet($this->getKey('failures'), 0) + 1;
+            $failures = Cache::get($this->getKey('failures'), 0) + 1;
             $this->setKey('failures', $failures);
 
             if ($this->isClosed() && $failures >= $this->failureThreshold) {
                 $this->transitionToOpen();
                 $this->sendAdminNotification("Circuit breaker opened after {$failures} failures.");
             } elseif ($this->isHalfOpen()) {
-                $this->cacheIncrement($this->getKey('half_open_attempts'));
-                $halfOpenAttempts = $this->cacheGet($this->getKey('half_open_attempts'), 0);
+                Cache::increment($this->getKey('half_open_attempts'));
+                $halfOpenAttempts = Cache::get($this->getKey('half_open_attempts'), 0);
 
                 if ($halfOpenAttempts >= $this->halfOpenMaxAttempts) {
                     $this->transitionToOpen();
@@ -138,7 +133,7 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
                 }
             }
         } catch (\Exception $e) {
-            $this->logWarning('CircuitBreaker cache failure during recordFailure', [
+            Log::warning('CircuitBreaker cache failure during recordFailure', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);
@@ -152,9 +147,9 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
     {
         try {
             $this->transitionToClosed();
-            $this->logInfo("CircuitBreaker '{$this->name}' manually reset to CLOSED state at {$this->getTimestamp()}.");
+            Log::info("CircuitBreaker '{$this->name}' manually reset to CLOSED state at {$this->getTimestamp()}.");
         } catch (\Exception $e) {
-            $this->logWarning('CircuitBreaker cache failure during reset', [
+            Log::warning('CircuitBreaker cache failure during reset', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);
@@ -166,7 +161,7 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
      */
     public function getState(): string
     {
-        return $this->cacheGet($this->getKey('state'), self::STATE_CLOSED);
+        return Cache::get($this->getKey('state'), self::STATE_CLOSED);
     }
 
     /**
@@ -174,7 +169,7 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
      */
     public function getFailureCount(): int
     {
-        return $this->cacheGet($this->getKey('failures'), 0);
+        return Cache::get($this->getKey('failures'), 0);
     }
 
     /**
@@ -187,7 +182,7 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
             'state' => $this->getState(),
             'failure_count' => $this->getFailureCount(),
             'failure_threshold' => $this->failureThreshold,
-            'opened_at' => $this->cacheGet($this->getKey('opened_at')),
+            'opened_at' => Cache::get($this->getKey('opened_at')),
             'recovery_timeout' => $this->recoveryTimeout,
         ];
     }
@@ -207,9 +202,9 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
     {
         $this->setKey('state', self::STATE_OPEN);
         $this->setKey('opened_at', now()->timestamp);
-        $this->cacheForget($this->getKey('half_open_attempts'));
+        Cache::forget($this->getKey('half_open_attempts'));
 
-        $this->logWarning("CircuitBreaker '{$this->name}' transitioned to OPEN state at {$this->getTimestamp()}.", $this->getStats());
+        Log::warning("CircuitBreaker '{$this->name}' transitioned to OPEN state at {$this->getTimestamp()}.", $this->getStats());
     }
 
     /**
@@ -220,7 +215,7 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
         $this->setKey('state', self::STATE_HALF_OPEN);
         $this->setKey('half_open_attempts', 0);
 
-        $this->logWarning("CircuitBreaker '{$this->name}' transitioned to HALF_OPEN state at {$this->getTimestamp()}.", $this->getStats());
+        Log::warning("CircuitBreaker '{$this->name}' transitioned to HALF_OPEN state at {$this->getTimestamp()}.", $this->getStats());
     }
 
     /**
@@ -228,12 +223,12 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
      */
     public function transitionToClosed(): void
     {
-        $this->cacheForget($this->getKey('state'));
-        $this->cacheForget($this->getKey('failures'));
-        $this->cacheForget($this->getKey('opened_at'));
-        $this->cacheForget($this->getKey('half_open_attempts'));
+        Cache::forget($this->getKey('state'));
+        Cache::forget($this->getKey('failures'));
+        Cache::forget($this->getKey('opened_at'));
+        Cache::forget($this->getKey('half_open_attempts'));
 
-        $this->logInfo("CircuitBreaker '{$this->name}' transitioned to CLOSED state at {$this->getTimestamp()}.", $this->getStats());
+        Log::info("CircuitBreaker '{$this->name}' transitioned to CLOSED state at {$this->getTimestamp()}.", $this->getStats());
     }
 
     /**
@@ -251,7 +246,7 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
     {
         $time = $time ?? now()->addHours($this->cacheTtlHours);
 
-        $this->cachePut($this->getKey($name), $value, $time);
+        Cache::put($this->getKey($name), $value, $time);
     }
 
     /**
@@ -283,11 +278,11 @@ class CircuitBreaker implements Cacheable, CircuitBreakerContract, Loggable
                 }
             );
 
-            $this->logInfo('Circuit breaker notification sent to admin.', [
+            Log::info('Circuit breaker notification sent to admin.', [
                 'breaker' => $this->name,
             ]);
         } catch (\Exception $e) {
-            $this->logError('Failed to send circuit breaker notification.', [
+            Log::error('Failed to send circuit breaker notification.', [
                 'breaker' => $this->name,
                 'error' => $e->getMessage(),
             ]);

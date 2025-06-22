@@ -3,6 +3,7 @@
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
 use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
+use Illuminate\Support\Facades\Log;
 
 uses(
     CircuitBreakerHelpers::class
@@ -90,7 +91,7 @@ it('handles missing opened_at timestamp gracefully', function () {
 
 it('handles cache failures gracefully by failing open', function () {
     $this->breaker->shouldReceive('getState')->andThrow(new \Exception('Cache failure'));
-    $this->breaker->shouldReceive('logWarning')->once();
+    Log::shouldReceive('warning')->once();
 
     expect($this->breaker->canAttempt())->toBeFalse();
 });

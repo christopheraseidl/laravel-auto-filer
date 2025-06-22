@@ -2,11 +2,8 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileMover;
 
-use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
 use christopheraseidl\ModelFiler\Jobs\Services\FileMover;
-use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Facades\Log;
-use Mockery\MockInterface;
 
 /**
  * Tests FileMover processUndoOperations method behavior.
@@ -14,34 +11,23 @@ use Mockery\MockInterface;
  * @covers \christopheraseidl\ModelFiler\Jobs\Services\FileMover
  */
 it('logs a warning and returns empty results when circuit breaker blocks undo operations', function () {
-    $breakerStats = [
-        'test_stat_1' => 'value',
-        'test_stat_2' => 'valued',
-    ];
+    $this->breaker->shouldReceive('canAttempt')->andReturnFalse();
 
-    $circuitBreaker = $this->mock(CircuitBreaker::class, function (MockInterface $mock) use ($breakerStats) {
-        $mock->shouldReceive('canAttempt')->andReturn(false);
-        $mock->shouldReceive('getStats')->andReturn($breakerStats);
-    });
+    Log::shouldReceive('warning')
+        ->with('File move undo blocked by circuit breaker', [
+            'disk' => $this->disk,
+            'pending_undos' => 0,
+        ]);
 
-    $fileMover = new FileMover($circuitBreaker);
-    $moverReflection = Reflect::on($fileMover);
-
-    Log::spy();
+    $this->mover->shouldReceive('getMovedFiles')
+        ->twice()
+        ->andReturn([]);
 
     $maxAttempts = 3;
-    $result = $moverReflection->processUndoOperations($this->disk, $maxAttempts);
+    $result = $this->mover->processUndoOperations($this->disk, $maxAttempts);
 
     expect($result)->toBeArray();
     expect($result)->toHaveKeys(['failures', 'successes']);
     expect($result['failures'])->toBeEmpty();
     expect($result['successes'])->toBeEmpty();
-
-    Log::shouldHaveReceived('warning')
-        ->with('File operation blocked by circuit breaker.', [
-            'operation' => 'process undo operations',
-            'disk' => $this->disk,
-            'breaker_stats' => $breakerStats,
-            'pending_undos' => count($moverReflection->movedFiles),
-        ]);
 });

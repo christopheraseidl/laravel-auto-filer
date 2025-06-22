@@ -4,6 +4,7 @@ namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
 use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
 use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 uses(
@@ -52,7 +53,7 @@ describe('CLOSED state', function () {
             ->with('circuit_breaker:test-circuit:failures', 0)
             ->andReturn(1);
 
-        $this->breaker->shouldReceive('logWarning')->once();
+        Log::shouldReceive('warning')->once();
 
         $this->breaker->recordFailure();
 
@@ -176,7 +177,7 @@ it('handles email sending failures gracefully', function () {
         ->once()
         ->andThrow(new \Exception('SMTP connection failed.'));
 
-    $this->breakerWithEmail->shouldReceive('logWarning')->once();
+    Log::shouldReceive('warning')->once();
 
     expect(fn () => $this->breakerWithEmail->recordFailure())->not->toThrow(\Exception::class);
 });

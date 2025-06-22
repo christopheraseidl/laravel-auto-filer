@@ -4,6 +4,7 @@ namespace christopheraseidl\ModelFiler\Jobs\Services;
 
 use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker;
 use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter as FileDeleterContract;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -35,7 +36,7 @@ class FileDeleter extends FileOperator implements FileDeleterContract
                 $attempts++;
                 $lastException = $e;
 
-                $this->logWarning("File delete attempt {$attempts} failed.", [
+                Log::warning("File delete attempt {$attempts} failed.", [
                     'disk' => $disk,
                     'path' => $path,
                     'error' => $e->getMessage(),
@@ -49,7 +50,7 @@ class FileDeleter extends FileOperator implements FileDeleterContract
 
         $this->getBreaker()->recordFailure();
 
-        $this->logError("File deletion failed after {$attempts} attempts.", [
+        Log::error("File deletion failed after {$attempts} attempts.", [
             'disk' => $disk,
             'path' => $path,
             'max_attempts' => $attempts,
@@ -97,31 +98,5 @@ class FileDeleter extends FileOperator implements FileDeleterContract
         return Storage::disk($disk)->directoryExists($path)
             ? Storage::disk($disk)->deleteDirectory($path)
             : Storage::disk($disk)->delete($path);
-    }
-
-    /**
-     * Validate maximum attempts parameter is within acceptable range.
-     */
-    public function validateMaxAttempts(int $maxAttempts): void
-    {
-        // Implementation would be in parent FileOperator class
-        parent::validateMaxAttempts($maxAttempts);
-    }
-
-    /**
-     * Check circuit breaker state before operation.
-     */
-    public function checkCircuitBreaker(string $operation, string $disk, array $context): void
-    {
-        parent::checkCircuitBreaker($operation, $disk, $context);
-    }
-
-    /**
-     * Wait before retrying failed operation.
-     */
-    public function waitBeforeRetry(): void
-    {
-        // Implementation would be in parent FileOperator class
-        parent::waitBeforeRetry();
     }
 }

@@ -8,22 +8,12 @@ namespace christopheraseidl\ModelFiler\Contracts;
 interface Cacheable
 {
     /**
-     * Get cached value.
+     * Resolve intercoming method calls as Cache facade methods.
      */
-    public function cacheGet(string $key, mixed $default = null): mixed;
+    public function __call(string $method, array $arguments): self;
 
     /**
-     * Store value in cache.
+     * Validate method existence on the Laravel Cache facade.
      */
-    public function cachePut(string $key, mixed $value, int|\DateTimeInterface|\DateInterval|null $ttl = null): bool;
-
-    /**
-     * Increment cached numeric value.
-     */
-    public function cacheIncrement(string $key, int $value = 1): int|bool;
-
-    /**
-     * Remove value from cache.
-     */
-    public function cacheForget(string $key): bool;
+    public function validateMacro(string $method, array $arguments): void;
 }

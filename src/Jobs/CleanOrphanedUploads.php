@@ -10,6 +10,7 @@ use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
 use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\ModelFiler\Support\FileOperationType;
 use christopheraseidl\ModelFiler\Traits\HasFileDeleter;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -49,7 +50,7 @@ class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
 
             try {
                 if ($dryRun) {
-                    $this->logInfo('Initiating dry run of CleanOrphanedUploads job', [
+                    Log::info('Initiating dry run of CleanOrphanedUploads job', [
                         'disk' => $disk,
                         'path' => $path,
                         'threshold_hours' => $thresholdHours,
@@ -60,12 +61,12 @@ class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
                 $processedCount = $this->processFiles($files, $dryRun, $thresholdHours);
 
                 if ($dryRun) {
-                    $this->logInfo('Concluding dry run of CleanOrphanedUploads job', [
+                    Log::info('Concluding dry run of CleanOrphanedUploads job', [
                         'files_that_would_be_deleted' => $processedCount,
                     ]);
                 }
             } catch (\Exception $e) {
-                $this->logError('Failed to run CleanOrphanedUploads job', [
+                Log::error('Failed to run CleanOrphanedUploads job', [
                     'disk' => $disk,
                     'path' => $path,
                     'threshold_hours' => $thresholdHours,
@@ -88,7 +89,7 @@ class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
                 $processedCount++;
 
                 if ($dryRun) {
-                    $this->logInfo("Would delete file: {$file}");
+                    Log::info("Would delete file: {$file}");
                 } else {
                     $disk = $this->getPayload()->getDisk();
                     $this->getDeleter()->attemptDelete($disk, $file);

@@ -5,6 +5,7 @@ namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileDeleter;
 use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker as CircuitBreakerContract;
 use christopheraseidl\ModelFiler\Jobs\Services\FileDeleter;
 use christopheraseidl\ModelFiler\Tests\TestTraits\FileDeleterHelpers;
+use Illuminate\Support\Facades\Log;
 
 uses(FileDeleterHelpers::class);
 
@@ -73,12 +74,13 @@ it('throws an exception and logs an error after 3 errors when maxAttempts is 3',
 
     $this->breaker->shouldReceive('canAttempt')->times(3)->andReturnTrue();
 
-    $this->deleter->shouldReceive('logWarning')->times(3);
+    Log::shouldReceive('warning')->times(3);
+
     $this->deleter->shouldReceive('handleDeletionFailure')->times(3);
 
     $this->breaker->shouldReceive('recordFailure')->once()->andReturnTrue();
 
-    $this->deleter->shouldReceive('logError')->once();
+    Log::shouldReceive('error')->once();
 
     expect(fn () => $this->deleter->attemptDelete($this->disk, $this->path))
         ->toThrow(\Exception::class, 'Failed to delete file after 3 attempts.');
@@ -96,7 +98,7 @@ it('throws an exception and logs a warning when circuit breaker blocks attempt',
 
     $this->breaker->shouldReceive('recordFailure')->once()->andReturnTrue();
 
-    $this->deleter->shouldReceive('logError')->once();
+    Log::shouldReceive('error')->once();
 
     expect(fn () => $this->deleter->attemptDelete($this->disk, $this->path))
         ->toThrow(

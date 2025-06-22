@@ -3,6 +3,7 @@
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
 use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
+use Illuminate\Support\Facades\Log;
 
 uses(
     CircuitBreakerHelpers::class
@@ -15,14 +16,15 @@ uses(
  */
 it('closes the circuit breaker', function () {
     $this->breaker->shouldReceive('transitionToClosed')->once();
-    $this->breaker->shouldReceive('logInfo')->once();
+    Log::shouldReceive('info')->once();
 
     $this->breaker->reset();
 });
 
 it('handles cache failures gracefully', function () {
     $this->breaker->shouldReceive('transitionToClosed')->andThrow(new \Exception('Cache failure'));
-    $this->breaker->shouldReceive('logWarning')->once();
+
+    Log::shouldReceive('warning')->once();
 
     expect(fn () => $this->breaker->reset())->not->toThrow(\Exception::class);
 });

@@ -2,19 +2,18 @@
 
 namespace christopheraseidl\ModelFiler\Jobs\Services;
 
-use christopheraseidl\ModelFiler\Contracts\Loggable;
 use christopheraseidl\ModelFiler\Contracts\WithCircuitBreaker;
 use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker;
 use christopheraseidl\ModelFiler\Jobs\Contracts\FileOperator as FileOperatorContract;
 use christopheraseidl\ModelFiler\Traits\HasCircuitBreaker;
-use christopheraseidl\ModelFiler\Traits\InteractsWithLog;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Provides common functionality for file operations with circuit breaker protection.
  */
-abstract class FileOperator implements FileOperatorContract, Loggable, WithCircuitBreaker
+abstract class FileOperator implements FileOperatorContract, WithCircuitBreaker
 {
-    use HasCircuitBreaker, InteractsWithLog;
+    use HasCircuitBreaker;
 
     protected CircuitBreaker $breaker;
 
@@ -33,8 +32,8 @@ abstract class FileOperator implements FileOperatorContract, Loggable, WithCircu
      */
     public function checkCircuitBreaker(string $operation, string $disk, array $context): void
     {
-        if (! $this->breaker->canAttempt()) {
-            $this->logWarning('File operation blocked by circuit breaker.', [
+        if (! $this->getBreaker()->canAttempt()) {
+            Log::warning('File operation blocked by circuit breaker.', [
                 'operation' => $operation,
                 'disk' => $disk,
                 'breaker_stats' => $this->breaker->getStats(),

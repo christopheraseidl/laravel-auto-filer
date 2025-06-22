@@ -2,11 +2,13 @@
 
 use christopheraseidl\ModelFiler\Handlers\Services\BatchManager;
 use christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads;
+use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker as CircuitBreakerContract;
 use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryJobContract;
 use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
 use christopheraseidl\ModelFiler\Jobs\DeleteUploadDirectory;
 use christopheraseidl\ModelFiler\Jobs\DeleteUploads;
 use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
+use christopheraseidl\ModelFiler\Jobs\Services\FileMover;
 use christopheraseidl\ModelFiler\Jobs\Validators\BuilderValidator;
 use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayloadContract;
@@ -178,6 +180,15 @@ uses()->beforeEach(function () {
 
     Carbon::setTestNow(now());
 })->in('Jobs/Services/CircuitBreaker');
+
+// Job/Services/FileMover
+uses()->beforeEach(function () {
+    $this->breaker = $this->mock(CircuitBreakerContract::class);
+
+    $this->mover = $this->partialMock(FileMover::class);
+    $this->mover->shouldReceive('getBreaker')
+        ->andReturn($this->breaker);
+})->in('Jobs/Services/FileMover');
 
 // Jobs/Services/FileService
 uses()->beforeEach(function () {
