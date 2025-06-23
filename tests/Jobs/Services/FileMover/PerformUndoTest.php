@@ -2,11 +2,6 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileMover;
 
-use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
-use christopheraseidl\ModelFiler\Jobs\Services\FileMover;
-use christopheraseidl\Reflect\Reflect;
-use Illuminate\Support\Facades\Storage;
-
 /**
  * Tests FileMover performUndo method behavior.
  *
@@ -15,41 +10,70 @@ use Illuminate\Support\Facades\Storage;
 beforeEach(function () {
     $this->oldPath = 'old/path/to/file.jpg';
     $this->newPath = 'new/path/to/file.jpg';
+});
 
-    $circuitBreaker = $this->mock(CircuitBreaker::class);
-    $this->fileMover = Reflect::on(new FileMover($circuitBreaker));
+it('rolls back a move operation', function () {
+    // File has been copied to new path
+    $this->mover->shouldReceive('fileExists')
+        ->once()
+        ->with($this->disk, $this->newPath)
+        ->andReturnTrue();
+
+    // File does not exist at old path
+    $this->mover->shouldReceive('fileExists')
+        ->once()
+        ->with($this->disk, $this->oldPath)
+        ->andReturnFalse();
+
+    // Copy the file back to the old path
+    $this->mover->shouldReceive('copyFile')
+        ->once()
+        ->with($this->disk, $this->newPath, $this->oldPath);
+
+    // File now exists at old path
+    $this->mover->shouldReceive('fileExists')
+        ->once()
+        ->with($this->disk, $this->oldPath)
+        ->andReturnTrue();
+
+    // Delete the file at new path
+    $this->mover->shouldReceive('deleteFile')
+        ->once()
+        ->with($this->disk, $this->newPath);
+
+    $this->mover->performUndo($this->disk, $this->oldPath, $this->newPath);
 });
 
 it('does nothing if the file marked for deletion does not exist', function () {
-    $diskMock = \Mockery::mock();
-    $diskMock->shouldReceive('exists')->andReturnFalse();
-    $diskMock->shouldReceive('size')->andReturn(0);
+    $this->mover->shouldReceive('fileExists')
+        ->once()
+        ->with($this->disk, $this->newPath)
+        ->andReturnFalse();
 
-    Storage::shouldReceive('disk')
-        ->andReturn($diskMock);
-
-    $this->fileMover->performUndo($this->disk, $this->oldPath, $this->newPath);
+    $this->mover->performUndo($this->disk, $this->oldPath, $this->newPath);
 
     // If we get here without exception, the test passes.
     expect(true)->toBeTrue();
 });
 
 it('throws an exception when it fails to restore the file to its original location', function () {
-    $diskMock = \Mockery::mock();
-    $diskMock->shouldReceive('exists')
+    // File has been copied to new path
+    $this->mover->shouldReceive('fileExists')
         ->once()
-        ->with($this->newPath)
+        ->with($this->disk, $this->newPath)
         ->andReturnTrue();
-    $diskMock->shouldReceive('exists')
+
+    // File does not exist at old path
+    $this->mover->shouldReceive('fileExists')
         ->twice()
-        ->with($this->oldPath)
+        ->with($this->disk, $this->oldPath)
         ->andReturnFalse();
-    $diskMock->shouldReceive('size')->andReturn(100);
-    $diskMock->shouldReceive('copy')->andReturnFalse();
 
-    Storage::shouldReceive('disk')
-        ->andReturn($diskMock);
+    // Copy the file back to the old path
+    $this->mover->shouldReceive('copyFile')
+        ->once()
+        ->with($this->disk, $this->newPath, $this->oldPath);
 
-    expect(fn () => $this->fileMover->performUndo($this->disk, $this->oldPath, $this->newPath))
-        ->toThrow(new \Exception('Failed to restore file to original location.'));
+    expect(fn () => $this->mover->performUndo($this->disk, $this->oldPath, $this->newPath))
+        ->toThrow(\Exception::class, 'Failed to restore file to original location.');
 });

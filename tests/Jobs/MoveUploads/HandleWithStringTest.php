@@ -101,14 +101,9 @@ it('handles empty model string attribute gracefully', function () {
 });
 
 it('broadcasts failure event when single file move fails', function () {
-    $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
-    $diskMock
-        ->shouldReceive('copy')
+    Storage::shouldReceive('disk')->with($this->disk)->andReturnSelf();
+    Storage::shouldReceive('copy')
         ->andThrow(new \Exception('File copy failed.'));
-
-    Storage::shouldReceive('disk')
-        ->with($this->disk)
-        ->andReturn($diskMock);
 
     $this->job->handle();
 

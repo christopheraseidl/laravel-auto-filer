@@ -121,16 +121,12 @@ it('handles empty array attribute gracefully', function () {
 });
 
 it('broadcasts failure event when moving array fails', function () {
-    $diskMock = \Mockery::mock(Storage::disk($this->disk))->makePartial();
-    $diskMock
-        ->shouldReceive('copy')
+    Storage::shouldReceive('disk')->with($this->disk)->andReturnSelf();
+    Storage::shouldReceive('copy')
         ->andThrow(new \Exception('File move failed.'));
 
-    Storage::shouldReceive('disk')
-        ->with($this->disk)
-        ->andReturn($diskMock);
-
-    $this->job->handle();
+    expect(fn () => $this->job->handle())
+        ->toThrow(\Exception::class, 'Failed to move file after 3 attempts.');
 
     Event::assertDispatched(FileOperationFailed::class, function ($event) {
         return $event->exception->getMessage() === 'Failed to move file after 3 attempts.';

@@ -13,6 +13,7 @@ use christopheraseidl\ModelFiler\Jobs\Validators\BuilderValidator;
 use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
 use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryPayloadContract;
 use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploadsPayloadContract;
+use christopheraseidl\ModelFiler\Payloads\Contracts\MoveUploads as MoveUploadsPayloadContract;
 use christopheraseidl\ModelFiler\Services\FileService;
 use christopheraseidl\ModelFiler\Tests\TestCase;
 use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
@@ -159,6 +160,19 @@ uses()->beforeEach(function () {
     });
 })->in('Jobs/DeleteUploads');
 
+// Jobs/MoveUploads
+uses()->beforeEach(function () {
+    $this->path = 'test_models/1';
+    $this->payload = $this->mock(MoveUploadsPayloadContract::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getDisk')->andReturn($this->disk);
+        $mock->shouldReceive('getPath')->andReturn($this->path);
+    });
+
+    $this->job = $this->partialMock(DeleteUploads::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getPayload')->andReturn($this->payload);
+    });
+})->in('Jobs/DeleteUploads');
+
 // Jobs/Job
 uses()->beforeEach(function () {
     $this->payload = new TestPayloadNoConstructor;
@@ -188,6 +202,11 @@ uses()->beforeEach(function () {
     $this->mover = $this->partialMock(FileMover::class);
     $this->mover->shouldReceive('getBreaker')
         ->andReturn($this->breaker);
+
+    $name = 'test.txt';
+    $this->oldPath = "uploads/{$name}";
+    $this->newDir = 'new/dir';
+    $this->newPath = "{$this->newDir}/{$name}";
 })->in('Jobs/Services/FileMover');
 
 // Jobs/Services/FileService

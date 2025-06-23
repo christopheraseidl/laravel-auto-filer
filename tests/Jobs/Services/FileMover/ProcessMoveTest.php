@@ -2,21 +2,12 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileMover;
 
-use Illuminate\Support\Facades\Log;
-
 /**
  * Tests FileMover processMove method behavior.
  *
  * @covers \christopheraseidl\ModelFiler\Jobs\Services\FileMover
  */
-beforeEach(function () {
-    $name = 'test.txt';
-    $this->oldPath = "uploads/{$name}";
-    $this->newDir = 'new/dir';
-    $this->newPath = "{$this->newDir}/{$name}";
-});
-
-it('logs warnings, calls handleMoveFailure, and succeeds after 1-2 failures when maxAttempts is 3', function (int $failures) {
+it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures) {
     $count = 0;
 
     $this->breaker->shouldReceive('canAttempt')->andReturnTrue();
@@ -26,21 +17,13 @@ it('logs warnings, calls handleMoveFailure, and succeeds after 1-2 failures when
         ->andReturnUsing(function () use (&$count, $failures) {
             $count++;
             if ($count <= $failures) {
-                throw new \Exception('Move failed.');
+                throw new \Exception('Move failed');
             }
 
             return $this->newPath;
         });
 
-    Log::shouldReceive('warning')->times($failures);
-
-    $this->mover->shouldReceive('handleMoveFailure')->times($failures);
-
-    $this->breaker->shouldReceive('maxAttemptsReached')->andReturnUsing(function () use ($count) {
-        if ($count <= 3) {
-            return false;
-        }
-    });
+    $this->mover->shouldReceive('handleProcessMoveCaughtException')->times($failures);
 
     $maxAttempts = 3;
 
@@ -52,22 +35,18 @@ it('logs warnings, calls handleMoveFailure, and succeeds after 1-2 failures when
     2,
 ]);
 
-it('logs an error, records a circuit breaker failure, and throws last exception when max attempts reached', function () {
+it('handles a move failure when no exception is thrown', function () {
     $maxAttempts = 3;
 
-    $this->breaker->shouldReceive('canAttempt')->andReturnTrue();
+    $this->breaker->shouldReceive('canAttempt')->andReturnFalse();
 
-    $this->mover->shouldReceive('performMove')
-        ->times($maxAttempts)
-        ->andThrow(\Exception::class, 'Move failed');
+    $this->mover->shouldReceive('performMove')->never();
 
-    Log::shouldReceive('warning')->times($maxAttempts);
+    $this->mover->shouldReceive('handleProcessMoveFailure')
+        ->once()
+        ->with(0, 3, null);
 
-    $this->mover->shouldReceive('handleMoveFailure')->times($maxAttempts);
+    $result = $this->mover->processMove($this->disk, $this->oldPath, $this->newPath, $maxAttempts);
 
-    $this->breaker->shouldReceive('maxAttemptsReached')->once()->andReturnTrue();
-    $this->breaker->shouldReceive('recordFailure')->once();
-
-    expect(fn () => $this->mover->processMove($this->disk, $this->oldPath, $this->newPath, $maxAttempts))
-        ->toThrow(\Exception::class, 'Move failed');
+    expect($result)->toBeEmpty();
 });

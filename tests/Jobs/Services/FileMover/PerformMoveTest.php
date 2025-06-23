@@ -2,47 +2,33 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileMover;
 
-use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
-use christopheraseidl\ModelFiler\Jobs\Services\FileMover;
-use christopheraseidl\Reflect\Reflect;
-use Illuminate\Support\Facades\Storage;
-use Mockery\MockInterface;
-
 /**
  * Tests FileMover performMove method behavior.
  *
  * @covers \christopheraseidl\ModelFiler\Jobs\Services\FileMover
  */
-beforeEach(function () {
-    $name = 'test.txt';
-    $this->oldPath = "uploads/{$name}";
-    $this->newDir = 'new/dir';
-    $this->newPath = "{$this->newDir}/{$name}";
-});
+it('moves a file and returns the new path', function () {
+    $this->mover->shouldReceive('generateUniqueFileName')
+        ->once()
+        ->with($this->disk, $this->newPath)
+        ->andReturn($this->newPath);
+    $this->mover->shouldReceive('copyFile')
+        ->once()
+        ->with($this->disk, $this->oldPath, $this->newPath);
+    $this->mover->shouldReceive('validateCopiedFile')
+        ->once()
+        ->with($this->disk, $this->newPath);
+    $this->mover->shouldReceive('deleteFile')
+        ->once()
+        ->with($this->disk, $this->oldPath);
+    $this->mover->shouldReceive('commitMovedFile')
+        ->once()
+        ->with($this->oldPath, $this->newPath)
+        ->andReturn($this->newPath);
 
-it('records a circuit breaker failure and throws an exception when copied file not found at destination', function () {
-    $breakerMock = $this->mock(CircuitBreaker::class, function (MockInterface $mock) {
-        $mock->shouldReceive('recordFailure')->once();
-    });
+    $this->breaker->shouldReceive('recordSuccess')->once();
 
-    $mover = new FileMover($breakerMock);
-    $moverReflection = Reflect::on($mover);
+    $result = $this->mover->performMove($this->disk, $this->oldPath, $this->newPath);
 
-    // Mock the storage operations
-    $diskMock = \Mockery::mock();
-    $diskMock->shouldReceive('copy')
-        ->andReturn(true);
-    $diskMock->shouldReceive('exists')
-        ->with($this->newPath)
-        ->andReturnFalse();
-    $diskMock->shouldReceive('size')
-        ->with($this->newPath)
-        ->andReturn(0);
-
-    Storage::shouldReceive('disk')
-        ->with($this->disk)
-        ->andReturn($diskMock);
-
-    expect(fn () => $moverReflection->performMove($this->disk, $this->oldPath, $this->newPath))
-        ->toThrow(new \Exception('Copy succeeded but file not found at destination.'));
+    expect($result)->toBe($this->newPath);
 });

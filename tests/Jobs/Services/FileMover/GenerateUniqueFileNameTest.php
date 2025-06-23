@@ -2,27 +2,12 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileMover;
 
-use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker;
-use christopheraseidl\ModelFiler\Jobs\Services\FileMover;
-use christopheraseidl\Reflect\Reflect;
-use Illuminate\Support\Facades\Storage;
-use Mockery\MockInterface;
-
-beforeEach(function () {
-    $breaker = $this->mock(CircuitBreaker::class);
-    $mover = new FileMover($breaker);
-    $this->mover = Reflect::on($mover);
-});
-
+/**
+ * Tests FileMover generateUniqueFileName method behavior.
+ *
+ * @covers \christopheraseidl\ModelFiler\Jobs\Services\FileMover
+ */
 it('returns unique path without modification', function () {
-    $mockDisk = $this->mock('disk', function (MockInterface $mock) {
-        $mock->shouldReceive('exists')
-            ->andReturnFalse();
-    });
-
-    Storage::shouldReceive('disk')
-        ->andReturn($mockDisk);
-
     $path = 'path/to/file.jpg';
 
     $result = $this->mover->generateUniqueFileName($this->disk, $path);
@@ -31,23 +16,19 @@ it('returns unique path without modification', function () {
 });
 
 it('returns correct path if other files exist', function (int $numberOfFilesWithSameName) {
-    $diskMock = $this->mock('disk', function (MockInterface $mock) use ($numberOfFilesWithSameName) {
-        $count = 0;
+    $count = 0;
 
-        $mock->shouldReceive('exists')
-            ->andReturnUsing(function () use (&$count, $numberOfFilesWithSameName) {
-                $count++;
+    $this->mover->shouldReceive('fileExists')
+        ->times($numberOfFilesWithSameName + 1)
+        ->andReturnUsing(function () use (&$count, $numberOfFilesWithSameName) {
+            $count++;
 
-                if ($count <= $numberOfFilesWithSameName) {
-                    return true;
-                }
+            if ($count <= $numberOfFilesWithSameName) {
+                return true;
+            }
 
-                return false;
-            });
-    });
-
-    Storage::shouldReceive('disk')
-        ->andReturn($diskMock);
+            return false;
+        });
 
     $path = 'path/to/file.jpg';
 
