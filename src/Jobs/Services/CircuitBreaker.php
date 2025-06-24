@@ -324,9 +324,10 @@ class CircuitBreaker implements CircuitBreakerContract
      */
     public function isValidEmail(): bool
     {
-        if (! $this->adminEmail || ! is_string($this->adminEmail)) {
+        if (! $this->adminEmail) {
             return false;
         }
+
         return filter_var($this->adminEmail, FILTER_VALIDATE_EMAIL) !== false;
     }
 
