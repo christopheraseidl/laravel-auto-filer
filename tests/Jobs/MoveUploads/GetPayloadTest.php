@@ -1,5 +1,7 @@
 <?php
 
+namespace christopheraseidl\ModelFiler\Tests\Jobs\MoveUploads;
+
 use christopheraseidl\ModelFiler\Enums\OperationScope;
 use christopheraseidl\ModelFiler\Enums\OperationType;
 use christopheraseidl\ModelFiler\Jobs\MoveUploads;
@@ -11,28 +13,28 @@ use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
  *
  * @covers \christopheraseidl\ModelFiler\Jobs\MoveUploads
  */
-beforeEach(function () {
+it('gets the expected payload', function () {
     $model = new TestModel;
-    $this->attribute = 'string';
-    $this->attributeType = 'images';
-    $this->filePaths = ['file.txt'];
-    $this->newDir = 'test_models/1';
+
+    $attribute = 'string';
+    $attributeType = 'images';
+    $filePaths = ['file.txt'];
+    $newDir = 'test_models/1';
+
     $this->payload = new MoveUploadsPayload(
         $model::class,
         1,
-        $this->attribute,
-        $this->attributeType,
+        $attribute,
+        $attributeType,
         OperationType::Move,
         OperationScope::File,
         $this->disk,
-        $this->filePaths,
-        $this->newDir
+        $filePaths,
+        $newDir
     );
 
     $this->job = new MoveUploads($this->payload);
-});
 
-it('gets the expected payload', function () {
     $payload = $this->job->getPayload();
     expect($payload)
         ->toBeInstanceOf(MoveUploadsPayload::class)

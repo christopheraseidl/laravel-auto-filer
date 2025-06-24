@@ -11,4 +11,9 @@ use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploa
 interface DeleteUploads extends DeletesFiles, Job
 {
     public function __construct(DeleteUploadsContract $payload);
+
+    /**
+     * Execute file deletion operation.
+     */
+    public function executeDeletion(): void;
 }

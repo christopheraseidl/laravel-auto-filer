@@ -7,6 +7,7 @@ use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploadDirectory as DeleteU
 use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
 use christopheraseidl\ModelFiler\Jobs\DeleteUploadDirectory;
 use christopheraseidl\ModelFiler\Jobs\DeleteUploads;
+use christopheraseidl\ModelFiler\Jobs\MoveUploads;
 use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
 use christopheraseidl\ModelFiler\Jobs\Services\FileMover;
 use christopheraseidl\ModelFiler\Jobs\Validators\BuilderValidator;
@@ -162,16 +163,12 @@ uses()->beforeEach(function () {
 
 // Jobs/MoveUploads
 uses()->beforeEach(function () {
-    $this->path = 'test_models/1';
-    $this->payload = $this->mock(MoveUploadsPayloadContract::class, function (MockInterface $mock) {
-        $mock->shouldReceive('getDisk')->andReturn($this->disk);
-        $mock->shouldReceive('getPath')->andReturn($this->path);
-    });
+    $this->payload = $this->mock(MoveUploadsPayloadContract::class);
 
-    $this->job = $this->partialMock(DeleteUploads::class, function (MockInterface $mock) {
+    $this->mover = $this->partialMock(MoveUploads::class, function (MockInterface $mock) {
         $mock->shouldReceive('getPayload')->andReturn($this->payload);
     });
-})->in('Jobs/DeleteUploads');
+})->in('Jobs/MoveUploads');
 
 // Jobs/Job
 uses()->beforeEach(function () {

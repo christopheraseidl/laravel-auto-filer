@@ -27,10 +27,18 @@ class DeleteUploads extends Job implements DeleteUploadsContract
     public function handle(): void
     {
         $this->handleJob(function () {
-            foreach ($this->getPayload()->getFilePaths() ?? [] as $file) {
-                $this->getDeleter()->attemptDelete($this->getPayload()->getDisk(), $file);
-            }
+            $this->executeDeletion();
         });
+    }
+
+    /**
+     * Execute file deletion operation.
+     */
+    public function executeDeletion(): void
+    {
+        foreach ($this->getPayload()->getFilePaths() ?? [] as $file) {
+            $this->getDeleter()->attemptDelete($this->getPayload()->getDisk(), $file);
+        }
     }
 
     /**

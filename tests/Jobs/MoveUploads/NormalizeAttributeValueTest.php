@@ -5,14 +5,6 @@
  *
  * @covers \christopheraseidl\ModelFiler\Jobs\MoveUploads
  */
-
-use christopheraseidl\ModelFiler\Enums\OperationScope;
-use christopheraseidl\ModelFiler\Enums\OperationType;
-use christopheraseidl\ModelFiler\Jobs\MoveUploads;
-use christopheraseidl\ModelFiler\Payloads\MoveUploads as MoveUploadsPayload;
-use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
-use christopheraseidl\Reflect\Reflect;
-
 beforeEach(function () {
     $this->string = 'string';
     $this->stringType = 'images';
@@ -26,68 +18,25 @@ it('returns a string without modification', function () {
     $this->model->{$this->string} = $originalAttribute;
     $this->model->saveQuietly();
 
-    $payload = new MoveUploadsPayload(
-        TestModel::class,
-        1,
-        $this->string,
-        $this->stringType,
-        OperationType::Move,
-        OperationScope::File,
-        $this->disk,
-        [$originalAttribute],
-        $this->newDir
-    );
+    $result = $this->mover->normalizeAttributeValue($this->model, $this->string);
 
-    $job = Reflect::on(new MoveUploads($payload));
-
-    $attribute = $job->normalizeAttributeValue($this->model, $this->string);
-
-    expect($attribute)->toBe($originalAttribute);
+    expect($result)->toBe($originalAttribute);
 });
 
 it('gracefully handles a null attribute', function () {
-    $originalAttribute = 'my_file.txt';
+    $result = $this->mover->normalizeAttributeValue($this->model, $this->string);
 
-    $payload = new MoveUploadsPayload(
-        TestModel::class,
-        1,
-        $this->string,
-        $this->stringType,
-        OperationType::Move,
-        OperationScope::File,
-        $this->disk,
-        [$originalAttribute],
-        $this->newDir
-    );
-
-    $job = Reflect::on(new MoveUploads($payload));
-
-    $attribute = $job->normalizeAttributeValue($this->model, $this->string);
-
-    expect($attribute)->toBeNull();
+    // No value has been assigned to $this->model->string, so the result is null
+    expect($result)->toBeNull();
 });
 
 it('converts a model attribute currently set to a single-element array but cast as a string from an array to a string', function () {
     $originalAttribute = 'my_file.txt';
     $this->model->{$this->string} = [$originalAttribute];
 
-    $payload = new MoveUploadsPayload(
-        TestModel::class,
-        1,
-        $this->string,
-        $this->stringType,
-        OperationType::Move,
-        OperationScope::File,
-        $this->disk,
-        [$originalAttribute],
-        $this->newDir
-    );
+    $result = $this->mover->normalizeAttributeValue($this->model, $this->string);
 
-    $job = Reflect::on(new MoveUploads($payload));
-
-    $attribute = $job->normalizeAttributeValue($this->model, $this->string);
-
-    expect($attribute)->toBe($originalAttribute);
+    expect($result)->toBe($originalAttribute);
 });
 
 it('returns a model attribute cast as an array without modification', function () {
@@ -99,23 +48,9 @@ it('returns a model attribute cast as an array without modification', function (
     $this->model->{$this->array} = $originalAttribute;
     $this->model->saveQuietly();
 
-    $payload = new MoveUploadsPayload(
-        TestModel::class,
-        1,
-        $this->array,
-        $this->arrayType,
-        OperationType::Move,
-        OperationScope::File,
-        $this->disk,
-        $originalAttribute,
-        $this->newDir
-    );
+    $result = $this->mover->normalizeAttributeValue($this->model, $this->array);
 
-    $job = Reflect::on(new MoveUploads($payload));
-
-    $attribute = $job->normalizeAttributeValue($this->model, $this->array);
-
-    expect($attribute)->toBe($originalAttribute);
+    expect($result)->toBe($originalAttribute);
 });
 
 it('throws an exception when a model attribute cast as a string is saved as an array and has more than 1 element', function () {
@@ -127,20 +62,6 @@ it('throws an exception when a model attribute cast as a string is saved as an a
 
     $this->model->{$this->string} = $originalAttribute;
 
-    $payload = new MoveUploadsPayload(
-        TestModel::class,
-        1,
-        $this->string,
-        $this->stringType,
-        OperationType::Move,
-        OperationScope::File,
-        $this->disk,
-        $originalAttribute,
-        $this->newDir
-    );
-
-    $job = Reflect::on(new MoveUploads($payload));
-
-    expect(fn () => $job->normalizeAttributeValue($this->model, $this->string))
+    expect(fn () => $this->mover->normalizeAttributeValue($this->model, $this->string))
         ->toThrow(\Exception::class, 'The attribute is being treated as an array but is not cast as an array in the model.');
 });

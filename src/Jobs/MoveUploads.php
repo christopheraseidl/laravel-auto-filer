@@ -8,6 +8,7 @@ use christopheraseidl\ModelFiler\Jobs\Contracts\FileMover;
 use christopheraseidl\ModelFiler\Jobs\Contracts\MoveUploads as MoveUploadsContract;
 use christopheraseidl\ModelFiler\Payloads\Contracts\MoveUploads as MoveUploadsPayload;
 use christopheraseidl\ModelFiler\Support\FileOperationType;
+use christopheraseidl\ModelFiler\Traits\HasFileMover;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Log;
  */
 class MoveUploads extends Job implements MoveUploadsContract
 {
-    protected FileMover $mover;
+    use HasFileMover;
 
     public function __construct(
         private readonly MoveUploadsPayload $payload
@@ -27,35 +28,50 @@ class MoveUploads extends Job implements MoveUploadsContract
     }
 
     /**
-     * Execute file move operation within database transaction.
+     * Execute file move operation within Job's handleJob() wrapper.
      */
     public function handle(): void
     {
         $this->handleJob(function () {
-            DB::transaction(function () {
-                $model = $this->getPayload()->resolveModel();
-                $attribute = $this->getPayload()->getModelAttribute();
-                $originalFiles = Arr::wrap($model->{$attribute});
-                $filesToMove = $this->getPayload()->getFilePaths();
-                $unmovedFiles = array_diff($originalFiles, $filesToMove);
-
-                $movedFiles = array_map(
-                    function ($oldPath) {
-                        return $this->mover->attemptMove(
-                            $this->getPayload()->getDisk(),
-                            $oldPath,
-                            $this->getPayload()->getNewDir());
-                    },
-                    $filesToMove
-                );
-
-                // Combine unmoved and moved files
-                $model->{$attribute} = $this->arrayMerge($unmovedFiles, $movedFiles);
-                $model->{$attribute} = $this->normalizeAttributeValue($model, $attribute);
-
-                $model->saveQuietly(); // Skip model events during file move
-            });
+            $this->executeMove();
         });
+    }
+
+    /**
+     * Execute file move operation within database transaction.
+     */
+    public function executeMove(): void
+    {
+        DB::transaction(function () {
+            $model = $this->getPayload()->resolveModel();
+            $attribute = $this->getPayload()->getModelAttribute();
+            $originalFiles = Arr::wrap($model->{$attribute});
+            $filesToMove = $this->getPayload()->getFilePaths();
+            $unmovedFiles = $this->arrayDiff($originalFiles, $filesToMove);
+            $movedFiles = $this->moveFiles($filesToMove);
+
+            // Combine unmoved and moved files
+            $model->{$attribute} = $this->arrayMerge($unmovedFiles, $movedFiles);
+            $model->{$attribute} = $this->normalizeAttributeValue($model, $attribute);
+
+            $model->saveQuietly(); // Skip model events during file move
+        });
+    }
+
+    /**
+     * Move an array of files and return their new paths.
+     */
+    public function moveFiles(array $filesToMove): array
+    {
+        return array_map(
+            function ($oldPath) {
+                return $this->getMover()->attemptMove(
+                    $this->getPayload()->getDisk(),
+                    $oldPath,
+                    $this->getPayload()->getNewDir());
+            },
+            $filesToMove
+        );
     }
 
     /**
@@ -98,20 +114,28 @@ class MoveUploads extends Job implements MoveUploadsContract
         return $this->payload;
     }
 
-    protected function config()
+    /**
+     * Get the array difference, remove empty values, and reindex result.
+     */
+    public function arrayDiff(array $array1, array $array2): array
     {
-        parent::config();
-
-        $this->mover = app()->make(FileMover::class); // Initialize file mover service
+        return array_values(array_diff($array1, $array2));
     }
 
     /**
      * Merge arrays, remove empty values, and reindex result.
      */
-    private function arrayMerge(array $array1, array $array2): array
+    public function arrayMerge(array $array1, array $array2): array
     {
         return array_values(array_filter(
             array_merge($array1, $array2)
         ));
+    }
+
+    protected function config()
+    {
+        parent::config();
+
+        $this->mover = app()->make(FileMover::class); // Initialize file mover service
     }
 }
