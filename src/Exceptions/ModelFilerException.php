@@ -6,7 +6,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class BaseException extends Exception
+class ModelFilerException extends Exception
 {
     public function __construct(
         string $message = '',

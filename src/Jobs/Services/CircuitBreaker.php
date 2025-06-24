@@ -63,9 +63,7 @@ class CircuitBreaker implements CircuitBreakerContract
             }
 
             if ($this->isOpen()) {
-                $openedAt = Cache::get($this->getKey('opened_at'));
-
-                if ($openedAt && (now()->timestamp - $openedAt) >= $this->recoveryTimeout) {
+                if ($this->timeoutHasPassed()) {
                     $this->transitionToHalfOpen();
 
                     return true;
@@ -75,16 +73,14 @@ class CircuitBreaker implements CircuitBreakerContract
             }
 
             if ($this->isHalfOpen()) {
-                $attempts = Cache::get($this->getKey('half_open_attempts'), 0);
-
-                return $attempts < $this->halfOpenMaxAttempts;
+                return ! $this->maxHalfOpenAttemptsReached();
             }
 
             return false;
         } catch (\Exception $e) {
             Log::warning('CircuitBreaker cache failure, failing open', [
                 'breaker' => $this->name,
-                'error' => $e->getMessage(),
+                'exception' => $e->getMessage(),
             ]);
 
             return false;
@@ -106,7 +102,7 @@ class CircuitBreaker implements CircuitBreakerContract
         } catch (\Exception $e) {
             Log::warning('CircuitBreaker cache failure on recordSuccess', [
                 'breaker' => $this->name,
-                'error' => $e->getMessage(),
+                'exception' => $e->getMessage(),
             ]);
         }
     }
@@ -120,14 +116,14 @@ class CircuitBreaker implements CircuitBreakerContract
             $failures = Cache::get($this->getKey('failures'), 0) + 1;
             $this->setKey('failures', $failures);
 
-            if ($this->isClosed() && $failures >= $this->failureThreshold) {
+            if ($this->isClosed() && $this->maxAttemptsReached($failures, $this->failureThreshold)) {
                 $this->transitionToOpen();
                 $this->sendAdminNotification("Circuit breaker opened after {$failures} failures.");
             } elseif ($this->isHalfOpen()) {
                 Cache::increment($this->getKey('half_open_attempts'));
                 $halfOpenAttempts = Cache::get($this->getKey('half_open_attempts'), 0);
 
-                if ($halfOpenAttempts >= $this->halfOpenMaxAttempts) {
+                if ($this->maxAttemptsReached($halfOpenAttempts, $this->halfOpenMaxAttempts)) {
                     $this->transitionToOpen();
                     $this->sendAdminNotification("Circuit breaker reopened after {$halfOpenAttempts} half-open attempts.");
                 }
@@ -151,7 +147,7 @@ class CircuitBreaker implements CircuitBreakerContract
         } catch (\Exception $e) {
             Log::warning('CircuitBreaker cache failure during reset', [
                 'breaker' => $this->name,
-                'error' => $e->getMessage(),
+                'exception' => $e->getMessage(),
             ]);
         }
     }
@@ -196,6 +192,16 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
+     * Determine if maximum half-open retry attempts have been reached.
+     */
+    public function maxHalfOpenAttemptsReached(): bool
+    {
+        $attempts = Cache::get($this->getKey('half_open_attempts'), 0);
+
+        return $this->maxAttemptsReached($attempts, $this->halfOpenMaxAttempts);
+    }
+
+    /**
      * Transition circuit to open state when failure threshold is exceeded.
      */
     public function transitionToOpen(): void
@@ -232,6 +238,22 @@ class CircuitBreaker implements CircuitBreakerContract
     }
 
     /**
+     * Determine whether the timeout period has passed.
+     */
+    public function timeoutHasPassed(): bool
+    {
+        $openedAt = Cache::get($this->getKey('opened_at'));
+
+        if ($openedAt && (now()->timestamp - $openedAt) >= $this->recoveryTimeout) {
+            $this->transitionToHalfOpen();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Generate cache key for storing circuit breaker state data.
      */
     public function getKey(string $name): string
@@ -262,7 +284,7 @@ class CircuitBreaker implements CircuitBreakerContract
      */
     public function sendAdminNotification(string $message): void
     {
-        if (! $this->emailNotificationEnabled || ! $this->adminEmail) {
+        if (! $this->isEmailNotificationEnabled() || ! $this->isValidEmail()) {
             return;
         }
 
@@ -273,7 +295,7 @@ class CircuitBreaker implements CircuitBreakerContract
             Mail::raw(
                 $this->buildEmailContent($message, $stats),
                 function ($mail) use ($subject) {
-                    $mail->to($this->adminEmail)
+                    $mail->to($this->getAdminEmail())
                         ->subject($subject);
                 }
             );
@@ -284,9 +306,36 @@ class CircuitBreaker implements CircuitBreakerContract
         } catch (\Exception $e) {
             Log::error('Failed to send circuit breaker notification.', [
                 'breaker' => $this->name,
-                'error' => $e->getMessage(),
+                'exception' => $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Determine whether email notification is enabled.
+     */
+    public function isEmailNotificationEnabled(): bool
+    {
+        return $this->emailNotificationEnabled;
+    }
+
+    /**
+     * Determine whether email exists and is valid.
+     */
+    public function isValidEmail(): bool
+    {
+        if (! $this->adminEmail || ! is_string($this->adminEmail)) {
+            return false;
+        }
+        return filter_var($this->adminEmail, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    /**
+     * Get the admin email.
+     */
+    public function getAdminEmail(): ?string
+    {
+        return $this->adminEmail;
     }
 
     /**

@@ -38,17 +38,17 @@ it('does not broadcast completion event on success when broadcasting disabled', 
 });
 
 it('broadcasts failure event on failure when broadcasting enabled', function () {
-    $this->job->handleJob(function () {
+    expect(fn () => $this->job->handleJob(function () {
         throw new \Exception('Job failure.');
-    });
+    }))->toThrow(\Exception::class);
 
     Event::assertDispatched(FileOperationFailed::class);
 });
 
 it('does not broadcast failure event on success when broadcasting disabled', function () {
-    $this->jobWithouBroadcast->handleJob(function () {
+    expect(fn () => $this->jobWithoutBroadcast->handleJob(function () {
         throw new \Exception('Job failure.');
-    });
+    }))->toThrow(\Exception::class);
 
     Event::assertNotDispatched(FileOperationFailed::class);
 });

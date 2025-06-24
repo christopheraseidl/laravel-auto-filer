@@ -7,7 +7,7 @@ use christopheraseidl\ModelFiler\Tests\TestTraits\ModelUpdateHandlerHelpers;
 uses(ModelUpdateHandlerHelpers::class);
 
 /**
- * Tests ModelUpdateHandler createJobsFromAttribute() method with an empty
+ * Tests ModelUpdateHandler createJobsFromAttribute method with an empty
  * attribute (whether string or array).
  *
  * @covers \christopheraseidl\ModelFiler\Handlers\ModelUpdateHandler

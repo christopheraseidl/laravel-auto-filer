@@ -23,7 +23,7 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
             return $this->newPath;
         });
 
-    $this->mover->shouldReceive('handleProcessMoveCaughtException')->times($failures);
+    $this->mover->shouldReceive('handleProcessMoveException')->times($failures);
 
     $maxAttempts = 3;
 

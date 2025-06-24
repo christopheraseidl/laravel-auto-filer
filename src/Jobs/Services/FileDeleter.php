@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Handles file deletion operations with retry logic and circuit breaker protection.
+ * Handles file deletions with retry logic and circuit breaker protection.
  */
 class FileDeleter extends FileOperator implements FileDeleterContract
 {
@@ -26,6 +26,14 @@ class FileDeleter extends FileOperator implements FileDeleterContract
             'path' => $path,
         ]);
 
+        return $this->processDeletion($disk, $path, $maxAttempts);
+    }
+
+    /**
+     * Process single file deletion with retry logic.
+     */
+    public function processDeletion(string $disk, string $path, int $maxAttempts): bool
+    {
         $lastException = null;
         $attempts = 0;
 
@@ -36,37 +44,30 @@ class FileDeleter extends FileOperator implements FileDeleterContract
                 $attempts++;
                 $lastException = $e;
 
-                Log::warning("File delete attempt {$attempts} failed.", [
-                    'disk' => $disk,
-                    'path' => $path,
-                    'error' => $e->getMessage(),
-                    'attempt' => $attempts,
-                    'max_attempts' => $maxAttempts,
-                ]);
-
-                $this->handleDeletionFailure($attempts, $maxAttempts);
+                $this->handleProcessDeletionException($disk, $path, $attempts, $maxAttempts, $lastException->getMessage());
             }
         }
 
-        $this->getBreaker()->recordFailure();
+        $this->handleDeletionFailure($disk, $path, $attempts, $lastException?->getMessage());
 
-        Log::error("File deletion failed after {$attempts} attempts.", [
-            'disk' => $disk,
-            'path' => $path,
-            'max_attempts' => $attempts,
-            'last_error' => $lastException?->getMessage(),
-        ]);
-
-        throw new \Exception("Failed to delete file after {$attempts} attempts.");
+        return false;
     }
 
     /**
-     * Execute deletion operation and update circuit breaker state.
+     * Execute deletion and validate the result.
      */
     public function performDeletion(string $disk, string $path): bool
     {
         $result = $this->deleteDirectoryOrFile($disk, $path);
 
+        return $this->handleDeletionResult($result);
+    }
+
+    /**
+     * Handle the result of a deletion.
+     */
+    public function handleDeletionResult(bool $result): bool
+    {
         if ($result) {
             $this->getBreaker()->recordSuccess();
 
@@ -74,20 +75,45 @@ class FileDeleter extends FileOperator implements FileDeleterContract
         } else {
             $this->getBreaker()->recordFailure();
 
-            throw new \Exception('Deletion operation returned false.');
+            throw new \Exception('Deletion returned false.');
         }
     }
 
     /**
-     * Handle deletion failure between retry attempts.
+     * Handle caught process deletion exception between retry attempts.
      */
-    public function handleDeletionFailure(int $attempts, int $maxAttempts): void
+    public function handleProcessDeletionException(string $disk, string $path, int $attempts, int $maxAttempts, string $exceptionMessage): void
     {
+        Log::warning("File delete attempt {$attempts} failed.", [
+            'disk' => $disk,
+            'path' => $path,
+            'exception' => $exceptionMessage,
+            'attempt' => $attempts,
+            'max_attempts' => $maxAttempts,
+        ]);
+
         if ($this->getBreaker()->maxAttemptsReached($attempts, $maxAttempts) || ! $this->getBreaker()->canAttempt()) {
             return;
         }
 
         $this->waitBeforeRetry();
+    }
+
+    /**
+     * Handle process deletion failure.
+     */
+    public function handleDeletionFailure(string $disk, string $path, int $attempts, ?string $exceptionMessage = null): void
+    {
+        $this->getBreaker()->recordFailure();
+
+        Log::error("File deletion failed after {$attempts} attempts.", [
+            'disk' => $disk,
+            'path' => $path,
+            'max_attempts' => $attempts,
+            'last_exception' => $exceptionMessage ?? 'File deletion failed with FileDeleter',
+        ]);
+
+        throw new \Exception("Failed to delete file after {$attempts} attempts.");
     }
 
     /**

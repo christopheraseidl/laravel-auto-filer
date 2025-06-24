@@ -22,7 +22,7 @@ it('logs error and throws exception when attempt move fails', function () {
 
     $originalException = new \Exception('Original error message');
 
-    expect(fn () => $this->mover->handleCaughtAttemptMoveException(
+    expect(fn () => $this->mover->handleAttemptMoveException(
         'test-disk',
         $this->oldPath,
         $this->newDir,
@@ -34,7 +34,7 @@ it('logs error and throws exception when attempt move fails', function () {
 it('re-throws exception when message matches expected message', function () {
     $exception = new \Exception('Custom error message');
 
-    expect(fn () => $this->mover->handleCaughtStorageException($exception, 'Custom error message'))
+    expect(fn () => $this->mover->handleStorageException($exception, 'Custom error message'))
         ->toThrow(\Exception::class, 'Custom error message');
 
     $this->breaker->shouldNotHaveReceived('recordFailure');
@@ -46,7 +46,7 @@ it('records failure and wraps exception when message does not match', function (
 
     $originalException = new \Exception('Original error');
 
-    expect(fn () => $this->mover->handleCaughtStorageException($originalException, 'Custom message'))
+    expect(fn () => $this->mover->handleStorageException($originalException, 'Custom message'))
         ->toThrow(\Exception::class, 'Custom message. Original error');
 });
 
@@ -70,7 +70,7 @@ it('logs warning when move attempt fails and max attempts not reached', function
     $this->mover->shouldReceive('waitBeforeRetry')
         ->once();
 
-    $this->mover->handleProcessMoveCaughtException('test-disk', 2, 5, 'Test error message');
+    $this->mover->handleProcessMoveException('test-disk', 2, 5, 'Test error message');
 });
 
 it('attempts undo when max attempts reached and files were moved', function () {
@@ -94,7 +94,7 @@ it('attempts undo when max attempts reached and files were moved', function () {
         ->once()
         ->with('test-disk', 5);
 
-    $this->mover->handleProcessMoveCaughtException('test-disk', 5, 5, 'Test error message');
+    $this->mover->handleProcessMoveException('test-disk', 5, 5, 'Test error message');
 });
 
 it('logs error when undo fails during process move exception handling', function () {
@@ -118,7 +118,7 @@ it('logs error when undo fails during process move exception handling', function
         ->once()
         ->andThrow(new \Exception('Undo failed'));
 
-    $this->mover->handleProcessMoveCaughtException('test-disk', 5, 5, 'Test error message');
+    $this->mover->handleProcessMoveException('test-disk', 5, 5, 'Test error message');
 });
 
 it('records failure when max attempts reached in process move failure', function () {
@@ -164,7 +164,7 @@ it('logs warning and waits when undo attempt fails but attempts remain', functio
 
     $exception = new \Exception('Undo error');
 
-    $this->mover->handleCaughtProcessSingleUndoException(
+    $this->mover->handleProcessSingleUndoException(
         'test-disk',
         $this->oldPath,
         $this->newPath,

@@ -25,13 +25,21 @@ class DeleteUploadDirectory extends Job implements DeleteUploadDirectoryContract
     }
 
     /**
-     * Execute directory deletion operation.
+     * Execute directory deletion operation as a closure in Job's handleJob().
      */
     public function handle(): void
     {
         $this->handleJob(function () {
-            $this->getDeleter()->attemptDelete($this->getPayload()->getDisk(), $this->getPayload()->getPath());
+            $this->executeDeletion();
         });
+    }
+
+    /**
+     * Execute the directory deletion.
+     */
+    public function executeDeletion(): void
+    {
+        $this->getDeleter()->attemptDelete($this->getPayload()->getDisk(), $this->getPayload()->getPath());
     }
 
     /**

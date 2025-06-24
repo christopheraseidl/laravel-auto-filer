@@ -2,13 +2,16 @@
 
 use christopheraseidl\ModelFiler\Handlers\Services\BatchManager;
 use christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads;
+use christopheraseidl\ModelFiler\Jobs\Contracts\BuilderValidator as BuilderValidatorContract;
 use christopheraseidl\ModelFiler\Jobs\Contracts\CircuitBreaker as CircuitBreakerContract;
 use christopheraseidl\ModelFiler\Jobs\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryJobContract;
-use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter;
+use christopheraseidl\ModelFiler\Jobs\Contracts\FileDeleter as FileDeleterContract;
 use christopheraseidl\ModelFiler\Jobs\DeleteUploadDirectory;
 use christopheraseidl\ModelFiler\Jobs\DeleteUploads;
 use christopheraseidl\ModelFiler\Jobs\MoveUploads;
+use christopheraseidl\ModelFiler\Jobs\Services\Builder;
 use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
+use christopheraseidl\ModelFiler\Jobs\Services\FileDeleter;
 use christopheraseidl\ModelFiler\Jobs\Services\FileMover;
 use christopheraseidl\ModelFiler\Jobs\Validators\BuilderValidator;
 use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsPayload;
@@ -17,6 +20,7 @@ use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploa
 use christopheraseidl\ModelFiler\Payloads\Contracts\MoveUploads as MoveUploadsPayloadContract;
 use christopheraseidl\ModelFiler\Services\FileService;
 use christopheraseidl\ModelFiler\Tests\TestCase;
+use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayload;
 use christopheraseidl\ModelFiler\Tests\TestClasses\Payload\TestPayloadNoConstructor;
 use christopheraseidl\ModelFiler\Tests\TestClasses\TestJob;
 use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
@@ -117,7 +121,7 @@ uses()->beforeEach(function () {
     $this->path = '/uploads';
 
     // Create and bind the deleter mock FIRST
-    $this->deleter = $this->mock(FileDeleter::class);
+    $this->deleter = $this->mock(FileDeleterContract::class);
 
     $this->payload = $this->partialMock(CleanOrphanedUploadsPayload::class, function (MockInterface $mock) {
         $mock->shouldReceive('getDisk')->andReturn($this->disk);
@@ -177,6 +181,23 @@ uses()->beforeEach(function () {
     $this->job = new TestJob($this->payload);
 })->in('Jobs/Job');
 
+// Jobs/Services/Builder
+uses()->beforeEach(function () {
+    $this->validator = $this->mock(BuilderValidatorContract::class);
+
+    $this->builder = $this->partialMock(Builder::class, function (MockInterface $mock) {
+        $mock->shouldReceive('getValidator')->andReturn($this->validator);
+    });
+
+    $this->jobClass = TestJob::class;
+    $this->payloadClass = TestPayload::class;
+    $this->properties = [
+        'property1' => 'value1',
+        'property2' => 'value2',
+        'property3' => 123,
+    ];
+})->in('Jobs/Services/Builder');
+
 // Jobs/Services/CircuitBreaker
 uses()->beforeEach(function () {
     config(['cache.default' => 'array']);
@@ -192,6 +213,20 @@ uses()->beforeEach(function () {
     Carbon::setTestNow(now());
 })->in('Jobs/Services/CircuitBreaker');
 
+// Job/Services/FileDeleter
+uses()->beforeEach(function () {
+    $this->breaker = $this->mock(CircuitBreakerContract::class);
+
+    $this->deleter = $this->partialMock(FileDeleter::class);
+    $this->deleter->shouldReceive('getBreaker')
+        ->andReturn($this->breaker);
+
+    $name = 'test.txt';
+    $this->path = "uploads/{$name}";
+
+    $this->maxAttempts = 3;
+})->in('Jobs/Services/FileDeleter');
+
 // Job/Services/FileMover
 uses()->beforeEach(function () {
     $this->breaker = $this->mock(CircuitBreakerContract::class);
@@ -206,13 +241,13 @@ uses()->beforeEach(function () {
     $this->newPath = "{$this->newDir}/{$name}";
 })->in('Jobs/Services/FileMover');
 
-// Jobs/Services/FileService
-uses()->beforeEach(function () {
-    $this->service = new FileService;
-    $this->reflection = new \ReflectionClass($this->service);
-})->in('Jobs/Services/FileService');
-
 // Jobs/Validators/BuilderValidator
 uses()->beforeEach(function () {
     $this->validator = new BuilderValidator;
 })->in('Jobs/Validators/BuilderValidator');
+
+// Services/FileService
+uses()->beforeEach(function () {
+    $this->service = new FileService;
+    $this->reflection = new \ReflectionClass($this->service);
+})->in('Services/FileService');

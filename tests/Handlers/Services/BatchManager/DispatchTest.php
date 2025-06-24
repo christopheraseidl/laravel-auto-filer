@@ -9,7 +9,7 @@ class DispatchTestJobOne {}
 class DispatchTestJobTwo {}
 
 /**
- * Tests BatchManager dispatch() method behavior.
+ * Tests BatchManager dispatch behavior.
  *
  * @covers \christopheraseidl\ModelFiler\Handlers\Services\BatchManager
  */

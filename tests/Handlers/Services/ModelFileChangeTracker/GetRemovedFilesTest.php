@@ -5,7 +5,7 @@ namespace christopheraseidl\ModelFiler\Tests\Handlers\Services\ModelFileChangeTr
 use christopheraseidl\ModelFiler\Handlers\Services\ModelFileChangeTracker;
 
 /**
- * Tests behavior of ModelFileChangeTracker's getRemovedFiles() method.
+ * Tests behavior of ModelFileChangeTracker's getRemovedFiles method.
  *
  * @covers \christopheraseidl\ModelFiler\Handlers\Services\ModelFileChangeTracker
  */

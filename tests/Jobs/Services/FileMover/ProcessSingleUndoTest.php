@@ -3,7 +3,7 @@
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileMover;
 
 /**
- * Tests FileMover processSingleUndo() method behavior.
+ * Tests FileMover processSingleUndo method behavior.
  *
  * @covers \christopheraseidl\ModelFiler\Jobs\Services\FileMover
  */
@@ -23,7 +23,7 @@ it('succeeds after 1-2 failures when maxAttempts is 3', function (int $failures)
 
         });
 
-    $this->mover->shouldReceive('handleCaughtProcessSingleUndoException')->times($failures);
+    $this->mover->shouldReceive('handleProcessSingleUndoException')->times($failures);
 
     $this->breaker->shouldReceive('recordSuccess')->once();
 

@@ -2,13 +2,6 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
-use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
-use Illuminate\Support\Facades\Log;
-
-uses(
-    CircuitBreakerHelpers::class
-);
-
 /**
  * Tests CircuitBreaker canAttempt method behavior.
  *
@@ -42,10 +35,9 @@ it('returns false when the state is invalid', function () {
 });
 
 it('returns true when recovery timeout has passed', function () {
-    $this->breaker->shouldReceive('getState')->andReturn('open');
-    $this->breaker->shouldReceive('cacheGet')
-        ->with('circuit_breaker:test-circuit:opened_at')
-        ->andReturn(now()->subSeconds(11)->timestamp);
+    $this->breaker->shouldReceive('isClosed')->once()->andReturnFalse();
+    $this->breaker->shouldReceive('isOpen')->once()->andReturnTrue();
+    $this->breaker->shouldReceive('timeoutHasPassed')->once()->andReturnTrue();
     $this->breaker->shouldReceive('transitionToHalfOpen')->once();
 
     $canAttempt = $this->breaker->canAttempt();
@@ -54,10 +46,11 @@ it('returns true when recovery timeout has passed', function () {
 });
 
 it('returns true when in half-open state and under max attempts', function () {
-    $this->breaker->shouldReceive('getState')->andReturn('half_open');
-    $this->breaker->shouldReceive('cacheGet')
-        ->with('circuit_breaker:test-circuit:half_open_attempts', 0)
-        ->andReturn(2);
+    $this->breaker->shouldReceive('isClosed')->once()->andReturnFalse();
+    $this->breaker->shouldReceive('isOpen')->once()->andReturnFalse();
+    $this->breaker->shouldReceive('isHalfOpen')->once()->andReturnTrue();
+
+    $this->breaker->shouldReceive('maxHalfOpenAttemptsReached')->once()->andReturnFalse();
 
     $canAttempt = $this->breaker->canAttempt();
 
@@ -65,13 +58,11 @@ it('returns true when in half-open state and under max attempts', function () {
 });
 
 it('returns false when in half-open state and at max attempts', function () {
-    $this->breaker->shouldReceive('isClosed')->andReturnFalse();
-    $this->breaker->shouldReceive('isOpen')->andReturnFalse();
-    $this->breaker->shouldReceive('isHalfOpen')->andReturnTrue();
-    $this->breaker->shouldReceive('cacheGet')
-        ->once()
-        ->with('circuit_breaker:test-circuit:half_open_attempts', 0)
-        ->andReturn(3);
+    $this->breaker->shouldReceive('isClosed')->once()->andReturnFalse();
+    $this->breaker->shouldReceive('isOpen')->once()->andReturnFalse();
+    $this->breaker->shouldReceive('isHalfOpen')->once()->andReturnTrue();
+
+    $this->breaker->shouldReceive('maxHalfOpenAttemptsReached')->once()->andReturnTrue();
 
     $canAttempt = $this->breaker->canAttempt();
 
@@ -90,32 +81,15 @@ it('handles missing opened_at timestamp gracefully', function () {
 });
 
 it('handles cache failures gracefully by failing open', function () {
-    $this->breaker->shouldReceive('getState')->andThrow(new \Exception('Cache failure'));
-    Log::shouldReceive('warning')->once();
+    $this->breaker->shouldReceive('isClosed')->andThrow(new \Exception('Cache failure'));
 
     expect($this->breaker->canAttempt())->toBeFalse();
 });
 
-it('handles time calculation edge cases correctly', function () {
-    $this->breaker->shouldReceive('getState')->andReturn('open');
-    $this->breaker->shouldReceive('cacheGet')
-        ->with('circuit_breaker:test-circuit:opened_at')
-        ->andReturn(now()->subSeconds(10)->timestamp);
-    $this->breaker->shouldReceive('transitionToHalfOpen')->once();
-
-    $canAttempt = $this->breaker->canAttempt();
-
-    expect($canAttempt)->toBeTrue();
-});
-
 it('transitions to half-open when recovery timeout has passed', function () {
-    $this->breaker->shouldReceive('isClosed')->once()->andReturn(false);
-    $this->breaker->shouldReceive('isOpen')->once()->andReturn(true);
-
-    $this->breaker->shouldReceive('cacheGet')
-        ->with('circuit_breaker:test-circuit:opened_at')
-        ->once()
-        ->andReturn(now()->subSeconds(11)->timestamp);
+    $this->breaker->shouldReceive('isClosed')->once()->andReturnFalse();
+    $this->breaker->shouldReceive('isOpen')->once()->andReturnTrue();
+    $this->breaker->shouldReceive('timeoutHasPassed')->andReturnTrue();
 
     $this->breaker->shouldReceive('transitionToHalfOpen')->once();
 

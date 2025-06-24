@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileService;
+namespace christopheraseidl\ModelFiler\Tests\Services\FileService;
 
 use Illuminate\Http\UploadedFile;
 

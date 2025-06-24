@@ -91,6 +91,11 @@ interface CircuitBreaker
     public function transitionToClosed(): void;
 
     /**
+     * Determine whether the timeout period has passed.
+     */
+    public function timeoutHasPassed(): bool;
+
+    /**
      * Generate cache key for storing circuit breaker state data.
      */
     public function getKey(string $name): string;
@@ -109,6 +114,21 @@ interface CircuitBreaker
      * Send admin notification about circuit breaker state changes.
      */
     public function sendAdminNotification(string $message): void;
+
+    /**
+     * Determine whether email notification is enabled.
+     */
+    public function isEmailNotificationEnabled(): bool;
+
+    /**
+     * Determine whether email exists and is valid.
+     */
+    public function isValidEmail(): bool;
+
+    /**
+     * Get the admin email.
+     */
+    public function getAdminEmail(): ?string;
 
     /**
      * Build email content for admin notifications with circuit breaker details.

@@ -57,7 +57,7 @@ class Builder implements BuilderContract
      */
     public function makeJob(object $payload): Job
     {
-        return app()->makeWith($this->jobClass, ['payload' => $payload]);
+        return app()->makeWith($this->getJobClass(), ['payload' => $payload]);
     }
 
     /**
@@ -82,9 +82,33 @@ class Builder implements BuilderContract
      */
     public function makePayload(): Payload
     {
-        $payloadParameter = $this->validator->getValidPayloadParameter($this->jobClass);
-        $payloadClass = $this->validator->getValidPayloadClassName($this->jobClass, $payloadParameter);
+        $payloadParameter = $this->getValidator()->getValidPayloadParameter($this->getJobClass());
+        $payloadClass = $this->getValidator()->getValidPayloadClassName($this->getJobClass(), $payloadParameter);
 
-        return app()->makeWith($payloadClass, $this->properties);
+        return app()->makeWith($payloadClass, $this->getProperties());
+    }
+
+    /**
+     * Get the validator instance.
+     */
+    public function getValidator(): BuilderValidator
+    {
+        return $this->validator;
+    }
+
+    /**
+     * Get the stored array of properties.
+     */
+    public function getProperties(): array
+    {
+        return $this->properties;
+    }
+
+    /**
+     * Get the stored job class.
+     */
+    public function getJobClass(): string
+    {
+        return $this->jobClass;
     }
 }

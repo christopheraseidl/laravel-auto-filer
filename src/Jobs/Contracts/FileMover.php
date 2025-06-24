@@ -93,22 +93,22 @@ interface FileMover
     /**
      * Handle exceptions caught in the attemptMove() method.
      */
-    public function handleCaughtAttemptMoveException(string $disk, string $oldPath, string $newDir, int $maxAttempts, \Throwable $exception): void;
+    public function handleAttemptMoveException(string $disk, string $oldPath, string $newDir, int $maxAttempts, \Throwable $exception): void;
 
     /**
      * Handle caught storage operation exceptions.
      */
-    public function handleCaughtStorageException(\Throwable $exception, string $exceptionMessage): void;
+    public function handleStorageException(\Throwable $exception, string $exceptionMessage): void;
 
     /**
      * Handle failure during move operation with optional rollback.
      */
-    public function handleProcessMoveCaughtException(string $disk, int $attempts, int $maxAttempts, string $exceptionMessage): void;
+    public function handleProcessMoveException(string $disk, int $attempts, int $maxAttempts, string $exceptionMessage): void;
 
     /**
      * Handle exceptions caught during attemptSingleUndo().
      */
-    public function handleCaughtProcessSingleUndoException(
+    public function handleProcessSingleUndoException(
         string $disk,
         string $oldPath,
         string $newPath,

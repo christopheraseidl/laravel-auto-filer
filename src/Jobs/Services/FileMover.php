@@ -36,7 +36,7 @@ class FileMover extends FileOperator implements FileMoverContract
         try {
             $results = $this->processMove($disk, $oldPath, $newPath, $maxAttempts);
         } catch (\Exception $e) {
-            $this->handleCaughtAttemptMoveException($disk, $oldPath, $newPath, $maxAttempts, $e);
+            $this->handleAttemptMoveException($disk, $oldPath, $newPath, $maxAttempts, $e);
         }
 
         return $results ?? '';
@@ -75,7 +75,7 @@ class FileMover extends FileOperator implements FileMoverContract
                 $lastException = $e;
                 $attempts++;
 
-                $this->handleProcessMoveCaughtException($disk, $attempts, $maxAttempts, $e->getMessage());
+                $this->handleProcessMoveException($disk, $attempts, $maxAttempts, $e->getMessage());
             }
         }
 
@@ -146,7 +146,7 @@ class FileMover extends FileOperator implements FileMoverContract
             } catch (\Exception $e) {
                 $attempts++;
 
-                $this->handleCaughtProcessSingleUndoException(
+                $this->handleProcessSingleUndoException(
                     $disk,
                     $oldPath,
                     $newPath,
@@ -199,7 +199,7 @@ class FileMover extends FileOperator implements FileMoverContract
 
             $this->validateStorageResult($result, $exceptionMessage);
         } catch (\Exception $e) {
-            $this->handleCaughtStorageException($e, $exceptionMessage);
+            $this->handleStorageException($e, $exceptionMessage);
         }
     }
 
@@ -277,7 +277,7 @@ class FileMover extends FileOperator implements FileMoverContract
     /**
      * Handle exceptions caught in the attemptMove() method.
      */
-    public function handleCaughtAttemptMoveException(string $disk, string $oldPath, string $newDir, int $maxAttempts, \Throwable $exception): void
+    public function handleAttemptMoveException(string $disk, string $oldPath, string $newDir, int $maxAttempts, \Throwable $exception): void
     {
         Log::error("Failed to move file after {$maxAttempts} attempts.", [
             'disk' => $disk,
@@ -293,7 +293,7 @@ class FileMover extends FileOperator implements FileMoverContract
     /**
      * Handle caught storage operation exceptions.
      */
-    public function handleCaughtStorageException(\Throwable $exception, string $exceptionMessage): void
+    public function handleStorageException(\Throwable $exception, string $exceptionMessage): void
     {
         // Re-throw if it's already our custom exception
         if ($exception->getMessage() === $exceptionMessage) {
@@ -309,7 +309,7 @@ class FileMover extends FileOperator implements FileMoverContract
     /**
      * Handle failure during move operation with optional rollback.
      */
-    public function handleProcessMoveCaughtException(string $disk, int $attempts, int $maxAttempts, string $exceptionMessage): void
+    public function handleProcessMoveException(string $disk, int $attempts, int $maxAttempts, string $exceptionMessage): void
     {
         Log::warning('Move attempt failed.', [
             'attempt' => $attempts,
@@ -344,7 +344,7 @@ class FileMover extends FileOperator implements FileMoverContract
     /**
      * Handle exceptions caught during processSingleUndo().
      */
-    public function handleCaughtProcessSingleUndoException(
+    public function handleProcessSingleUndoException(
         string $disk,
         string $oldPath,
         string $newPath,

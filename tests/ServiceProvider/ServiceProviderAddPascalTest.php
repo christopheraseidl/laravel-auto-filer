@@ -7,9 +7,9 @@ use christopheraseidl\Reflect\Reflect;
 use Illuminate\Support\Str;
 
 /**
- * Tests the service provider's ability to add a pascal() method to
+ * Tests the service provider's ability to add a pascal method to
  * Illuminate\Support\Str only when needed. This makes the package compatible
- * with Laravel 10, which lacks a pascal() method, having only studly().
+ * with Laravel 10, which lacks a pascal method, having only studly().
  *
  * @covers \christopheraseidl\ModelFiler\ModelFilerServiceProvider
  */

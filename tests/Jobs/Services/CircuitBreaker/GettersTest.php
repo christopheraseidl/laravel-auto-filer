@@ -3,37 +3,41 @@
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Tests CircuitBreaker getter methods behavior.
  *
  * @covers \christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker
  */
-test('getState returns the expected string', function () {
-    $this->breaker->shouldReceive('cacheGet')
-        ->with('circuit_breaker:test-circuit:state', 'closed')
+it('can return the expected circuit breaker state string', function () {
+    Cache::shouldReceive('get')
+        ->once()
         ->andReturn('test_state');
 
     expect($this->breaker->getState())->toBe('test_state');
 });
 
-test('getFailureCount returns the expected integer', function () {
-    $this->breaker->shouldReceive('cacheGet')
-        ->with('circuit_breaker:test-circuit:failures', 0)
+it('can return the expected failure count', function () {
+    Cache::shouldReceive('get')
+        ->once()
         ->andReturn(50);
 
     expect($this->breaker->getFailureCount())->toBe(50);
 });
 
-test('getStats returns the expected array', function () {
+it('can return the expected array of stats', function () {
     Carbon::setTestNow(now());
 
     $this->breaker->shouldReceive('getState')
+        ->once()
         ->andReturn('test_state');
     $this->breaker->shouldReceive('getFailureCount')
+        ->once()
         ->andReturn(50);
-    $this->breaker->shouldReceive('cacheGet')
-        ->with('circuit_breaker:test-circuit:opened_at')
+
+    Cache::shouldReceive('get')
+        ->once()
         ->andReturn(now()->subHours(1));
 
     $stats = [

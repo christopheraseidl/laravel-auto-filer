@@ -11,4 +11,9 @@ use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as Del
 interface DeleteUploadDirectory extends DeletesFiles, Job
 {
     public function __construct(DeleteUploadDirectoryPayload $payload);
+
+    /**
+     * Execute the directory deletion.
+     */
+    public function executeDeletion(): void;
 }

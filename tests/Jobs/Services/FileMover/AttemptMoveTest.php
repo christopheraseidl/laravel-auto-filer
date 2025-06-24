@@ -28,7 +28,7 @@ it('handles caught exceptions when move processing fails', function () {
         ->once()
         ->andThrow(\Exception::class, 'Move processing failed');
 
-    $this->mover->shouldReceive('handleCaughtAttemptMoveException')
+    $this->mover->shouldReceive('handleAttemptMoveException')
         ->once();
 
     $result = $this->mover->attemptMove($this->disk, $this->oldPath, $this->newDir);

@@ -5,7 +5,7 @@ namespace christopheraseidl\ModelFiler\Tests\Jobs\CleanOrphanedUploads;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Tests the CleanOrphanedUploads executeDeletion() method.
+ * Tests the CleanOrphanedUploads executeDeletion method.
  *
  * @covers \christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads
  */

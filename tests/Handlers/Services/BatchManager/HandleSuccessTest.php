@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Event;
 use Mockery\MockInterface;
 
 /**
- * Tests BatchManager handleSuccess() method behavior.
+ * Tests BatchManager handleSuccess method behavior.
  *
  * @covers \christopheraseidl\ModelFiler\Handlers\Services\BatchManager
  */

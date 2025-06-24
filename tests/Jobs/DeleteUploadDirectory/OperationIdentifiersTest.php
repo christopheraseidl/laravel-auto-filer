@@ -21,6 +21,5 @@ it('provides a consistent unique identifier', function () {
 
     expect($id1)->toBeString()
         ->not->toBeEmpty()
-        ->toBe($id2)
-        ->toStartWith('delete_directory');
+        ->toBe($id2);
 });

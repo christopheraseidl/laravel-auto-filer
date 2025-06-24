@@ -5,7 +5,7 @@ namespace christopheraseidl\ModelFiler\Tests\Handlers\Services\ModelFileChangeTr
 use christopheraseidl\ModelFiler\Handlers\Services\ModelFileChangeTracker;
 
 /**
- * Tests behavior of ModelFileChangeTracker's getOriginalPaths() method.
+ * Tests behavior of ModelFileChangeTracker's getOriginalPaths method.
  *
  * @covers \christopheraseidl\ModelFiler\Handlers\Services\ModelFileChangeTracker
  */

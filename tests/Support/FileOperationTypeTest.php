@@ -15,7 +15,7 @@ beforeEach(function () {
     $this->support = new FileOperationType;
 });
 
-it('only has one static get() method with the correct parameters and return type', function () {
+it('only has one static get method with the correct parameters and return type', function () {
     $reflection = new \ReflectionClass($this->support);
     $method = $reflection->getMethod('get');
     $parameters = $method->getParameters();
