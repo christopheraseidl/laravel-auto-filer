@@ -21,4 +21,9 @@ interface CleanOrphanedUploads extends DeletesFiles, Job
      * Process an array of files for deletion.
      */
     public function processFiles(array $files, bool $dryRun, int $thresholdHours): int;
+
+    /**
+     * Get an array of files for processing.
+     */
+    public function getFilesToProcess(string $disk, string $path): array;
 }

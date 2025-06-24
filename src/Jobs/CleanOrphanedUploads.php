@@ -23,8 +23,6 @@ class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
 {
     use HasFileDeleter;
 
-    protected FileDeleter $deleter;
-
     public function __construct(
         private readonly CleanOrphanedUploadsPayload $payload
     ) {
@@ -41,43 +39,42 @@ class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
         }
 
         $this->handleJob(function () {
-            $dryRun = $this->getPayload()->isDryRun();
-            $disk = $this->getPayload()->getDisk();
-            $path = $this->getPayload()->getPath();
-            $thresholdHours = $this->getPayload()->getCleanupThresholdHours();
-
-            $files = Storage::disk($disk)->files($path);
-
-            try {
-                if ($dryRun) {
-                    Log::info('Initiating dry run of CleanOrphanedUploads job', [
-                        'disk' => $disk,
-                        'path' => $path,
-                        'threshold_hours' => $thresholdHours,
-                        'total_files' => count($files),
-                    ]);
-                }
-
-                $processedCount = $this->processFiles($files, $dryRun, $thresholdHours);
-
-                if ($dryRun) {
-                    Log::info('Concluding dry run of CleanOrphanedUploads job', [
-                        'files_that_would_be_deleted' => $processedCount,
-                    ]);
-                }
-            } catch (\Exception $e) {
-                Log::error('Failed to run CleanOrphanedUploads job', [
-                    'disk' => $disk,
-                    'path' => $path,
-                    'threshold_hours' => $thresholdHours,
-                    'total_files' => count($files),
-                ]);
-
-                throw new \Exception($e->getMessage());
-            }
+            $this->executeCleaning();
         });
     }
 
+    /**
+     * Execute the cleaning task.
+     */
+    public function executeCleaning(): void
+    {
+        $dryRun = $this->getPayload()->isDryRun();
+        $disk = $this->getPayload()->getDisk();
+        $path = $this->getPayload()->getPath();
+        $thresholdHours = $this->getPayload()->getCleanupThresholdHours();
+        $files = $this->getFilesToProcess($disk, $path);
+
+        if ($dryRun) {
+            Log::info('Initiating dry run of CleanOrphanedUploads job', [
+                'disk' => $disk,
+                'path' => $path,
+                'threshold_hours' => $thresholdHours,
+                'total_files' => count($files),
+            ]);
+        }
+
+        $processedCount = $this->processFiles($files, $dryRun, $thresholdHours);
+
+        if ($dryRun) {
+            Log::info('Concluding dry run of CleanOrphanedUploads job', [
+                'files_that_would_be_deleted' => $processedCount,
+            ]);
+        }
+    }
+
+    /**
+     * Process an array of files for cleaning.
+     */
     public function processFiles(array $files, bool $dryRun, int $thresholdHours): int
     {
         $processedCount = 0;
@@ -100,6 +97,17 @@ class CleanOrphanedUploads extends Job implements CleanOrphanedUploadsContract
         return $processedCount;
     }
 
+    /**
+     * Get an array of files for processing.
+     */
+    public function getFilesToProcess(string $disk, string $path): array
+    {
+        return Storage::disk($disk)->files($path);
+    }
+
+    /**
+     * Gets the last modified timestamp of a file.
+     */
     public function getLastModified(string $file): \DateTimeInterface
     {
         return Carbon::createFromTimestamp(
