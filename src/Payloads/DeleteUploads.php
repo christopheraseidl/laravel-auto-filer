@@ -6,6 +6,9 @@ use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploads as DeleteUploa
 
 class DeleteUploads extends ModelAware implements DeleteUploadsContract
 {
+    /**
+     * Determine whether individual events should be broadcast.
+     */
     public function shouldBroadcastIndividualEvents(): bool
     {
         return false;

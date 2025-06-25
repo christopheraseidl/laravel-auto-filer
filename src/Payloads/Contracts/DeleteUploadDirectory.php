@@ -16,11 +16,33 @@ interface DeleteUploadDirectory extends Payload, SinglePath
         string $path
     );
 
+    /**
+     * Return model class name.
+     */
     public function getModelClass(): string;
 
+    /**
+     * Return model identifier.
+     */
     public function getId(): int;
 
-    public function getDisk(): string;
-
+    /**
+     * Return file path.
+     */
     public function getPath(): string;
+
+    /**
+     * Return unique identifier for this payload instance.
+     */
+    public function getKey(): string;
+
+    /**
+     * Determine whether individual events should be broadcast.
+     */
+    public function shouldBroadcastIndividualEvents(): bool;
+
+    /**
+     * Convert payload data to array representation.
+     */
+    public function toArray(): array;
 }

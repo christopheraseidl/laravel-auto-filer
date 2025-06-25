@@ -2,19 +2,26 @@
 
 namespace christopheraseidl\ModelFiler\Services;
 
+use christopheraseidl\ModelFiler\Payloads\Contracts\GetsDisk;
 use christopheraseidl\ModelFiler\Services\Contracts\FileService as FileServiceContract;
 use Illuminate\Http\UploadedFile;
 
 /**
  * Manages file uploads with validation and storage operations.
  */
-class FileService implements FileServiceContract
+class FileService implements FileServiceContract, GetsDisk
 {
+    /**
+     * Return storage disk name.
+     */
     public function getDisk(): string
     {
         return config('model-filer.disk', 'public');
     }
 
+    /**
+     * Get the file prefix path.
+     */
     public function getPath(): string
     {
         return config('model-filer.path', '');

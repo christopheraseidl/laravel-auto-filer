@@ -28,21 +28,53 @@ interface ModelAware extends Payload
      */
     public function resolveModel(): Model;
 
+    /**
+     * Return model class name.
+     */
     public function getModelClass(): string;
 
+    /**
+     * Return model identifier.
+     */
     public function getModelId(): int;
 
+    /**
+     * Return model attribute name.
+     */
     public function getModelAttribute(): ?string;
 
+    /**
+     * Return model attribute type.
+     */
     public function getModelAttributeType(): ?string;
 
+    /**
+     * Return operation type enumeration.
+     */
     public function getOperationType(): OperationType;
 
+    /**
+     * Return operation scope enumeration.
+     */
     public function getOperationScope(): OperationScope;
 
-    public function getDisk(): string;
-
+    /**
+     * Return file paths array.
+     */
     public function getFilePaths(): ?array;
 
+    /**
+     * Return new directory path.
+     */
     public function getNewDir(): ?string;
+
+    /**
+     * Generate unique identifier combining model context and file hash.
+     */
+    public function getKey(): string;
+
+    /**
+     * Convert payload data to array representation.
+     */
+    public function toArray(): array;
 }

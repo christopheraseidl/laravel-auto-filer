@@ -3,7 +3,6 @@
 namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
 use christopheraseidl\ModelFiler\Payloads\CleanOrphanedUploads;
-use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
 
 /**
  * Tests CleanOrphanedUploads structure and behavior.
@@ -12,14 +11,16 @@ use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as Clea
  */
 beforeEach(function () {
     $this->payload = new CleanOrphanedUploads(
-        'test_disk',
-        'test_path',
-        12
+        'test_disk', // disk
+        'test_path', // path
+        12           // cleanup threshold hours
     );
 });
 
-it('implements the CleanOrphanedUploads contract', function () {
-    expect($this->payload)->toBeInstanceOf(CleanOrphanedUploadsContract::class);
+test('the getDisk method returns the expected value', function () {
+    $result = $this->payload->getDisk();
+
+    expect($result)->toBe('test_disk');
 });
 
 test('the getKey method returns the expected value', function () {

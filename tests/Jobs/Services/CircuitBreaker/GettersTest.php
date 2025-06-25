@@ -51,3 +51,9 @@ it('can return the expected array of stats', function () {
 
     expect($this->breaker->getStats())->toEqual($stats);
 });
+
+it('can return the expected email', function () {
+    $result = $this->breaker->getAdminEmail();
+
+    expect($result)->toBe('admin@mail.com'); // Set up in Pest.php
+});

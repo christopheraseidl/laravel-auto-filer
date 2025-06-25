@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Tests\Jobs\DeleteUploadDirectory;
+namespace christopheraseidl\ModelFiler\Tests\Jobs\DeleteUploads;
 
 /**
- * Tests the DeleteUploadDirectory handle method.
+ * Tests the DeleteUploads handle method.
  *
  * @covers \christopheraseidl\ModelFiler\Jobs\DeleteUploadDirectory
  */

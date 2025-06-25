@@ -75,7 +75,7 @@ class FileDeleter extends FileOperator implements FileDeleterContract
         } else {
             $this->getBreaker()->recordFailure();
 
-            throw new \Exception('Deletion returned false.');
+            throw new \Exception('Deletion returned false');
         }
     }
 

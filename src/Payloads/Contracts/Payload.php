@@ -7,7 +7,7 @@ use Illuminate\Contracts\Support\Arrayable;
 /**
  * Creates payload instances with dynamic parameter resolution.
  */
-interface Payload extends Arrayable
+interface Payload extends Arrayable, GetsDisk
 {
     /**
      * Create a new payload instance with dynamic parameter resolution.
@@ -23,9 +23,4 @@ interface Payload extends Arrayable
      * Get the unique identifier for this payload.
      */
     public function getKey(): string;
-
-    /**
-     * Get the disk where files are stored.
-     */
-    public function getDisk(): string;
 }

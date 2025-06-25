@@ -2,10 +2,6 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\FileDeleter;
 
-use christopheraseidl\ModelFiler\Tests\TestTraits\FileDeleterHelpers;
-
-uses(FileDeleterHelpers::class);
-
 /**
  * Tests FileDeleter processDeletion method behavior.
  *

@@ -30,6 +30,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Mockery\MockInterface;
 
@@ -46,6 +47,7 @@ uses()->beforeEach(function () {
     $this->disk = config()->get('model-filer.disk', 'public');
 
     Storage::fake($this->disk);
+    Mail::fake();
 })->in('*');
 
 // Events
@@ -204,10 +206,13 @@ uses()->beforeEach(function () {
     Cache::flush();
 
     $this->breaker = \Mockery::mock(CircuitBreaker::class, [
-        'test-circuit', // Name
-        2,             // Failure threshold
-        10,            // Recovery timeout in seconds
-        3,             // Half-open max attempts
+        'test-circuit',   // Name
+        2,                // Failure threshold
+        10,               // Recovery timeout in seconds
+        3,                // Half-open max attempts
+        1,                // Cache TTL
+        false,            // Emails enabled
+        'admin@mail.com', // Amdin email
     ])->makePartial();
 
     Carbon::setTestNow(now());

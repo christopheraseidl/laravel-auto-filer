@@ -3,7 +3,6 @@
 namespace christopheraseidl\ModelFiler\Payloads;
 
 use christopheraseidl\ModelFiler\Payloads\Contracts\CleanOrphanedUploads as CleanOrphanedUploadsContract;
-use christopheraseidl\ModelFiler\Traits\HasDisk;
 use christopheraseidl\ModelFiler\Traits\HasPath;
 
 /**
@@ -11,7 +10,7 @@ use christopheraseidl\ModelFiler\Traits\HasPath;
  */
 class CleanOrphanedUploads extends Payload implements CleanOrphanedUploadsContract
 {
-    use HasDisk, HasPath;
+    use HasPath;
 
     protected ?bool $isCleanupEnabled = null;
 
@@ -23,27 +22,8 @@ class CleanOrphanedUploads extends Payload implements CleanOrphanedUploadsContra
         private readonly ?int $cleanupThresholdHours = null
     ) {}
 
-    public function getKey(): string
-    {
-        return 'clean_orphaned_uploads';
-    }
-
-    public function shouldBroadcastIndividualEvents(): bool
-    {
-        return true;
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'disk' => $this->disk,
-            'path' => $this->path,
-            'cleanup_threshold_hours' => $this->cleanupThresholdHours,
-        ];
-    }
-
     /**
-     * Get cleanup threshold with fallback to configuration default.
+     * Return cleanup threshold hours with configuration fallback.
      */
     public function getCleanupThresholdHours(): int
     {
@@ -53,13 +33,55 @@ class CleanOrphanedUploads extends Payload implements CleanOrphanedUploadsContra
         );
     }
 
+    /**
+     * Check if cleanup feature is enabled.
+     */
     public function isCleanupEnabled(): bool
     {
         return $this->isCleanupEnabled ??= config('model-filer.cleanup.enabled', false);
     }
 
+    /**
+     * Check if running in dry run mode.
+     */
     public function isDryRun(): bool
     {
         return $this->isDryRun ??= config('model-filer.cleanup.dry_run', false);
+    }
+
+    /**
+     * Return unique identifier for this payload type.
+     */
+    public function getKey(): string
+    {
+        return 'clean_orphaned_uploads';
+    }
+
+    /**
+     * Return storage disk name.
+     */
+    public function getDisk(): string
+    {
+        return $this->disk;
+    }
+
+    /**
+     * Determine whether individual events should be broadcast.
+     */
+    public function shouldBroadcastIndividualEvents(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Convert payload data to array representation.
+     */
+    public function toArray(): array
+    {
+        return [
+            'disk' => $this->disk,
+            'path' => $this->path,
+            'cleanup_threshold_hours' => $this->getCleanupThresholdHours(),
+        ];
     }
 }

@@ -2,7 +2,6 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
-use christopheraseidl\ModelFiler\Payloads\Contracts\DeleteUploadDirectory as DeleteUploadDirectoryContract;
 use christopheraseidl\ModelFiler\Payloads\DeleteUploadDirectory;
 
 /**
@@ -14,15 +13,16 @@ beforeEach(function () {
     $this->class = $this->model::class;
 
     $this->payload = new DeleteUploadDirectory(
-        $this->class,
-        $this->model->id,
-        'public_disk',
-        'public/path'
+        $this->class,     // model class
+        $this->model->id, // id
+        'test_disk',    // disk
+        'public/path'     // path
     );
 });
+test('the getDisk method returns the expected value', function () {
+    $result = $this->payload->getDisk();
 
-it('implements the DeleteUploadDirectory contract', function () {
-    expect($this->payload)->toBeInstanceOf(DeleteUploadDirectoryContract::class);
+    expect($result)->toBe('test_disk');
 });
 
 test('the getKey method returns the expected value', function () {

@@ -71,11 +71,11 @@ class ModelFilerException extends Exception
 
     private function getAppName(): string
     {
-        return config('app.name');
+        return config('app.name', 'Laravel') ?? '';
     }
 
     private function getAppEnv(): string
     {
-        return config('app.env');
+        return config('app.env', 'production') ?? '';
     }
 }

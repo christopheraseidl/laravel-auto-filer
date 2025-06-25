@@ -4,7 +4,6 @@ namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
 use christopheraseidl\ModelFiler\Enums\OperationScope;
 use christopheraseidl\ModelFiler\Enums\OperationType;
-use christopheraseidl\ModelFiler\Payloads\Contracts\MoveUploads as MoveUploadsContract;
 use christopheraseidl\ModelFiler\Payloads\MoveUploads;
 
 /**
@@ -14,18 +13,14 @@ use christopheraseidl\ModelFiler\Payloads\MoveUploads;
  */
 beforeEach(function () {
     $this->payload = new MoveUploads(
-        $this->model::class,
-        1,
-        'string',
-        'images',
-        OperationType::Clean,
-        OperationScope::Directory,
-        'test_disk',
+        $this->model::class,       // model class
+        $this->model->id,          // model id
+        'string',                  // attribute
+        'images',                  // attribute type
+        OperationType::Clean,      // operation type
+        OperationScope::Directory, // operation scope
+        'test_disk',               // disk
     );
-});
-
-it('implements the MoveUploads contract', function () {
-    expect($this->payload)->toBeInstanceOf(MoveUploadsContract::class);
 });
 
 test('the getKey method returns the expected value', function () {

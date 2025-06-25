@@ -21,6 +21,9 @@ class MoveUploads extends ModelAware implements MoveUploadsContract
         return "{$baseKey}_{$newFilePathsIdentifier}";
     }
 
+    /**
+     * Determine whether individual events should be broadcast.
+     */
     public function shouldBroadcastIndividualEvents(): bool
     {
         return false;

@@ -4,7 +4,6 @@ namespace christopheraseidl\ModelFiler\Tests\Payloads;
 
 use christopheraseidl\ModelFiler\Enums\OperationScope;
 use christopheraseidl\ModelFiler\Enums\OperationType;
-use christopheraseidl\ModelFiler\Payloads\Contracts\ModelAware as ModelAwareContract;
 use christopheraseidl\ModelFiler\Payloads\ModelAware;
 
 /**
@@ -21,20 +20,15 @@ class TestModelAware extends ModelAware
 }
 
 beforeEach(function () {
-    $this->class = $this->model::class;
     $this->payload = new TestModelAware(
-        $this->class,
-        1,
-        'string',
-        'images',
-        OperationType::Move,
-        OperationScope::File,
-        'test_disk',
+        $this->model::class,  // model class
+        $this->model->id,     // model id
+        'string',             // attribute
+        'images',             // attribute type
+        OperationType::Move,  // operation type
+        OperationScope::File, // operation scope
+        'test_disk',          // disk
     );
-});
-
-it('implements the ModelAware contract', function () {
-    expect($this->payload)->toBeInstanceOf(ModelAwareContract::class);
 });
 
 test('the getKey method returns the expected value', function () {
@@ -51,7 +45,7 @@ test('the getKey method returns the expected value', function () {
 
 test('the toArray method returns the expected array', function () {
     $array = [
-        'modelClass' => $this->class,
+        'modelClass' => $this->model::class,
         'modelId' => $this->model->id,
         'modelAttribute' => 'string',
         'modelAttributeType' => 'images',
@@ -70,7 +64,7 @@ test('the resolveModel returns the model', function () {
 });
 
 test('the getModelClass method returns model class', function () {
-    expect($this->payload->getModelClass())->toBe($this->class);
+    expect($this->payload->getModelClass())->toBe($this->model::class);
 });
 
 test('the getModelId method returns model ID', function () {

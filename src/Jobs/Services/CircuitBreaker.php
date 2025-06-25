@@ -324,11 +324,11 @@ class CircuitBreaker implements CircuitBreakerContract
      */
     public function isValidEmail(): bool
     {
-        if (! $this->adminEmail) {
+        if (! $this->getAdminEmail()) {
             return false;
         }
 
-        return filter_var($this->adminEmail, FILTER_VALIDATE_EMAIL) !== false;
+        return filter_var($this->getAdminEmail(), FILTER_VALIDATE_EMAIL) !== false;
     }
 
     /**
@@ -344,7 +344,7 @@ class CircuitBreaker implements CircuitBreakerContract
      */
     public function buildEmailContent(string $message, array $stats): string
     {
-        $appName = config()->get('model-filer.name', 'Laravel application');
+        $appName = config()->get('model-filer.name', 'Laravel');
 
         return "
         Circuit breaker alert: {$appName}

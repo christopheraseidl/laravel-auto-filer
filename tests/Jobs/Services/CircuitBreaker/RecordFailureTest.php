@@ -2,7 +2,6 @@
 
 namespace christopheraseidl\ModelFiler\Tests\Jobs\Services\CircuitBreaker;
 
-use christopheraseidl\ModelFiler\Jobs\Services\CircuitBreaker;
 use christopheraseidl\ModelFiler\Tests\TestTraits\CircuitBreakerHelpers;
 use Illuminate\Support\Facades\Cache;
 
