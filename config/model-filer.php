@@ -4,208 +4,171 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Storage disk
+    | Storage Configuration
     |--------------------------------------------------------------------------
+    */
+
+    /*
+    | Storage disk
     |
     | The default disk to use for file storage. This should correspond to
     | a disk configured in your filesystems.php configuration file.
-    |
     */
-
     'disk' => 'public',
 
     /*
-    |--------------------------------------------------------------------------
-    | Storage path
-    |--------------------------------------------------------------------------
+    | Temporary upload directory
     |
-    | The default path within the disk where files will be stored.
-    | Leave empty to store files in the default path.
-    |
+    | The directory where files are initially uploaded before being organized.
+    | This directory will be periodically cleaned if cleanup is enabled.
     */
-
-    'path' => '',
+    'temp_directory' => 'uploads/temp',
 
     /*
     |--------------------------------------------------------------------------
-    | Broadcast channel
+    | Queue Configuration
     |--------------------------------------------------------------------------
-    |
-    | The default broadcast channel to use for real-time notifications
-    | and events related to file operations.
-    |
     */
 
+    /*
+    | Queue connection
+    |
+    | The queue connection to use for processing file operations. Set to
+    | 'sync' to process immediately without queuing.
+    */
+    'queue_connection' => 'default',
+
+    /*
+    | Queue name
+    |
+    | The specific queue to use for file operation jobs.
+    */
+    'queue' => 'default',
+
+    /*
+    | Broadcast channel
+    |
+    | The broadcast channel for real-time notifications about file operations.
+    | Set to null to disable broadcasting.
+    */
     'broadcast_channel' => 'default',
 
     /*
     |--------------------------------------------------------------------------
-    | Maximum file size
+    | File Validation
     |--------------------------------------------------------------------------
+    */
+
+    /*
+    | Maximum file size
     |
     | The maximum file size allowed for uploads, specified in kilobytes.
     | Files exceeding this limit will be rejected during upload.
-    |
     */
-
-    'max_size' => 5120,
+    'max_size' => 5120, // 5MB
 
     /*
-    |--------------------------------------------------------------------------
     | Allowed MIME types
-    |--------------------------------------------------------------------------
     |
-    | An array of allowed file extensions for uploads. Only files with
-    | these extensions will be accepted by the file upload system.
-    |
+    | Array of allowed MIME types for file uploads. Only files matching
+    | these types will be accepted.
     */
-
     'mimes' => [
+        'image/jpeg',
+        'image/png',
+        'image/svg+xml',
+        'image/vnd.microsoft.icon',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.oasis.opendocument.text',
+        'application/rtf',
+        'text/plain',
+        'text/markdown',
+    ],
+
+    /*
+    | Allowed file extensions
+    |
+    | Array of allowed file extensions. This provides an additional layer
+    | of validation beyond MIME type checking.
+    */
+    'extensions' => [
         'jpg',
         'jpeg',
         'png',
+        'svg',
         'ico',
         'pdf',
         'doc',
         'docx',
+        'odt',
+        'rtf',
         'txt',
+        'md',
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | File cleanup configuration
+    | Thumbnail Generation
     |--------------------------------------------------------------------------
-    |
-    | Configuration options for automatic file cleanup operations.
-    | When enabled, files older than the specified threshold will be
-    | automatically removed from storage.
-    |
     */
 
+    /*
+    | Thumbnail configuration
+    |
+    | Settings for automatic thumbnail generation. When enabled, images
+    | will have thumbnails created alongside the original files.
+    */
+    'thumbnails' => [
+        'enabled' => false,
+        'width' => 400,
+        'height' => null, // null = maintain aspect ratio
+        'suffix' => '-thumb',
+        'quality' => 85,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cleanup Configuration
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    | Orphaned file cleanup
+    |
+    | Configuration for automatic cleanup of orphaned temporary files.
+    | When enabled, files in the temp directory older than the threshold
+    | will be automatically removed.
+    */
     'cleanup' => [
         'enabled' => false,
         'dry_run' => true,
         'threshold_hours' => 24,
+        'schedule' => 'daily', // daily, hourly, or cron expression
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Exception throttle maximum attempts
+    | Retry & Throttling Configuration
     |--------------------------------------------------------------------------
-    |
-    | The maximum number of exceptions allowed within the specified time period
-    | before throttling is activated. Once this threshold is exceeded, the
-    | system will temporarily reject or delay file operations to prevent
-    | system overload and cascading failures.
-    |
     */
 
+    /*
+    | Maximum retry attempts
+    |
+    | The maximum number of times to retry a failed file operation before
+    | giving up and marking it as permanently failed.
+    */
+    'maximum_file_operation_retries' => 3,
+
+    /*
+    | Exception throttling
+    |
+    | Prevents cascading failures by limiting the number of exceptions
+    | within a time window. Once exceeded, operations are temporarily blocked.
+    */
     'throttle_exception_attempts' => 10,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Exception throttle period
-    |--------------------------------------------------------------------------
-    |
-    | The time window (in minutes) used to calculate the exception threshold.
-    | If the configured number of exceptions occurs within this period,
-    | throttling will be activated. After this period expires, the exception
-    | counter resets and normal operations can resume.
-    |
-    */
-
-    'throttle_exception_period' => 10,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Circuit breaker configuration
-    |--------------------------------------------------------------------------
-    |
-    | Circuit breaker settings for file operations to prevent cascading
-    | failures and provide graceful degradation when file systems are
-    | experiencing issues.
-    |
-    */
-
-    'circuit_breaker' => [
-
-        /*
-        |--------------------------------------------------------------------------
-        | Email notifications
-        |--------------------------------------------------------------------------
-        |
-        | Enable or disable email notifications when circuit breakers are triggered.
-        | When enabled, an email will be sent to the admin when a circuit breaker
-        | transitions to the OPEN state.
-        |
-        */
-
-        'email_notifications' => env('CIRCUIT_BREAKER_EMAIL_NOTIFICATIONS', false),
-
-        /*
-        |--------------------------------------------------------------------------
-        | Admin email address
-        |--------------------------------------------------------------------------
-        |
-        | The email address to send circuit breaker notifications to.
-        | Defaults to the application's default mail from address if not specified.
-        |
-        */
-
-        'admin_email' => env('CIRCUIT_BREAKER_ADMIN_EMAIL', env('MAIL_FROM_ADDRESS')),
-
-        /*
-        |--------------------------------------------------------------------------
-        | Failure threshold
-        |--------------------------------------------------------------------------
-        |
-        | Number of consecutive failures before opening the circuit.
-        | Once this threshold is reached, the circuit will open and reject
-        | subsequent requests for the configured recovery timeout period.
-        |
-        */
-
-        'failure_threshold' => env('CIRCUIT_BREAKER_FILE_FAILURE_THRESHOLD', 5),
-
-        /*
-        |--------------------------------------------------------------------------
-        | Recovery timeout
-        |--------------------------------------------------------------------------
-        |
-        | Time in seconds to wait before attempting recovery (transition to half-open).
-        | After this period, the circuit will allow a limited number of test
-        | requests to determine if the service has recovered.
-        |
-        */
-
-        'recovery_timeout' => env('CIRCUIT_BREAKER_FILE_RECOVERY_TIMEOUT', 60),
-
-        /*
-        |--------------------------------------------------------------------------
-        | Half-open attempts
-        |--------------------------------------------------------------------------
-        |
-        | Number of attempts allowed in half-open state before reopening.
-        | If these test requests succeed, the circuit will close. If they fail,
-        | the circuit will reopen for another recovery timeout period.
-        |
-        */
-
-        'half_open_attempts' => env('CIRCUIT_BREAKER_FILE_HALF_OPEN_ATTEMPTS', 3),
-
-        /*
-        |--------------------------------------------------------------------------
-        | Cache TTL
-        |--------------------------------------------------------------------------
-        |
-        | Time-to-live for circuit breaker state cache in hours.
-        | This determines how long the circuit breaker state is cached
-        | before being refreshed from the storage backend.
-        |
-        */
-
-        'cache_ttl' => 1,
-
-    ],
+    'throttle_exception_period' => 10, // minutes
 
 ];

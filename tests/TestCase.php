@@ -3,7 +3,6 @@
 namespace christopheraseidl\ModelFiler\Tests;
 
 use christopheraseidl\ModelFiler\ModelFilerServiceProvider;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -11,10 +10,6 @@ class TestCase extends Orchestra
     protected function setUp(): void
     {
         parent::setUp();
-
-        Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'christopheraseidl\\ModelFiler\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        );
 
         // Queue table migrations.
         if (app()->version() < 11) {

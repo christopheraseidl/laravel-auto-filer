@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\ModelFiler\Exceptions;
 
-class ModelFilerException extends \Exception
+class FileOperationException extends ModelFilerException
 {
     //
 }

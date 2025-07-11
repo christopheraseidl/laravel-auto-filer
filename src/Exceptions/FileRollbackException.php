@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\ModelFiler\Exceptions;
 
-class ModelFilerException extends \Exception
+class FileRollbackException extends ModelFilerException
 {
     //
 }
