@@ -11,8 +11,12 @@ return new class extends Migration
         if (! Schema::hasTable('test_models')) {
             Schema::create('test_models', function (Blueprint $table) {
                 $table->id();
-                $table->string('string')->nullable();
-                $table->json('array')->nullable();
+                $table->string('name')->nullable();
+                $table->string('description')->nullable();
+                $table->string('avatar')->nullable();
+                $table->string('resume')->nullable();
+                $table->string('portfolio')->nullable();
+                $table->json('documents')->nullable();
                 $table->timestamps();
             });
         }

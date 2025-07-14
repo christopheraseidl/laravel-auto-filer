@@ -3,7 +3,7 @@
 namespace christopheraseidl\ModelFiler\Observers;
 
 use christopheraseidl\ModelFiler\Contracts\ManifestBuilder;
-use christopheraseidl\ModelFiler\HasManagedFiles;
+use christopheraseidl\ModelFiler\HasAutoFiles;
 use christopheraseidl\ModelFiler\Jobs\ProcessFileOperations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
@@ -34,7 +34,7 @@ class ModelObserver
 
     protected function handleEvent(Model $model, string $event): void
     {
-        if (! $this->usesHasManagedFiles($model)) {
+        if (! $this->usesHasAutoFiles($model)) {
             return;
         }
 
@@ -50,8 +50,8 @@ class ModelObserver
         }
     }
 
-    private function usesHasManagedFiles(Model $model): bool
+    private function usesHasAutoFiles(Model $model): bool
     {
-        return in_array(HasManagedFiles::class, class_uses_recursive($model));
+        return in_array(HasAutoFiles::class, class_uses_recursive($model));
     }
 }

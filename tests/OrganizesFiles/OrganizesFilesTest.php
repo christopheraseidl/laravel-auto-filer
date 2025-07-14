@@ -2,9 +2,9 @@
 
 namespace christopheraseidl\ModelFiler\Tests\OrganizesFiles;
 
-use christopheraseidl\ModelFiler\Tests\Helpers\TestModel;
-use christopheraseidl\ModelFiler\Tests\Helpers\TestModelEmpty;
-use christopheraseidl\ModelFiler\Tests\Helpers\TestModelWithMethods;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModelEmpty;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModelWithMethods;
 
 it('registers model observer on boot', function () {
     $observers = TestModel::getObservableEvents();
@@ -69,7 +69,7 @@ it('normalizes simple array configuration', function () {
 
     // Test with simple array
     $config = ['avatar', 'documents'];
-    $normalized = $model->normalizeFileConfig($config);
+    $normalized = $model->normalizeConfig($config);
 
     expect($normalized)->toBe(['avatar' => 'files', 'documents' => 'files']);
 });
@@ -78,7 +78,7 @@ it('preserves associative array configuration', function () {
     $model = new TestModel;
 
     $config = ['avatar' => 'images', 'documents' => 'files'];
-    $normalized = $model->normalizeFileConfig($config);
+    $normalized = $model->normalizeConfig($config);
 
     expect($normalized)->toBe(['avatar' => 'images', 'documents' => 'files']);
 });

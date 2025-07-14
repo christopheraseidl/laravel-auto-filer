@@ -68,11 +68,11 @@ class ManifestBuilderService implements ManifestBuilder
      */
     protected function extractModelData(Model $model): void
     {
-        // Validate the model: it must use the HasManagedFiles trait.
+        // Validate the model: it must use the HasAutoFiles trait.
         if (! method_exists($model, 'getModelDir') ||
             ! method_exists($model, 'getFileAttributes') ||
             ! method_exists($model, 'getRichTextAttributes')) {
-            throw new ModelFilerException("The model {$model} must use the 'HasManagedFiles' trait.");
+            throw new ModelFilerException("The model {$model} must use the 'HasAutoFiles' trait.");
         }
 
         $this->modelDir = $model->getModelDir();

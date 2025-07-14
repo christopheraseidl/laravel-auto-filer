@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 /**
  * Provides upload functionality to models with automatic file handling.
  */
-trait HasManagedFiles
+trait HasAutoFiles
 {
     /**
      * Cache for normalized file configuration.

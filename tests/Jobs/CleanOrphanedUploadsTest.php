@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 beforeEach(function () {
     $this->deleter = $this->mock(FileDeleter::class);
     Storage::fake('public');
-    Log::fake();
+    Log::spy();
 });
 
 it('returns early when cleanup is disabled', function () {
@@ -33,6 +33,14 @@ it('deletes files older than threshold in live mode', function () {
     // Create old file
     Storage::disk('public')->put('uploads/temp/old-file.jpg', 'content');
     Storage::disk('public')->put('uploads/temp/new-file.jpg', 'content');
+
+    Storage::shouldReceive('disk->files')
+        ->once()
+        ->with('uploads/temp')
+        ->andReturn([
+            'uploads/temp/old-file.jpg',
+            'uploads/temp/new-file.jpg'
+        ]);
 
     // Mock file timestamps
     Storage::shouldReceive('disk->lastModified')
@@ -66,6 +74,11 @@ it('logs files that would be deleted in dry run mode', function () {
     config()->set('model-filer.disk', 'public');
 
     Storage::disk('public')->put('uploads/temp/old-file.jpg', 'content');
+
+    Storage::shouldReceive('disk->files')
+        ->once()
+        ->with('uploads/temp')
+        ->andReturn(['uploads/temp/old-file.jpg']);
 
     Storage::shouldReceive('disk->lastModified')
         ->with('uploads/temp/old-file.jpg')

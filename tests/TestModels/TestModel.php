@@ -1,13 +1,13 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Tests\Helpers;
+namespace christopheraseidl\ModelFiler\Tests\TestModels;
 
-use christopheraseidl\ModelFiler\HasManagedFiles;
+use christopheraseidl\ModelFiler\HasAutoFiles;
 use Illuminate\Database\Eloquent\Model;
 
 class TestModel extends Model
 {
-    use HasManagedFiles;
+    use HasAutoFiles;
 
     protected $table = 'test_models';
 

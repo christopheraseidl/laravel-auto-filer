@@ -105,7 +105,7 @@ class ProcessFileOperations
     public function uniqueId(): string
     {
         $signature = $this->manifest->operations
-            ->map(fn ($op) => $op->type.':'.$op->source.':'.$op->destination)
+            ->map(fn ($op) => $op->type->value.':'.$op->source.':'.$op->destination)
             ->sort()
             ->join('|');
 
@@ -121,13 +121,15 @@ class ProcessFileOperations
 
         // Get the model for updating after successful move
         $model = $operation->modelClass::find($operation->modelId);
-        $current = Arr::wrap($model->{$operation->attribute});
 
         if (! $model) {
             throw new \RuntimeException("Model not found: {$operation->modelClass}#{$operation->modelId}");
         }
 
-        // Replace the old path with the current path
+        // Get the current path
+        $current = Arr::wrap($model->{$operation->attribute});
+
+        // Replace the old path with the new path
         $updated = collect($current)
             ->map(fn ($path) => $path === $operation->source ? $operation->destination : $path)
             ->all();

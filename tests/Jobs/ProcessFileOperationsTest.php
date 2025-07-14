@@ -8,13 +8,14 @@ use christopheraseidl\ModelFiler\Contracts\RichTextScanner;
 use christopheraseidl\ModelFiler\Events\ProcessingComplete;
 use christopheraseidl\ModelFiler\Events\ProcessingFailure;
 use christopheraseidl\ModelFiler\Jobs\ProcessFileOperations;
-use christopheraseidl\ModelFiler\Tests\Helpers\TestModel;
+use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
 use christopheraseidl\ModelFiler\ValueObjects\ChangeManifest;
 use christopheraseidl\ModelFiler\ValueObjects\FileOperation;
 use christopheraseidl\ModelFiler\ValueObjects\OperationType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
@@ -27,18 +28,16 @@ beforeEach(function () {
     $this->scanner = $this->mock(RichTextScanner::class);
 
     Event::fake();
-    Log::fake();
+    Log::spy();
 });
 
 it('processes move operations and updates model attributes', function () {
     $model = TestModel::create(['avatar' => 'temp/old-file.jpg']);
 
-    $operation = new FileOperation(
-        type: OperationType::Move,
-        source: 'temp/old-file.jpg',
-        destination: 'images/new-file.jpg',
-        modelClass: TestModel::class,
-        modelId: $model->id,
+    $operation = FileOperation::move(
+        from: 'temp/old-file.jpg',
+        to: 'images/new-file.jpg',
+        model: $model,
         attribute: 'avatar'
     );
 
@@ -60,12 +59,10 @@ it('processes move operations and updates model attributes', function () {
 it('processes move operations with array attributes', function () {
     $model = TestModel::create(['documents' => ['temp/doc1.pdf', 'temp/doc2.pdf']]);
 
-    $operation = new FileOperation(
-        type: OperationType::Move,
-        source: 'temp/doc1.pdf',
-        destination: 'files/doc1.pdf',
-        modelClass: TestModel::class,
-        modelId: $model->id,
+    $operation = FileOperation::move(
+        from: 'temp/doc1.pdf',
+        to: 'files/doc1.pdf',
+        model: $model,
         attribute: 'documents'
     );
 
@@ -85,12 +82,10 @@ it('processes move operations with array attributes', function () {
 it('processes rich text move operations', function () {
     $model = TestModel::create(['description' => 'Content with <img src="temp/image.jpg">']);
 
-    $operation = new FileOperation(
-        type: OperationType::MoveRichText,
-        source: 'temp/image.jpg',
-        destination: 'images/image.jpg',
-        modelClass: TestModel::class,
-        modelId: $model->id,
+    $operation = FileOperation::moveRichText(
+        from: 'temp/image.jpg',
+        to: 'images/image.jpg',
+        model: $model,
         attribute: 'description'
     );
 
@@ -113,11 +108,7 @@ it('processes rich text move operations', function () {
 });
 
 it('processes delete operations', function () {
-    $operation = new FileOperation(
-        type: OperationType::Delete,
-        source: 'temp/delete-me.jpg',
-        destination: null
-    );
+    $operation = FileOperation::delete('temp/delete-me.jpg');
 
     $manifest = new ChangeManifest(collect([$operation]));
 
@@ -131,45 +122,62 @@ it('processes delete operations', function () {
     Event::assertDispatched(ProcessingComplete::class);
 });
 
-it('processes multiple operations in single transaction', function () {
+it('processes multiple operations', function () {
     $model = TestModel::create(['avatar' => 'temp/avatar.jpg']);
 
-    $moveOperation = new FileOperation(
-        type: OperationType::Move,
-        source: 'temp/avatar.jpg',
-        destination: 'images/avatar.jpg',
-        modelClass: TestModel::class,
-        modelId: $model->id,
+    $moveOperation = FileOperation::move(
+        from: 'temp/avatar.jpg',
+        to: 'images/avatar.jpg',
+        model: $model,
         attribute: 'avatar'
     );
 
-    $deleteOperation = new FileOperation(
-        type: OperationType::Delete,
-        source: 'temp/old-file.jpg',
-        destination: null
-    );
+    $deleteOperation = FileOperation::delete('temp/old-file.jpg');
 
     $manifest = new ChangeManifest(collect([$moveOperation, $deleteOperation]));
 
     $this->mover->shouldReceive('move')->once();
     $this->deleter->shouldReceive('delete')->once();
 
-    DB::shouldReceive('transaction')
-        ->once()
-        ->andReturnUsing(function ($callback) {
-            return $callback();
-        });
-
     $job = new ProcessFileOperations($manifest);
     $job->handle($this->mover, $this->deleter, $this->scanner);
 });
 
-it('handles exceptions and dispatches failure event', function () {
-    $operation = new FileOperation(
-        type: OperationType::Delete,
-        source: 'temp/file.jpg',
-        destination: null
+it('rolls back all operations when one fails', function () {
+    $model = TestModel::create(['avatar' => 'temp/avatar.jpg']);
+
+    $moveOperation = FileOperation::move(
+        from: 'temp/avatar.jpg',
+        to: 'images/avatar.jpg',
+        model: $model,
+        attribute: 'avatar'
     );
+
+    $deleteOperation = FileOperation::delete('temp/old-file.jpg');
+
+    $manifest = new ChangeManifest(collect([$moveOperation, $deleteOperation]));
+
+    // First operation succeeds
+    $this->mover->shouldReceive('move')->once();
+    
+    // Second operation fails
+    $this->deleter->shouldReceive('delete')
+        ->once()
+        ->andThrow(new \Exception('Delete failed'));
+
+    $job = new ProcessFileOperations($manifest);
+    
+    // Assert exception is thrown
+    expect(fn () => $job->handle($this->mover, $this->deleter, $this->scanner))
+        ->toThrow(\Exception::class);
+
+    // Assert model was NOT updated (rollback occurred due to DB transaction)
+    $model->refresh();
+    expect($model->avatar)->toBe('temp/avatar.jpg'); // Original value
+});
+
+it('handles exceptions and dispatches failure event', function () {
+    $operation = FileOperation::delete('temp/file.jpg');
 
     $manifest = new ChangeManifest(collect([$operation]));
 
@@ -182,7 +190,7 @@ it('handles exceptions and dispatches failure event', function () {
         ->toThrow(\Exception::class, 'File operation failed');
 
     Event::assertDispatched(ProcessingFailure::class, function ($event) use ($exception) {
-        return $event->exception === $exception;
+        return $event->e === $exception;
     });
 
     Log::shouldHaveReceived('error')
@@ -190,12 +198,10 @@ it('handles exceptions and dispatches failure event', function () {
 });
 
 it('throws exception when model not found', function () {
-    $operation = new FileOperation(
-        type: OperationType::Move,
-        source: 'temp/file.jpg',
-        destination: 'images/file.jpg',
-        modelClass: TestModel::class,
-        modelId: 999,
+    $operation = FileOperation::move(
+        from: 'temp/file.jpg',
+        to: 'images/file.jpg',
+        model: new TestModel,
         attribute: 'avatar'
     );
 
@@ -206,26 +212,25 @@ it('throws exception when model not found', function () {
     $job = new ProcessFileOperations($manifest);
 
     expect(fn () => $job->handle($this->mover, $this->deleter, $this->scanner))
-        ->toThrow(\RuntimeException::class, 'Model not found: '.TestModel::class.'#999');
+        ->toThrow(\RuntimeException::class, 'Model not found: '.TestModel::class.'#');
 });
 
 it('generates unique job ID based on operations', function () {
-    $operation1 = new FileOperation(
-        type: OperationType::Move,
-        source: 'temp/a.jpg',
-        destination: 'images/a.jpg'
+    $model = TestModel::create();
+
+    $operation1 = FileOperation::move(
+        from: 'temp/a.jpg',
+        to: 'images/a.jpg',
+        model: $model,
+        attribute: 'avatar'
     );
 
-    $operation2 = new FileOperation(
-        type: OperationType::Delete,
-        source: 'temp/b.jpg',
-        destination: null
-    );
+    $operation2 = FileOperation::delete('temp/b.jpg');
 
     $manifest = new ChangeManifest(collect([$operation1, $operation2]));
     $job = new ProcessFileOperations($manifest);
 
-    $expectedSignature = collect(['Move:temp/a.jpg:images/a.jpg', 'Delete:temp/b.jpg:'])
+    $expectedSignature = collect(['move:temp/a.jpg:images/a.jpg', 'delete:temp/b.jpg:'])
         ->sort()
         ->join('|');
 
@@ -237,6 +242,9 @@ it('generates unique job ID based on operations', function () {
 it('configures retry timeout to 5 minutes', function () {
     $manifest = new ChangeManifest(collect());
     $job = new ProcessFileOperations($manifest);
+
+    // Freeze time
+    Carbon::setTestNow(now());
 
     expect($job->retryUntil())->toEqual(now()->addMinutes(5));
 });
