@@ -40,7 +40,7 @@ class ModelFilerServiceProvider extends PackageServiceProvider
         $this->app->singleton(FileDeleter::class, FileDeleterService::class);
         $this->app->singleton(CircuitBreakerContract::class, function (Application $app) {
             $factory = $app->make(CircuitBreakerFactory::class);
-            
+
             return $factory->make('model-filer-circuit-breaker');
         });
     }
@@ -51,7 +51,7 @@ class ModelFilerServiceProvider extends PackageServiceProvider
     public function packageBooted()
     {
         // Add Str::pascal macro for Laravel 10 compatibility if method doesn't exist.
-        if (!$this->hasPascalMethod()) {
+        if (! $this->hasPascalMethod()) {
             $this->addPascalMacro();
         }
     }

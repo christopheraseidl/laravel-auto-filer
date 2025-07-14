@@ -36,7 +36,7 @@ class CleanOrphanedUploads implements ShouldQueue
      */
     public function handle(FileDeleter $deleter): void
     {
-        if (!config('model-filer.cleanup.enabled')) {
+        if (! config('model-filer.cleanup.enabled')) {
             return;
         }
 
@@ -47,7 +47,7 @@ class CleanOrphanedUploads implements ShouldQueue
 
         foreach ($files as $file) {
             $lastModified = Storage::disk($disk)->lastModified($file);
-            
+
             if ($threshold->timestamp > $lastModified) {
                 if ($this->dryRun) {
                     Log::info("Would delete orphaned file: {$file}");
@@ -67,6 +67,6 @@ class CleanOrphanedUploads implements ShouldQueue
 
     public function uniqueId(): string
     {
-        return 'cleanup_' . hash('sha256', $this->path);
+        return 'cleanup_'.hash('sha256', $this->path);
     }
 }

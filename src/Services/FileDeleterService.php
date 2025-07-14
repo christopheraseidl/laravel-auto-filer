@@ -97,7 +97,7 @@ class FileDeleterService extends BaseFileOperator implements FileDeleter
             'max_attempts' => $this->maxAttempts,
         ]);
 
-        if ($this->getBreaker()->maxAttemptsReached($attempts, $this->maxAttempts) || !$this->getBreaker()->canAttempt()) {
+        if (! $this->getBreaker()->canAttempt()) {
             return;
         }
 

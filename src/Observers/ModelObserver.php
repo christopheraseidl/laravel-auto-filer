@@ -2,10 +2,10 @@
 
 namespace christopheraseidl\ModelFiler\Observers;
 
-use christopheraseidl\ModelFiler\Jobs\ProcessFileOperations;
 use christopheraseidl\ModelFiler\Contracts\ManifestBuilder;
+use christopheraseidl\ModelFiler\HasManagedFiles;
+use christopheraseidl\ModelFiler\Jobs\ProcessFileOperations;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
 class ModelObserver
@@ -18,11 +18,11 @@ class ModelObserver
 
     public function __call(string $method, array $arguments): void
     {
-        if (!in_array($method, self::ALLOWED_EVENTS) || count($arguments) !== 1) {
+        if (! in_array($method, self::ALLOWED_EVENTS) || count($arguments) !== 1) {
             return;
         }
 
-        if (!($model = $arguments[0]) instanceof Model) {
+        if (! ($model = $arguments[0]) instanceof Model) {
             $errorMessage = "Expected argument to be an instance of Illuminate\Database\Eloquent\Model";
             Log::error($errorMessage);
 
@@ -31,11 +31,15 @@ class ModelObserver
 
         $this->handleEvent($model, $method);
     }
-    
+
     protected function handleEvent(Model $model, string $event): void
     {
-        // Don't delete the model file directory if it can be restored
-        if ($event === 'deleted' && $this->usesSoftDeletes($model)) {
+        if (! $this->usesHasManagedFiles($model)) {
+            return;
+        }
+
+        // Conditionally skip building the manifest (e.g. on a soft delete)
+        if (! $this->builder->shouldBuildManifest($model, $event)) {
             return;
         }
 
@@ -45,9 +49,9 @@ class ModelObserver
             ProcessFileOperations::dispatch($manifest);
         }
     }
-    
-    private function usesSoftDeletes(Model $model): bool
+
+    private function usesHasManagedFiles(Model $model): bool
     {
-        return in_array(SoftDeletes::class, class_uses($model));
+        return in_array(HasManagedFiles::class, class_uses_recursive($model));
     }
 }

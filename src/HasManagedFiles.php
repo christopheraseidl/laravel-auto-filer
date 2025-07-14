@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 /**
  * Provides upload functionality to models with automatic file handling.
  */
-trait OrganizesFiles
+trait HasManagedFiles
 {
     /**
      * Cache for normalized file configuration.
@@ -28,7 +28,7 @@ trait OrganizesFiles
     /**
      * Get file attributes from property or method.
      */
-    public function getFileAttributes(): array
+    public function getFileAttributes(): ?array
     {
         if ($this->normalizedFiles !== null) {
             return $this->normalizedFiles;
@@ -36,12 +36,12 @@ trait OrganizesFiles
 
         // Priority 1: Check for $file property
         if (property_exists($this, 'file')) {
-            return $this->normalizedFiles = $this->normalizeFileConfig($this->file);
+            return $this->normalizedFiles = $this->normalizeConfig($this->file);
         }
 
         // Priority 2: Check if files() method exists
         if (method_exists($this, 'files')) {
-            return $this->normalizedFiles = $this->normalizeFileConfig($this->files());
+            return $this->normalizedFiles = $this->normalizeConfig($this->files());
         }
 
         return $this->normalizedFiles = [];
@@ -50,20 +50,20 @@ trait OrganizesFiles
     /**
      * Get rich text attributes from property or method.
      */
-    public function getRichTextAttributes(): array
+    public function getRichTextAttributes(): ?array
     {
         if ($this->normalizedRichText !== null) {
             return $this->normalizedRichText;
         }
 
-        // Priority 1: Check for $file property
+        // Priority 1: Check for $richText property
         if (property_exists($this, 'richText')) {
-            return $this->normalizedRichText = $this->normalizeFileConfig($this->file);
+            return $this->normalizedRichText = $this->normalizeConfig($this->richText);
         }
 
-        // Priority 2: Check if files() method exists
+        // Priority 2: Check if richTextFields() method exists
         if (method_exists($this, 'richTextFields')) {
-            return $this->normalizedRichText = $this->normalizeFileConfig($this->files());
+            return $this->normalizedRichText = $this->normalizeConfig($this->richTextFields());
         }
 
         return $this->normalizedRichText = [];
@@ -96,7 +96,7 @@ trait OrganizesFiles
     /**
      * Normalize various configuration formats into a consistent array.
      */
-    protected function normalizeFileConfig(array $config): array
+    protected function normalizeConfig(array $config): array
     {
         // Handle simple indexed array: ['avatar', 'resume']
         // Converts to: ['avatar' => 'files', 'resume' => 'files']

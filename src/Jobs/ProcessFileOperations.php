@@ -2,11 +2,11 @@
 
 namespace christopheraseidl\ModelFiler\Jobs;
 
-use christopheraseidl\ModelFiler\Events\ProcessingComplete;
-use christopheraseidl\ModelFiler\Events\ProcessingFailure;
 use christopheraseidl\ModelFiler\Contracts\FileDeleter;
 use christopheraseidl\ModelFiler\Contracts\FileMover;
 use christopheraseidl\ModelFiler\Contracts\RichTextScanner;
+use christopheraseidl\ModelFiler\Events\ProcessingComplete;
+use christopheraseidl\ModelFiler\Events\ProcessingFailure;
 use christopheraseidl\ModelFiler\ValueObjects\ChangeManifest;
 use christopheraseidl\ModelFiler\ValueObjects\FileOperation;
 use christopheraseidl\ModelFiler\ValueObjects\OperationType;
@@ -44,11 +44,12 @@ class ProcessFileOperations
     {
         try {
             DB::transaction(function () use ($mover, $deleter, $scanner) {
-                foreach ($this->manifest as $operation) {
+                foreach ($this->manifest->operations as $operation) {
                     match ($operation->type) {
                         OperationType::Move => $this->handleMove($operation, $mover),
                         OperationType::MoveRichText => $this->handleRichTextMove($operation, $mover, $scanner),
                         OperationType::Delete => $deleter->delete($operation->source),
+                        default => throw new \InvalidArgumentException('Unknown operation type: '.$operation->type),
                     };
                 }
 
@@ -78,8 +79,8 @@ class ProcessFileOperations
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error("Model Filer: ProcessFileOperations job PERMANENTLY failed", [
-            'change_manifest' => $this->manifest->toArray()
+        Log::error('Model Filer: ProcessFileOperations job PERMANENTLY failed', [
+            'change_manifest' => $this->manifest->operations->toArray(),
         ]);
     }
 
@@ -103,12 +104,12 @@ class ProcessFileOperations
      */
     public function uniqueId(): string
     {
-        $signature = $this->manifest
-            ->map(fn($op) => $op->type . ':' . $op->source . ':' . $op->destination)
+        $signature = $this->manifest->operations
+            ->map(fn ($op) => $op->type.':'.$op->source.':'.$op->destination)
             ->sort()
             ->join('|');
 
-        return static::class . '_' . hash('sha256', $signature);
+        return static::class.'_'.hash('sha256', $signature);
     }
 
     /**
@@ -117,18 +118,18 @@ class ProcessFileOperations
     protected function handleMove(FileOperation $operation, FileMover $mover): void
     {
         $mover->move($operation->source, $operation->destination);
-        
+
         // Get the model for updating after successful move
         $model = $operation->modelClass::find($operation->modelId);
         $current = Arr::wrap($model->{$operation->attribute});
 
-        if (!$model) {
+        if (! $model) {
             throw new \RuntimeException("Model not found: {$operation->modelClass}#{$operation->modelId}");
         }
 
         // Replace the old path with the current path
         $updated = collect($current)
-            ->map(fn($path) => $path === $operation->source ? $operation->destination : $path)
+            ->map(fn ($path) => $path === $operation->source ? $operation->destination : $path)
             ->all();
 
         $model->{$operation->attribute} = count($updated) === 1 ? $updated[0] : $updated;
@@ -142,19 +143,19 @@ class ProcessFileOperations
     {
         // Move the file
         $mover->move($operation->source, $operation->destination);
-        
+
         // Get the model for updating after successful move
         $model = $operation->modelClass::find($operation->modelId);
-        if (!$model) {
+        if (! $model) {
             throw new \RuntimeException("Model not found: {$operation->modelClass}#{$operation->modelId}");
         }
-        
+
         // Update the content
         $content = $model->{$operation->attribute};
         $updated = $scanner->updatePaths($content, [
-            $operation->source => $operation->destination
+            $operation->source => $operation->destination,
         ]);
-        
+
         $model->{$operation->attribute} = $updated;
         $model->saveQuietly();
     }

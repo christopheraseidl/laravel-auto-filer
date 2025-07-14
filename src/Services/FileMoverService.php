@@ -16,7 +16,7 @@ use Intervention\Image\Laravel\Facades\Image;
 class FileMoverService extends BaseFileOperator implements FileMover
 {
     private array $movedFiles = [];
-    
+
     /**
      * Move a file from the source path to the indicated destination folder.
      */
@@ -81,7 +81,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
         if ($this->shouldGenerateThumbnail($destinationPath)) {
             $this->generateThumbnail($destinationPath);
         }
-        
+
         Storage::disk($this->disk)->delete($sourcePath);
 
         $commit = $this->commitMovedFile($sourcePath, $destinationPath);
@@ -96,11 +96,12 @@ class FileMoverService extends BaseFileOperator implements FileMover
      */
     private function shouldGenerateThumbnail(string $path): bool
     {
-        if (!config('model-filer.thumbnails.enabled')) {
+        if (! config('model-filer.thumbnails.enabled')) {
             return false;
         }
-        
+
         $mimeType = Storage::disk($this->disk)->mimeType($path);
+
         return str_starts_with($mimeType, 'image/');
     }
 
@@ -111,7 +112,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
     {
         try {
             $image = Image::read(Storage::disk($this->disk)->get($imagePath));
-            
+
             $width = config('model-filer.thumbnails.width');
             $height = config('model-filer.thumbnails.height');
 
@@ -120,10 +121,10 @@ class FileMoverService extends BaseFileOperator implements FileMover
 
             // Build thumbnail path
             $info = pathinfo($imagePath);
-            $thumbPath = $info['dirname'] . '/' . 
-                        $info['filename'] . 
-                        config('model-filer.thumbnails.suffix') . 
-                        '.' . $info['extension'];
+            $thumbPath = $info['dirname'].'/'.
+                        $info['filename'].
+                        config('model-filer.thumbnails.suffix').
+                        '.'.$info['extension'];
 
             // Save thumbnail
             Storage::disk($this->disk)->put(
@@ -132,12 +133,12 @@ class FileMoverService extends BaseFileOperator implements FileMover
             );
 
             // Track thumbnail for potential rollback
-            $this->commitMovedFile($imagePath . '_thumb', $thumbPath);
+            $this->commitMovedFile($imagePath.'_thumb', $thumbPath);
 
         } catch (\Throwable $e) {
             Log::warning('Failed to generate thumbnail', [
                 'image' => $imagePath,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -163,7 +164,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
      */
     private function processAllUndoOperations(): array
     {
-        if (!$this->getBreaker()->canAttempt()) {
+        if (! $this->getBreaker()->canAttempt()) {
             $this->handleCircuitBreakerBlock();
 
             return ['failures' => $this->getMovedFiles(), 'successes' => []];
@@ -210,7 +211,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
             }
         }
 
-        if ($this->getBreaker()->maxAttemptsReached($attempts, $this->maxAttempts)) {
+        if (! $this->getBreaker()->canAttempt()) {
             $this->getBreaker()->recordFailure();
         }
 
@@ -222,7 +223,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
      */
     private function performUndo(string $sourcePath, string $destinationPath): void
     {
-        if (!$this->fileExists($destinationPath)) {
+        if (! $this->fileExists($destinationPath)) {
             return; // Nothing to undo
         }
 
@@ -230,12 +231,12 @@ class FileMoverService extends BaseFileOperator implements FileMover
         if (str_ends_with($sourcePath, '_thumb')) {
             // Just delete the thumbnail from destination; don't "restore" it to source.
             Storage::disk($this->disk)->delete($destinationPath);
-            
+
             return;
         }
 
         // Restore original if it doesn't exist
-        if (!$this->fileExists($sourcePath)) {
+        if (! $this->fileExists($sourcePath)) {
             Storage::disk($this->disk)->copy($destinationPath, $sourcePath);
         }
 
@@ -310,7 +311,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
      */
     private function validateCopiedFile(string $destinationPath): void
     {
-        if (!$this->fileExists($destinationPath)) {
+        if (! $this->fileExists($destinationPath)) {
             $this->getBreaker()->recordFailure();
             throw new FileValidationException('Copy succeeded but file not found at destination.');
         }
@@ -342,8 +343,8 @@ class FileMoverService extends BaseFileOperator implements FileMover
             'error' => $exceptionMessage,
         ]);
 
-        if ($this->getBreaker()->maxAttemptsReached($attempts, $this->maxAttempts)) {
-            if (!empty($this->getMovedFiles())) {
+        if ($this->getBreaker()->canAttempt()) {
+            if (! empty($this->getMovedFiles())) {
                 try {
                     $this->attemptUndoMove();
                 } catch (\Throwable $e) {
@@ -353,14 +354,14 @@ class FileMoverService extends BaseFileOperator implements FileMover
                     ]);
                 }
             }
-        } elseif ($this->getBreaker()->canAttempt()) {
+        } else {
             $this->waitBeforeRetry();
         }
     }
 
     private function handleProcessMoveFailure(int $attempts, ?\Throwable $exception = null): void
     {
-        if ($this->getBreaker()->maxAttemptsReached($attempts, $this->maxAttempts)) {
+        if (! $this->getBreaker()->canAttempt()) {
             $this->getBreaker()->recordFailure();
         }
 

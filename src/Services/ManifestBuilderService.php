@@ -4,57 +4,98 @@ namespace christopheraseidl\ModelFiler\Services;
 
 use christopheraseidl\ModelFiler\Contracts\ManifestBuilder;
 use christopheraseidl\ModelFiler\Contracts\RichTextScanner;
+use christopheraseidl\ModelFiler\Exceptions\ModelFilerException;
 use christopheraseidl\ModelFiler\ValueObjects\ChangeManifest;
 use christopheraseidl\ModelFiler\ValueObjects\FileOperation;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Builds a manifest of file operations to be processed.
  */
 class ManifestBuilderService implements ManifestBuilder
 {
+    private readonly string $disk;
+
+    private string $modelDir;
+
+    private array $modelFileAttributes;
+
+    private array $modelRichTextAttributes;
+
     public function __construct(
         private RichTextScanner $scanner
-    ) {}
+    ) {
+        $this->disk = config('model-filer.disk');
+    }
 
     /**
      * Build a manifest of file operations to be processed.
      */
     public function buildManifest(Model $model, string $event): ChangeManifest
     {
+        // Set model-based variables for use in manifest build
+        $this->extractModelData($model);
+
         // Model deletion
-        if ($this->isPermanentlyDeleted($event)) {
+        if ($this->isPermanentlyDeleted($model, $event)) {
             return new ChangeManifest(
-                collect([FileOperation::delete($model->getModelDir())])
+                collect([FileOperation::delete($this->modelDir)])
             );
         }
 
         // Model creation/update
-        $operations = collect($model->getFileAttributes())->flatMap(
-            fn($attribute, $subfolder) => $this->buildFileOperations($model, $attribute, $subfolder)
+        $operations = collect($this->modelFileAttributes)->flatMap(
+            fn ($attribute, $subfolder) => $this->buildFileOperations($model, $attribute)
         );
 
         return new ChangeManifest($operations);
     }
 
-    protected function buildFileOperations(Model $model, string $attribute, string $subfolder): Collection
+    /**
+     * Determine whether manifest building should proceed.
+     */
+    public function shouldBuildManifest(Model $model, string $event): bool
+    {
+        return ! $this->isSoftDeleted($model, $event);
+    }
+
+    /**
+     * Set the model attributes for use in manifest build
+     */
+    protected function extractModelData(Model $model): void
+    {
+        // Validate the model: it must use the HasManagedFiles trait.
+        if (! method_exists($model, 'getModelDir') ||
+            ! method_exists($model, 'getFileAttributes') ||
+            ! method_exists($model, 'getRichTextAttributes')) {
+            throw new ModelFilerException("The model {$model} must use the 'HasManagedFiles' trait.");
+        }
+
+        $this->modelDir = $model->getModelDir();
+        $this->modelFileAttributes = $model->getFileAttributes();
+        $this->modelRichTextAttributes = $model->getRichTextAttributes();
+    }
+
+    protected function buildFileOperations(Model $model, string $attribute): Collection
     {
         // Check if this is a rich text field
         if ($this->isRichTextField($model, $attribute)) {
-            return $this->buildRichTextOperations($model, $attribute, $subfolder);
+            return $this->buildRichTextOperations($model, $attribute);
         }
 
         $current = collect(Arr::wrap($model->getAttribute($attribute)));
         $original = collect(Arr::wrap($model->getOriginal($attribute)));
-        $targetDir = $model->getFileDir($subfolder);
+        $targetDir = $this->getFileDir($attribute);
 
         return collect()
             ->merge(
                 // New files to move
                 $current->diff($original)->map(
-                    fn($file) => FileOperation::move(
+                    fn ($file) => FileOperation::move(
                         $file,
                         $this->buildUniqueDestinationPath($file, $targetDir),
                         $model,
@@ -65,7 +106,7 @@ class ManifestBuilderService implements ManifestBuilder
             ->merge(
                 // Old files to delete
                 $original->diff($current)->map(
-                   fn($file) => FileOperation::delete($file)
+                    fn ($file) => FileOperation::delete($file)
                 )
             );
     }
@@ -73,15 +114,15 @@ class ManifestBuilderService implements ManifestBuilder
     /**
      * Build operations for rich text fields.
      */
-    private function buildRichTextOperations(Model $model, string $attribute, string $subfolder): Collection
+    protected function buildRichTextOperations(Model $model, string $attribute): Collection
     {
         $content = $model->getAttribute($attribute);
         $paths = $this->scanner->extractPaths($content);
-        $targetDir = $model->getFileDir($subfolder);
-        
+        $targetDir = $this->getFileDir($attribute);
+
         return $paths->map(function ($path) use ($targetDir, $model, $attribute) {
             $destination = $this->buildUniqueDestinationPath($path, $targetDir);
-            
+
             return FileOperation::moveRichText(
                 $path,
                 $destination,
@@ -92,9 +133,17 @@ class ManifestBuilderService implements ManifestBuilder
     }
 
     /**
+     * Get the file directory for the given model attribute
+     */
+    protected function getFileDir(string $attribute): string
+    {
+        return $this->modelFileAttributes[$attribute] ?? $this->modelRichTextAttributes[$attribute];
+    }
+
+    /**
      * Build destination path from directory and source filename.
      */
-    private function buildUniqueDestinationPath(string $sourcePath, string $destinationDir): string
+    protected function buildUniqueDestinationPath(string $sourcePath, string $destinationDir): string
     {
         return $this->generateUniqueFileName(
             "{$destinationDir}/".pathinfo($sourcePath, PATHINFO_BASENAME)
@@ -104,7 +153,7 @@ class ManifestBuilderService implements ManifestBuilder
     /**
      * Generate unique filename by appending counter if necessary.
      */
-    private function generateUniqueFileName(string $path): string
+    protected function generateUniqueFileName(string $path): string
     {
         $info = pathinfo($path);
         $counter = 1;
@@ -117,8 +166,45 @@ class ManifestBuilderService implements ManifestBuilder
         return $path;
     }
 
-    private function isPermanentlyDeleted($event): bool
+    /**
+     * Check if attribute contains rich text.
+     */
+    protected function isRichTextField(Model $model, string $attribute): bool
     {
-        return in_array($event, ['deleted', 'forceDeleted']);
+        // Define in model via getRichTextAttributes() method
+        return in_array($attribute, $this->modelRichTextAttributes ?? []);
+    }
+
+    /**
+     * Check file existence excluding zero-byte files.
+     */
+    protected function fileExists(string $path): bool
+    {
+        return Storage::disk($this->disk)->exists($path) && Storage::disk($this->disk)->size($path) > 0;
+    }
+
+    /**
+     * Check to see if the model has been permanently deleted.
+     */
+    protected function isPermanentlyDeleted(Model $model, string $event): bool
+    {
+        return ($event === 'deleted' && ! $this->usesSoftDeletes($model))
+            || $event === 'forceDeleted';
+    }
+
+    /**
+     * Determine whether the model event is a soft deletion.
+     */
+    protected function isSoftDeleted(Model $model, string $event): bool
+    {
+        return $event === 'deleted' && $this->usesSoftDeletes($model);
+    }
+
+    /**
+     * Check to see if the Model uses the SoftDeletes trait.
+     */
+    protected function usesSoftDeletes(Model $model): bool
+    {
+        return in_array(SoftDeletes::class, class_uses_recursive($model));
     }
 }

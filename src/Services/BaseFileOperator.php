@@ -50,7 +50,7 @@ abstract class BaseFileOperator
      */
     protected function checkCircuitBreaker(string $operation, array $context): void
     {
-        if (!$this->getBreaker()->canAttempt()) {
+        if (! $this->getBreaker()->canAttempt()) {
             Log::warning('File operation blocked by circuit breaker.', [
                 'operation' => $operation,
                 'disk' => $this->disk,

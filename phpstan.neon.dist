@@ -5,7 +5,7 @@ parameters:
     level: 5
     paths:
         - src
-        - tests/TestModels/DummyModel.php
+        - tests/Helpers/TestModelEmpty.php
     reportUnmatchedIgnoredErrors: false
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
@@ -14,8 +14,5 @@ parameters:
         - vendor/autoload.php
     ignoreErrors:
         - '#Call to an undefined static method .+\\Facades\\.+#'
-        - '#Call to an undefined method .+getUploadableAttributes.+#'
-        - '#Call to an undefined method .+getUploadPath.+#'
         - '#Access to an undefined property .+\\Model.+#'
-        - '#Call to an undefined method christopheraseidl\\ModelFiler\\Jobs\\Contracts\\Builder.+#'
         - '#Call to function method_exists\(\) with .Illuminate.+Support.+Str.+ and .pascal. will always evaluate to true\.#'

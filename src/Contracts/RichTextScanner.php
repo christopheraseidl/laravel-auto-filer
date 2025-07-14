@@ -6,8 +6,6 @@ use Illuminate\Support\Collection;
 
 interface RichTextScanner
 {
-    public function __construct(?string $tempDirectory);
-
     /**
      * Extract file paths from rich text content.
      */

@@ -7,10 +7,11 @@ use Illuminate\Support\Collection;
 
 class RichTextScannerService implements RichTextScanner
 {
-    public function __construct(
-        private readonly ?string $tempDirectory
-    ) {
-        $this->tempDirectory = $tempDirectory ?? config('model-filer.temp_directory');
+    private readonly string $tempDirectory;
+
+    public function __construct()
+    {
+        $this->tempDirectory = config('model-filer.temp_directory');
     }
 
     /**
@@ -18,15 +19,15 @@ class RichTextScannerService implements RichTextScanner
      */
     public function extractPaths(string $content): Collection
     {
-        $pattern = '/(src|href)=["\']([^"\']+(?:' . 
-                   implode('|', config('model-filer.extensions')) . 
+        $pattern = '/(src|href)=["\']([^"\']+(?:'.
+                   implode('|', config('model-filer.extensions')).
                    '))["\']?/i';
-        
+
         preg_match_all($pattern, $content, $matches);
-        
+
         return collect($matches[2] ?? [])
-            ->map(fn($path) => $this->normalizePath($path))
-            ->filter(fn($path) => $this->isManageablePath($path))
+            ->map(fn ($path) => $this->normalizePath($path))
+            ->filter(fn ($path) => $this->isManageablePath($path))
             ->unique()
             ->values();
     }
@@ -39,7 +40,7 @@ class RichTextScannerService implements RichTextScanner
         foreach ($replacements as $old => $new) {
             $content = str_replace($old, $new, $content);
         }
-        
+
         return $content;
     }
 
@@ -49,7 +50,7 @@ class RichTextScannerService implements RichTextScanner
     public function isManageablePath(string $path): bool
     {
         // Only manage files from temp directory
-        return str_contains($path, $this->tempDirectory) && 
+        return str_contains($path, $this->tempDirectory) &&
                $this->isLocalPath($path);
     }
 
@@ -61,7 +62,7 @@ class RichTextScannerService implements RichTextScanner
         // Remove domain and storage prefixes
         $path = parse_url($path, PHP_URL_PATH) ?? $path;
         $path = preg_replace('#^/storage/#', '', $path);
-        
+
         return ltrim($path, '/');
     }
 
@@ -70,7 +71,7 @@ class RichTextScannerService implements RichTextScanner
      */
     private function isLocalPath(string $path): bool
     {
-        return !filter_var($path, FILTER_VALIDATE_URL) || 
+        return ! filter_var($path, FILTER_VALIDATE_URL) ||
                str_contains($path, config('app.url'));
     }
 }
