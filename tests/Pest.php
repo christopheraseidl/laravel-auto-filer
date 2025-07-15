@@ -1,5 +1,5 @@
 <?php
 
-use christopheraseidl\ModelFiler\Tests\TestCase;
+use christopheraseidl\AutoFiler\Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);

@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Contracts;
+namespace christopheraseidl\AutoFiler\Contracts;
 
 /**
  * Moves a file from the source path to the destination folder.

@@ -1,17 +1,17 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Tests\Jobs;
+namespace christopheraseidl\AutoFiler\Tests\Jobs;
 
-use christopheraseidl\ModelFiler\Contracts\FileDeleter;
-use christopheraseidl\ModelFiler\Contracts\FileMover;
-use christopheraseidl\ModelFiler\Contracts\RichTextScanner;
-use christopheraseidl\ModelFiler\Events\ProcessingComplete;
-use christopheraseidl\ModelFiler\Events\ProcessingFailure;
-use christopheraseidl\ModelFiler\Jobs\ProcessFileOperations;
-use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
-use christopheraseidl\ModelFiler\ValueObjects\ChangeManifest;
-use christopheraseidl\ModelFiler\ValueObjects\FileOperation;
-use christopheraseidl\ModelFiler\ValueObjects\OperationType;
+use christopheraseidl\AutoFiler\Contracts\FileDeleter;
+use christopheraseidl\AutoFiler\Contracts\FileMover;
+use christopheraseidl\AutoFiler\Contracts\RichTextScanner;
+use christopheraseidl\AutoFiler\Events\ProcessingComplete;
+use christopheraseidl\AutoFiler\Events\ProcessingFailure;
+use christopheraseidl\AutoFiler\Jobs\ProcessFileOperations;
+use christopheraseidl\AutoFiler\Tests\TestModels\TestModel;
+use christopheraseidl\AutoFiler\ValueObjects\ChangeManifest;
+use christopheraseidl\AutoFiler\ValueObjects\FileOperation;
+use christopheraseidl\AutoFiler\ValueObjects\OperationType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
@@ -263,8 +263,8 @@ it('logs permanent failure', function () {
 });
 
 it('configures middleware correctly', function () {
-    config()->set('model-filer.throttle_exception_attempts', 5);
-    config()->set('model-filer.throttle_exception_period', 3);
+    config()->set('auto-filer.throttle_exception_attempts', 5);
+    config()->set('auto-filer.throttle_exception_period', 3);
 
     $manifest = new ChangeManifest(collect());
     $job = new ProcessFileOperations($manifest);
@@ -277,8 +277,8 @@ it('configures middleware correctly', function () {
 });
 
 it('uses configured queue connection and queue', function () {
-    config()->set('model-filer.queue_connection', 'redis');
-    config()->set('model-filer.queue', 'files');
+    config()->set('auto-filer.queue_connection', 'redis');
+    config()->set('auto-filer.queue', 'files');
 
     $manifest = new ChangeManifest(collect());
     $job = new ProcessFileOperations($manifest);

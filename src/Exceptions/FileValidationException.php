@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Exceptions;
+namespace christopheraseidl\AutoFiler\Exceptions;
 
-class FileValidationException extends ModelFilerException
+class FileValidationException extends AutoFilerException
 {
     //
 }

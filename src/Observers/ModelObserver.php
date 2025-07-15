@@ -1,10 +1,10 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Observers;
+namespace christopheraseidl\AutoFiler\Observers;
 
-use christopheraseidl\ModelFiler\Contracts\ManifestBuilder;
-use christopheraseidl\ModelFiler\HasAutoFiles;
-use christopheraseidl\ModelFiler\Jobs\ProcessFileOperations;
+use christopheraseidl\AutoFiler\Contracts\ManifestBuilder;
+use christopheraseidl\AutoFiler\HasAutoFiles;
+use christopheraseidl\AutoFiler\Jobs\ProcessFileOperations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 

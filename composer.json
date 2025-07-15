@@ -37,13 +37,13 @@
     },
     "autoload": {
         "psr-4": {
-            "christopheraseidl\\ModelFiler\\": "src/",
-            "christopheraseidl\\ModelFiler\\Database\\Factories\\": "database/factories/"
+            "christopheraseidl\\AutoFiler\\": "src/",
+            "christopheraseidl\\AutoFiler\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "christopheraseidl\\ModelFiler\\Tests\\": "tests/",
+            "christopheraseidl\\AutoFiler\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -65,10 +65,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "christopheraseidl\\ModelFiler\\ModelFilerServiceProvider"
+                "christopheraseidl\\AutoFiler\\AutoFilerServiceProvider"
             ],
             "aliases": {
-                "FileService": "christopheraseidl\\ModelFiler\\Facades\\FileService"
+                "FileService": "christopheraseidl\\AutoFiler\\Facades\\FileService"
             }
         }
     },

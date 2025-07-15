@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Contracts;
+namespace christopheraseidl\AutoFiler\Contracts;
 
 /**
  * Deletes a file or directory at the provided path.

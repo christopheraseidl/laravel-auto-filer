@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Contracts;
+namespace christopheraseidl\AutoFiler\Contracts;
 
-use christopheraseidl\ModelFiler\ValueObjects\ChangeManifest;
+use christopheraseidl\AutoFiler\ValueObjects\ChangeManifest;
 use Illuminate\Database\Eloquent\Model;
 
 /**

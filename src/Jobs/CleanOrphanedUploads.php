@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Jobs;
+namespace christopheraseidl\AutoFiler\Jobs;
 
-use christopheraseidl\ModelFiler\Contracts\FileDeleter;
+use christopheraseidl\AutoFiler\Contracts\FileDeleter;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -24,11 +24,11 @@ class CleanOrphanedUploads implements ShouldQueue
 
     public function __construct()
     {
-        $this->path = config('model-filer.temp_directory', null);
-        $this->dryRun = config('model-filer.cleanup.dry_run', true);
+        $this->path = config('auto-filer.temp_directory', null);
+        $this->dryRun = config('auto-filer.cleanup.dry_run', true);
 
-        $this->onConnection(config('model-filer.queue_connection'));
-        $this->onQueue(config('model-filer.queue'));
+        $this->onConnection(config('auto-filer.queue_connection'));
+        $this->onQueue(config('auto-filer.queue'));
     }
 
     /**
@@ -36,12 +36,12 @@ class CleanOrphanedUploads implements ShouldQueue
      */
     public function handle(FileDeleter $deleter): void
     {
-        if (! config('model-filer.cleanup.enabled')) {
+        if (! config('auto-filer.cleanup.enabled')) {
             return;
         }
 
-        $disk = config('model-filer.disk');
-        $threshold = now()->subHours(config('model-filer.cleanup.threshold_hours'));
+        $disk = config('auto-filer.disk');
+        $threshold = now()->subHours(config('auto-filer.cleanup.threshold_hours'));
         $files = Storage::disk($disk)->files($this->path);
         $deleted = 0;
 

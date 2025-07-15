@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Contracts;
+namespace christopheraseidl\AutoFiler\Contracts;
 
 use Illuminate\Support\Collection;
 

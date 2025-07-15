@@ -161,6 +161,14 @@ return [
     | giving up and marking it as permanently failed.
     */
     'maximum_file_operation_retries' => 3,
+    
+    /*
+    | Retry wait seconds
+    |
+    | The time, in seconds, to wait between retry attempts.
+    */
+
+    'retry_wait_seconds' => 1,
 
     /*
     | Exception throttling

@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\ModelFiler;
+namespace christopheraseidl\AutoFiler;
 
-use christopheraseidl\ModelFiler\Observers\ModelObserver;
+use christopheraseidl\AutoFiler\Observers\ModelObserver;
 use Illuminate\Support\Str;
 
 /**

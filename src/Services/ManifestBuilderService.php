@@ -1,12 +1,12 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Services;
+namespace christopheraseidl\AutoFiler\Services;
 
-use christopheraseidl\ModelFiler\Contracts\ManifestBuilder;
-use christopheraseidl\ModelFiler\Contracts\RichTextScanner;
-use christopheraseidl\ModelFiler\Exceptions\ModelFilerException;
-use christopheraseidl\ModelFiler\ValueObjects\ChangeManifest;
-use christopheraseidl\ModelFiler\ValueObjects\FileOperation;
+use christopheraseidl\AutoFiler\Contracts\ManifestBuilder;
+use christopheraseidl\AutoFiler\Contracts\RichTextScanner;
+use christopheraseidl\AutoFiler\Exceptions\AutoFilerException;
+use christopheraseidl\AutoFiler\ValueObjects\ChangeManifest;
+use christopheraseidl\AutoFiler\ValueObjects\FileOperation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
@@ -29,7 +29,7 @@ class ManifestBuilderService implements ManifestBuilder
     public function __construct(
         private RichTextScanner $scanner
     ) {
-        $this->disk = config('model-filer.disk');
+        $this->disk = config('auto-filer.disk');
     }
 
     /**
@@ -72,7 +72,7 @@ class ManifestBuilderService implements ManifestBuilder
         if (! method_exists($model, 'getModelDir') ||
             ! method_exists($model, 'getFileAttributes') ||
             ! method_exists($model, 'getRichTextAttributes')) {
-            throw new ModelFilerException("The model {$model} must use the 'HasAutoFiles' trait.");
+            throw new AutoFilerException("The model {$model} must use the 'HasAutoFiles' trait.");
         }
 
         $this->modelDir = $model->getModelDir();

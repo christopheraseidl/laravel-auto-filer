@@ -1,23 +1,26 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Tests\ServiceProvider;
+namespace christopheraseidl\AutoFiler\Tests\ServiceProvider;
 
+use christopheraseidl\AutoFiler\Actions\GenerateThumbnailAction;
 use christopheraseidl\CircuitBreaker\CircuitBreakerFactory;
 use christopheraseidl\CircuitBreaker\Contracts\CircuitBreakerContract;
-use christopheraseidl\ModelFiler\Contracts\FileDeleter;
-use christopheraseidl\ModelFiler\Contracts\FileMover;
-use christopheraseidl\ModelFiler\Contracts\ManifestBuilder;
-use christopheraseidl\ModelFiler\Contracts\RichTextScanner;
-use christopheraseidl\ModelFiler\ModelFilerServiceProvider;
-use christopheraseidl\ModelFiler\Services\FileDeleterService;
-use christopheraseidl\ModelFiler\Services\FileMoverService;
-use christopheraseidl\ModelFiler\Services\ManifestBuilderService;
-use christopheraseidl\ModelFiler\Services\RichTextScannerService;
+use christopheraseidl\AutoFiler\Contracts\FileDeleter;
+use christopheraseidl\AutoFiler\Contracts\FileMover;
+use christopheraseidl\AutoFiler\Contracts\ManifestBuilder;
+use christopheraseidl\AutoFiler\Contracts\RichTextScanner;
+use christopheraseidl\AutoFiler\AutoFilerServiceProvider;
+use christopheraseidl\AutoFiler\Contracts\GenerateThumbnail;
+use christopheraseidl\AutoFiler\Services\FileDeleterService;
+use christopheraseidl\AutoFiler\Services\FileMoverService;
+use christopheraseidl\AutoFiler\Services\ManifestBuilderService;
+use christopheraseidl\AutoFiler\Services\RichTextScannerService;
+use christopheraseidl\CircuitBreaker\CircuitBreaker;
 use Illuminate\Support\Str;
 
 beforeEach(function () {
     $this->app = app();
-    $this->provider = new ModelFilerServiceProvider($this->app);
+    $this->provider = new AutoFilerServiceProvider($this->app);
 });
 
 it('registers all service contracts as singletons', function () {
@@ -27,48 +30,73 @@ it('registers all service contracts as singletons', function () {
     expect($this->app->make(FileMover::class))->toBeInstanceOf(FileMoverService::class);
     expect($this->app->make(RichTextScanner::class))->toBeInstanceOf(RichTextScannerService::class);
     expect($this->app->make(FileDeleter::class))->toBeInstanceOf(FileDeleterService::class);
+    expect($this->app->make(CircuitBreakerContract::class))->toBeInstanceOf(CircuitBreaker::class);
+    expect($this->app->make(GenerateThumbnail::class))->toBeInstanceOf(GenerateThumbnailAction::class);
 
     // Verify singletons
     expect($this->app->make(ManifestBuilder::class))
         ->toBe($this->app->make(ManifestBuilder::class));
+
+    expect($this->app->make(FileMover::class))
+        ->toBe($this->app->make(FileMover::class));
+
+    expect($this->app->make(RichTextScanner::class))
+        ->toBe($this->app->make(RichTextScanner::class));
+
+    expect($this->app->make(FileDeleter::class))
+        ->toBe($this->app->make(FileDeleter::class));
+
+    expect($this->app->make(CircuitBreakerContract::class))
+        ->toBe($this->app->make(CircuitBreakerContract::class));
+
+    expect($this->app->make(GenerateThumbnail::class))
+        ->toBe($this->app->make(GenerateThumbnail::class));
 });
 
 it('registers circuit breaker contract', function () {
     $factory = $this->mock(CircuitBreakerFactory::class);
-    $circuitBreaker = $this->mock(CircuitBreakerContract::class);
+    $circuitBreaker = $this->mock(CircuitBreaker::class);
 
     $factory->shouldReceive('make')
         ->once()
-        ->with('model-filer-circuit-breaker')
+        ->with('auto-filer-circuit-breaker')
         ->andReturn($circuitBreaker);
 
     $this->app->instance(CircuitBreakerFactory::class, $factory);
 
+    // Re-run the service container bindings with the mocks in place
     $this->provider->packageRegistered();
 
     expect($this->app->make(CircuitBreakerContract::class))->toBe($circuitBreaker);
 });
 
 it('adds pascal macro when method does not exist', function () {
-    // Remove the method if it exists (for testing)
-    if (method_exists(Str::class, 'pascal')) {
-        $this->markTestSkipped('Str::pascal already exists');
-    }
+    $provider = \Mockery::mock(AutoFilerServiceProvider::class, [$this->app])
+        ->makePartial()
+        ->shouldAllowMockingProtectedMethods();
 
-    $this->provider->packageBooted();
+    // Mock hasPascalMethod to force call of addPascalMacro
+    $provider->shouldReceive('hasPascalMethod')->andReturnFalse();
 
-    expect(Str::pascal('hello_world'))->toBe('HelloWorld');
-    expect(Str::pascal('test-case'))->toBe('TestCase');
-});
+    // Clear any existing macros
+    Str::flushMacros();
 
-it('does not add pascal macro when method exists', function () {
-    if (! method_exists(Str::class, 'pascal')) {
-        $this->markTestSkipped('Str::pascal does not exist');
-    }
+    $provider->packageBooted();
 
-    $originalMacroCount = count(Str::getMacros());
+    // Expose macros to public scope
+    $str = new class extends Str {
+        public static function getMacros(): array
+        {
+            return self::$macros;
+        }
+    };
 
-    $this->provider->packageBooted();
+    $macros = $str->getMacros();
+    expect($macros)->toHaveKey('pascal');
+    
+    $pascalMacro = $macros['pascal'];
 
-    expect(count(Str::getMacros()))->toBe($originalMacroCount);
+    expect($pascalMacro('hello_world'))->toBe('HelloWorld');
+    expect($pascalMacro('test-case'))->toBe('TestCase');
+    expect($pascalMacro('studly_alias'))->toBe(Str::studly('studly_alias'));
 });

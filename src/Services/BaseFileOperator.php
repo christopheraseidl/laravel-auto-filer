@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Services;
+namespace christopheraseidl\AutoFiler\Services;
 
 use christopheraseidl\CircuitBreaker\Contracts\CircuitBreakerContract;
 use christopheraseidl\CircuitBreaker\Exceptions\CircuitBreakerException;
@@ -20,9 +20,9 @@ abstract class BaseFileOperator
      */
     public function __construct(protected CircuitBreakerContract $breaker)
     {
-        $this->disk = config('model-filer.disk', 'public');
+        $this->disk = config('auto-filer.disk', 'public');
 
-        $this->maxAttempts = config('model-filer.maximum_file_operation_retries', 3);
+        $this->maxAttempts = config('auto-filer.maximum_file_operation_retries', 3);
 
         $this->validateMaxAttempts($this->maxAttempts);
     }
@@ -64,6 +64,6 @@ abstract class BaseFileOperator
 
     protected function waitBeforeRetry(): void
     {
-        sleep(1); // Brief pause before retry attempt
+        sleep(config('auto-filer.retry_wait_seconds', 1)); // Brief pause before retry attempt
     }
 }

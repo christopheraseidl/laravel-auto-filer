@@ -5,7 +5,7 @@ parameters:
     level: 5
     paths:
         - src
-        - tests/Helpers/TestModelEmpty.php
+        - tests/TestModels/TestModelEmpty.php
     reportUnmatchedIgnoredErrors: false
     tmpDir: build/phpstan
     checkOctaneCompatibility: true

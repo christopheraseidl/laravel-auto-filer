@@ -1,8 +1,0 @@
-<?php
-
-namespace christopheraseidl\ModelFiler\Exceptions;
-
-class ModelFilerException extends \Exception
-{
-    //
-}

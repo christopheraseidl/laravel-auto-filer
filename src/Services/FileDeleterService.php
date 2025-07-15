@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Services;
+namespace christopheraseidl\AutoFiler\Services;
 
-use christopheraseidl\ModelFiler\Contracts\FileDeleter;
-use christopheraseidl\ModelFiler\Exceptions\FileDeleteException;
+use christopheraseidl\AutoFiler\Contracts\FileDeleter;
+use christopheraseidl\AutoFiler\Exceptions\FileDeleteException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -109,8 +109,6 @@ class FileDeleterService extends BaseFileOperator implements FileDeleter
      */
     private function handleDeletionFailure(string $path, int $attempts, ?string $exceptionMessage = null): void
     {
-        $this->getBreaker()->recordFailure();
-
         Log::error("File deletion failed after {$attempts} attempts.", [
             'disk' => $this->disk,
             'path' => $path,

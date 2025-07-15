@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Tests\TestModels;
+namespace christopheraseidl\AutoFiler\Tests\TestModels;
 
-use christopheraseidl\ModelFiler\HasAutoFiles;
+use christopheraseidl\AutoFiler\HasAutoFiles;
 use Illuminate\Database\Eloquent\Model;
 
 class TestModelEmpty extends Model

@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Events;
+namespace christopheraseidl\AutoFiler\Events;
 
 class ProcessingFailure extends BaseEvent
 {

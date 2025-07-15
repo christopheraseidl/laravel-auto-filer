@@ -1,15 +1,15 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Jobs;
+namespace christopheraseidl\AutoFiler\Jobs;
 
-use christopheraseidl\ModelFiler\Contracts\FileDeleter;
-use christopheraseidl\ModelFiler\Contracts\FileMover;
-use christopheraseidl\ModelFiler\Contracts\RichTextScanner;
-use christopheraseidl\ModelFiler\Events\ProcessingComplete;
-use christopheraseidl\ModelFiler\Events\ProcessingFailure;
-use christopheraseidl\ModelFiler\ValueObjects\ChangeManifest;
-use christopheraseidl\ModelFiler\ValueObjects\FileOperation;
-use christopheraseidl\ModelFiler\ValueObjects\OperationType;
+use christopheraseidl\AutoFiler\Contracts\FileDeleter;
+use christopheraseidl\AutoFiler\Contracts\FileMover;
+use christopheraseidl\AutoFiler\Contracts\RichTextScanner;
+use christopheraseidl\AutoFiler\Events\ProcessingComplete;
+use christopheraseidl\AutoFiler\Events\ProcessingFailure;
+use christopheraseidl\AutoFiler\ValueObjects\ChangeManifest;
+use christopheraseidl\AutoFiler\ValueObjects\FileOperation;
+use christopheraseidl\AutoFiler\ValueObjects\OperationType;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -33,8 +33,8 @@ class ProcessFileOperations
     public function __construct(
         private readonly ChangeManifest $manifest
     ) {
-        $this->onConnection(config('model-filer.queue_connection'));
-        $this->onQueue(config('model-filer.queue'));
+        $this->onConnection(config('auto-filer.queue_connection'));
+        $this->onQueue(config('auto-filer.queue'));
     }
 
     /**
@@ -90,12 +90,12 @@ class ProcessFileOperations
     public function middleware(): array
     {
         // By default, allow 10 exceptions in 5 minutes
-        $maxAttempts = config('model-filer.throttle_exception_attempts', 10);
-        $period = config('model-filer.throttle_exception_period', 5);
+        $maxAttempts = config('auto-filer.throttle_exception_attempts', 10);
+        $period = config('auto-filer.throttle_exception_period', 5);
 
         return [
             new ThrottlesExceptions($maxAttempts, $period),
-            new RateLimited('model-filer'),
+            new RateLimited('auto-filer'),
         ];
     }
 

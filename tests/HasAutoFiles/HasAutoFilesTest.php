@@ -1,15 +1,24 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Tests\OrganizesFiles;
+namespace christopheraseidl\AutoFiler\Tests\HasAutoFiles;
 
-use christopheraseidl\ModelFiler\Tests\TestModels\TestModel;
-use christopheraseidl\ModelFiler\Tests\TestModels\TestModelEmpty;
-use christopheraseidl\ModelFiler\Tests\TestModels\TestModelWithMethods;
+use christopheraseidl\AutoFiler\Tests\TestModels\TestModel;
+use christopheraseidl\AutoFiler\Tests\TestModels\TestModelEmpty;
+use christopheraseidl\AutoFiler\Tests\TestModels\TestModelWithMethods;
 
 it('registers model observer on boot', function () {
-    $observers = TestModel::getObservableEvents();
+    $model = new TestModel;
+    $observers = $model->getObservableEvents();
 
-    expect($observers)->toContain('saving', 'saved', 'deleting', 'deleted');
+    expect($observers)->toContain('created', 'updated', 'saved', 'deleted', 'forceDeleted');
+});
+
+it('registers model observer using observe method', function () {
+    $model = new TestModel;
+    $model::bootOrganizesFiles();
+    $observers = $model->getObservableEvents();
+
+    expect($observers)->toContain('created', 'updated', 'saved', 'deleted', 'forceDeleted');
 });
 
 it('resolves file attributes from property', function () {
@@ -44,6 +53,22 @@ it('resolves rich text attributes from property', function () {
     expect($attributes)->toBe(['description' => 'files']);
 });
 
+it('resolves rich text attributes from method when property missing', function () {
+    $model = new TestModelWithMethods;
+
+    $attributes = $model->getRichTextAttributes();
+
+    expect($attributes)->toBe(['bio' => 'files']);
+});
+
+it('returns empty array when no rich text configuration exists', function () {
+    $model = new TestModelEmpty;
+
+    $attributes = $model->getRichTextAttributes();
+
+    expect($attributes)->toBe([]);
+});
+
 it('caches normalized file configuration', function () {
     $model = new TestModel;
 
@@ -51,7 +76,7 @@ it('caches normalized file configuration', function () {
     $second = $model->getFileAttributes();
 
     expect($first)->toBe($second);
-    expect($model->normalizedFiles)->toBe($first);
+    expect($model->getNormalizedFiles())->toBe($first);
 });
 
 it('caches normalized rich text configuration', function () {
@@ -61,7 +86,7 @@ it('caches normalized rich text configuration', function () {
     $second = $model->getRichTextAttributes();
 
     expect($first)->toBe($second);
-    expect($model->normalizedRichText)->toBe($first);
+    expect($model->getNormalizedRichText())->toBe($first);
 });
 
 it('normalizes simple array configuration', function () {
@@ -69,7 +94,7 @@ it('normalizes simple array configuration', function () {
 
     // Test with simple array
     $config = ['avatar', 'documents'];
-    $normalized = $model->normalizeConfig($config);
+    $normalized = $model->getNormalizedConfig($config);
 
     expect($normalized)->toBe(['avatar' => 'files', 'documents' => 'files']);
 });
@@ -78,7 +103,7 @@ it('preserves associative array configuration', function () {
     $model = new TestModel;
 
     $config = ['avatar' => 'images', 'documents' => 'files'];
-    $normalized = $model->normalizeConfig($config);
+    $normalized = $model->getNormalizedConfig($config);
 
     expect($normalized)->toBe(['avatar' => 'images', 'documents' => 'files']);
 });

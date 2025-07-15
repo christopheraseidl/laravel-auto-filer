@@ -1,8 +1,9 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Tests;
+namespace christopheraseidl\AutoFiler\Tests;
 
-use christopheraseidl\ModelFiler\ModelFilerServiceProvider;
+use christopheraseidl\AutoFiler\AutoFilerServiceProvider;
+use christopheraseidl\CircuitBreaker\Laravel\CircuitBreakerServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -38,7 +39,8 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            ModelFilerServiceProvider::class,
+            CircuitBreakerServiceProvider::class,
+            AutoFilerServiceProvider::class,
         ];
     }
 

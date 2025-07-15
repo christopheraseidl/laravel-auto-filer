@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Exceptions;
+namespace christopheraseidl\AutoFiler\Exceptions;
 
-class FileOperationException extends ModelFilerException
+class FileOperationException extends AutoFilerException
 {
     //
 }

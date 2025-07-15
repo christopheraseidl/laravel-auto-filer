@@ -1,17 +1,19 @@
 <?php
 
-namespace christopheraseidl\ModelFiler;
+namespace christopheraseidl\AutoFiler;
 
+use christopheraseidl\AutoFiler\Actions\GenerateThumbnailAction;
 use christopheraseidl\CircuitBreaker\CircuitBreakerFactory;
 use christopheraseidl\CircuitBreaker\Contracts\CircuitBreakerContract;
-use christopheraseidl\ModelFiler\Contracts\FileDeleter;
-use christopheraseidl\ModelFiler\Contracts\FileMover;
-use christopheraseidl\ModelFiler\Contracts\ManifestBuilder;
-use christopheraseidl\ModelFiler\Contracts\RichTextScanner;
-use christopheraseidl\ModelFiler\Services\FileDeleterService;
-use christopheraseidl\ModelFiler\Services\FileMoverService;
-use christopheraseidl\ModelFiler\Services\ManifestBuilderService;
-use christopheraseidl\ModelFiler\Services\RichTextScannerService;
+use christopheraseidl\AutoFiler\Contracts\FileDeleter;
+use christopheraseidl\AutoFiler\Contracts\FileMover;
+use christopheraseidl\AutoFiler\Contracts\GenerateThumbnail;
+use christopheraseidl\AutoFiler\Contracts\ManifestBuilder;
+use christopheraseidl\AutoFiler\Contracts\RichTextScanner;
+use christopheraseidl\AutoFiler\Services\FileDeleterService;
+use christopheraseidl\AutoFiler\Services\FileMoverService;
+use christopheraseidl\AutoFiler\Services\ManifestBuilderService;
+use christopheraseidl\AutoFiler\Services\RichTextScannerService;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Str;
 use Spatie\LaravelPackageTools\Package;
@@ -20,12 +22,12 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 /**
  * Registers all package services, jobs, payloads, and compatibility features.
  */
-class ModelFilerServiceProvider extends PackageServiceProvider
+class AutoFilerServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
         $package
-            ->name('laravel-model-filer')
+            ->name('laravel-auto-filer')
             ->hasConfigFile();
     }
 
@@ -41,8 +43,9 @@ class ModelFilerServiceProvider extends PackageServiceProvider
         $this->app->singleton(CircuitBreakerContract::class, function (Application $app) {
             $factory = $app->make(CircuitBreakerFactory::class);
 
-            return $factory->make('model-filer-circuit-breaker');
+            return $factory->make('auto-filer-circuit-breaker');
         });
+        $this->app->singleton(GenerateThumbnail::class, GenerateThumbnailAction::class);
     }
 
     /**

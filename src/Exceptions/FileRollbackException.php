@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Exceptions;
+namespace christopheraseidl\AutoFiler\Exceptions;
 
-class FileRollbackException extends ModelFilerException
+class FileRollbackException extends AutoFilerException
 {
     //
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Services;
+namespace christopheraseidl\AutoFiler\Services;
 
-use christopheraseidl\ModelFiler\Contracts\RichTextScanner;
+use christopheraseidl\AutoFiler\Contracts\RichTextScanner;
 use Illuminate\Support\Collection;
 
 class RichTextScannerService implements RichTextScanner
@@ -11,7 +11,7 @@ class RichTextScannerService implements RichTextScanner
 
     public function __construct()
     {
-        $this->tempDirectory = config('model-filer.temp_directory');
+        $this->tempDirectory = config('auto-filer.temp_directory');
     }
 
     /**
@@ -20,7 +20,7 @@ class RichTextScannerService implements RichTextScanner
     public function extractPaths(string $content): Collection
     {
         $pattern = '/(src|href)=["\']([^"\']+(?:'.
-                   implode('|', config('model-filer.extensions')).
+                   implode('|', config('auto-filer.extensions')).
                    '))["\']?/i';
 
         preg_match_all($pattern, $content, $matches);

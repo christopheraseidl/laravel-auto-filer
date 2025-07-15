@@ -1,9 +1,9 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Tests\Jobs;
+namespace christopheraseidl\AutoFiler\Tests\Jobs;
 
-use christopheraseidl\ModelFiler\Contracts\FileDeleter;
-use christopheraseidl\ModelFiler\Jobs\CleanOrphanedUploads;
+use christopheraseidl\AutoFiler\Contracts\FileDeleter;
+use christopheraseidl\AutoFiler\Jobs\CleanOrphanedUploads;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,7 +14,7 @@ beforeEach(function () {
 });
 
 it('returns early when cleanup is disabled', function () {
-    config()->set('model-filer.cleanup.enabled', false);
+    config()->set('auto-filer.cleanup.enabled', false);
 
     $job = new CleanOrphanedUploads;
     $job->handle($this->deleter);
@@ -24,11 +24,11 @@ it('returns early when cleanup is disabled', function () {
 });
 
 it('deletes files older than threshold in live mode', function () {
-    config()->set('model-filer.cleanup.enabled', true);
-    config()->set('model-filer.cleanup.dry_run', false);
-    config()->set('model-filer.cleanup.threshold_hours', 24);
-    config()->set('model-filer.temp_directory', 'uploads/temp');
-    config()->set('model-filer.disk', 'public');
+    config()->set('auto-filer.cleanup.enabled', true);
+    config()->set('auto-filer.cleanup.dry_run', false);
+    config()->set('auto-filer.cleanup.threshold_hours', 24);
+    config()->set('auto-filer.temp_directory', 'uploads/temp');
+    config()->set('auto-filer.disk', 'public');
 
     // Create old file
     Storage::disk('public')->put('uploads/temp/old-file.jpg', 'content');
@@ -67,11 +67,11 @@ it('deletes files older than threshold in live mode', function () {
 });
 
 it('logs files that would be deleted in dry run mode', function () {
-    config()->set('model-filer.cleanup.enabled', true);
-    config()->set('model-filer.cleanup.dry_run', true);
-    config()->set('model-filer.cleanup.threshold_hours', 24);
-    config()->set('model-filer.temp_directory', 'uploads/temp');
-    config()->set('model-filer.disk', 'public');
+    config()->set('auto-filer.cleanup.enabled', true);
+    config()->set('auto-filer.cleanup.dry_run', true);
+    config()->set('auto-filer.cleanup.threshold_hours', 24);
+    config()->set('auto-filer.temp_directory', 'uploads/temp');
+    config()->set('auto-filer.disk', 'public');
 
     Storage::disk('public')->put('uploads/temp/old-file.jpg', 'content');
 
@@ -101,9 +101,9 @@ it('logs files that would be deleted in dry run mode', function () {
 });
 
 it('handles empty directory', function () {
-    config()->set('model-filer.cleanup.enabled', true);
-    config()->set('model-filer.temp_directory', 'uploads/temp');
-    config()->set('model-filer.disk', 'public');
+    config()->set('auto-filer.cleanup.enabled', true);
+    config()->set('auto-filer.temp_directory', 'uploads/temp');
+    config()->set('auto-filer.disk', 'public');
 
     $job = new CleanOrphanedUploads;
     $job->handle($this->deleter);
@@ -117,7 +117,7 @@ it('handles empty directory', function () {
 });
 
 it('generates unique job ID based on path', function () {
-    config()->set('model-filer.temp_directory', 'uploads/temp');
+    config()->set('auto-filer.temp_directory', 'uploads/temp');
 
     $job = new CleanOrphanedUploads;
     $expectedId = 'cleanup_'.hash('sha256', 'uploads/temp');
@@ -126,8 +126,8 @@ it('generates unique job ID based on path', function () {
 });
 
 it('uses configured queue connection and queue', function () {
-    config()->set('model-filer.queue_connection', 'redis');
-    config()->set('model-filer.queue', 'files');
+    config()->set('auto-filer.queue_connection', 'redis');
+    config()->set('auto-filer.queue', 'files');
 
     $job = new CleanOrphanedUploads;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\ValueObjects;
+namespace christopheraseidl\AutoFiler\ValueObjects;
 
 use Illuminate\Database\Eloquent\Model;
 

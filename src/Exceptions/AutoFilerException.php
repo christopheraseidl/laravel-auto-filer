@@ -2,7 +2,7 @@
 
 namespace christopheraseidl\AutoFiler\Exceptions;
 
-class FileDeleteException extends AutoFilerException
+class AutoFilerException extends \Exception
 {
     //
 }

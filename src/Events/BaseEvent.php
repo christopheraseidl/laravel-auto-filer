@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Events;
+namespace christopheraseidl\AutoFiler\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -20,7 +20,7 @@ abstract class BaseEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel(config('model-filer.broadcast_channel')),
+            new PrivateChannel(config('auto-filer.broadcast_channel', 'default')),
         ];
     }
 }

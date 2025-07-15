@@ -1,6 +1,6 @@
 <?php
 
-namespace christopheraseidl\ModelFiler\Exceptions;
+namespace christopheraseidl\AutoFiler\Exceptions;
 
 class FileMoveException extends FileOperationException
 {
