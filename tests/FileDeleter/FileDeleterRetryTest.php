@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\Storage;
 beforeEach(function () {
     $this->circuitBreaker = $this->mock(CircuitBreakerContract::class);
     $this->service = new FileDeleterService($this->circuitBreaker);
-    
+
     Storage::fake('public');
     config()->set('auto-filer.disk', 'public');
     config()->set('auto-filer.max_attempts', 3);
     config()->set('auto-filer.retry_delay', 0);
     config()->set('auto-filer.retry_wait_seconds', 0); // to speed up tests
-    
+
     Log::spy();
 });
 
@@ -26,11 +26,11 @@ it('retries failed deletions up to max attempts', function () {
     Storage::shouldReceive('disk->delete')
         ->times(3)
         ->andReturnFalse();
-    
+
     $this->circuitBreaker->shouldReceive('canAttempt')->andReturnTrue();
     $this->circuitBreaker->shouldReceive('recordFailure')->times(3);
-    
-    expect(fn() => $this->service->delete('test-file.txt'))
+
+    expect(fn () => $this->service->delete('test-file.txt'))
         ->toThrow(FileDeleteException::class, 'Failed to delete file after 3 attempts.');
 });
 
@@ -43,7 +43,7 @@ it('stops retrying when circuit breaker blocks', function () {
         ->andReturnFalse();
 
     $count = 0;
-    
+
     $this->circuitBreaker->shouldReceive('canAttempt')
         ->times(4)
         ->andReturnUsing(function () use (&$count) {
@@ -56,8 +56,8 @@ it('stops retrying when circuit breaker blocks', function () {
             return true;
         });
     $this->circuitBreaker->shouldReceive('recordFailure')->once();
-    
-    expect(fn() => $this->service->delete('test-file.txt'))
+
+    expect(fn () => $this->service->delete('test-file.txt'))
         ->toThrow(FileDeleteException::class);
 });
 
@@ -66,13 +66,13 @@ it('logs failures and throws final exception', function () {
     Storage::shouldReceive('disk->delete')
         ->times(3)
         ->andReturnFalse();
-    
+
     $this->circuitBreaker->shouldReceive('canAttempt')->andReturnTrue();
     $this->circuitBreaker->shouldReceive('recordFailure')->times(3);
-    
-    expect(fn() => $this->service->delete('test-file.txt'))
+
+    expect(fn () => $this->service->delete('test-file.txt'))
         ->toThrow(FileDeleteException::class, 'Failed to delete file after 3 attempts.');
-    
+
     // Logs warnings during attempts
     Log::shouldHaveReceived('warning')
         ->times(3);
@@ -99,14 +99,14 @@ it('succeeds on retry attempt', function () {
 
             return false;
         });
-    
+
     $this->circuitBreaker->shouldReceive('canAttempt')->andReturnTrue();
     $this->circuitBreaker->shouldReceive('recordSuccess')->once();
-    
+
     $result = $this->service->delete('test-file.txt');
-    
+
     expect($result)->toBeTrue();
-    
+
     Log::shouldHaveReceived('warning')
         ->once()
         ->with('File delete attempt 1 failed.', \Mockery::type('array'));

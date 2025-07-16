@@ -49,7 +49,7 @@ class ManifestBuilderService implements ManifestBuilder
 
         // Model creation/update
         $operations = collect($this->modelFileAttributes)->flatMap(
-            fn ($attribute, $subfolder) => $this->buildFileOperations($model, $attribute)
+            fn ($subfolder, $attribute) => $this->buildFileOperations($model, $attribute)
         );
 
         return new ChangeManifest($operations);
@@ -88,8 +88,22 @@ class ManifestBuilderService implements ManifestBuilder
         }
 
         $current = collect(Arr::wrap($model->getAttribute($attribute)));
-        $original = collect(Arr::wrap($model->getOriginal($attribute)));
         $targetDir = $this->getFileDir($attribute);
+
+        // If model was just created, all current files are new
+        if ($model->wasRecentlyCreated) {
+            return $current->map(
+                fn ($file) => FileOperation::move(
+                    $file,
+                    $this->buildUniqueDestinationPath($file, $targetDir),
+                    $model,
+                    $attribute
+                )
+            );
+        }
+
+        // Otherwise, use diff logic for updates
+        $original = collect(Arr::wrap($model->getOriginal($attribute)));
 
         return collect()
             ->merge(
@@ -137,7 +151,10 @@ class ManifestBuilderService implements ManifestBuilder
      */
     protected function getFileDir(string $attribute): string
     {
-        return $this->modelFileAttributes[$attribute] ?? $this->modelRichTextAttributes[$attribute];
+        return implode('/', array_filter([
+            $this->modelDir,
+            $this->modelFileAttributes[$attribute] ?? $this->modelRichTextAttributes[$attribute],
+        ]));
     }
 
     /**

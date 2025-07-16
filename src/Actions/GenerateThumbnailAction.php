@@ -18,7 +18,6 @@ class GenerateThumbnailAction implements GenerateThumbnail
 
     /**
      * Generate thumbnail for the given image path.
-     *
      */
     public function __invoke(string $imagePath, array $options = []): array
     {
@@ -72,10 +71,10 @@ class GenerateThumbnailAction implements GenerateThumbnail
     private function buildThumbnailPath(string $imagePath, string $suffix): string
     {
         $info = pathinfo($imagePath);
-        
-        return $info['dirname'] . '/' . 
-               $info['filename'] . 
-               $suffix . 
-               '.' . $info['extension'];
+
+        return $info['dirname'].'/'.
+               $info['filename'].
+               $suffix.
+               '.'.$info['extension'];
     }
 }

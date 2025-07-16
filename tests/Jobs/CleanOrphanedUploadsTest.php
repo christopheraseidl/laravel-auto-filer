@@ -39,7 +39,7 @@ it('deletes files older than threshold in live mode', function () {
         ->with('uploads/temp')
         ->andReturn([
             'uploads/temp/old-file.jpg',
-            'uploads/temp/new-file.jpg'
+            'uploads/temp/new-file.jpg',
         ]);
 
     // Mock file timestamps

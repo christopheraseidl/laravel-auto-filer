@@ -161,7 +161,7 @@ return [
     | giving up and marking it as permanently failed.
     */
     'maximum_file_operation_retries' => 3,
-    
+
     /*
     | Retry wait seconds
     |

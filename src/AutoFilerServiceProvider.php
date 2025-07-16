@@ -3,8 +3,6 @@
 namespace christopheraseidl\AutoFiler;
 
 use christopheraseidl\AutoFiler\Actions\GenerateThumbnailAction;
-use christopheraseidl\CircuitBreaker\CircuitBreakerFactory;
-use christopheraseidl\CircuitBreaker\Contracts\CircuitBreakerContract;
 use christopheraseidl\AutoFiler\Contracts\FileDeleter;
 use christopheraseidl\AutoFiler\Contracts\FileMover;
 use christopheraseidl\AutoFiler\Contracts\GenerateThumbnail;
@@ -14,6 +12,8 @@ use christopheraseidl\AutoFiler\Services\FileDeleterService;
 use christopheraseidl\AutoFiler\Services\FileMoverService;
 use christopheraseidl\AutoFiler\Services\ManifestBuilderService;
 use christopheraseidl\AutoFiler\Services\RichTextScannerService;
+use christopheraseidl\CircuitBreaker\CircuitBreakerFactory;
+use christopheraseidl\CircuitBreaker\Contracts\CircuitBreakerContract;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Str;
 use Spatie\LaravelPackageTools\Package;

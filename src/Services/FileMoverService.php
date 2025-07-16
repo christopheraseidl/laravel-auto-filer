@@ -19,7 +19,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
     private array $movedFiles = [];
 
     public function __construct(
-        private readonly CircuitBreakerContract $circuitBreaker,
+        CircuitBreakerContract $circuitBreaker,
         private readonly GenerateThumbnail $generateThumbnail
     ) {
         parent::__construct($circuitBreaker);
@@ -32,7 +32,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
     {
         $this->checkCircuitBreaker('attempt move file', [
             'source_path' => $sourcePath,
-            'destination_folder' => $destinationPath,
+            'destination_path' => $destinationPath,
         ]);
 
         return $this->attemptMove($sourcePath, $destinationPath);
@@ -110,7 +110,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
 
             // TODO: Delete thumbnail, if any
             $this->uncommitMovedFile($sourcePath.'_thumb');
-            if (!is_null($thumbnailPath)) {
+            if (isset($thumbnailPath)) {
                 if ($this->fileExists($thumbnailPath)) {
                     Storage::disk($this->disk)->delete($thumbnailPath);
                 }
@@ -189,10 +189,6 @@ class FileMoverService extends BaseFileOperator implements FileMover
             }
         }
 
-        if (! $this->getBreaker()->canAttempt()) {
-            $this->getBreaker()->recordFailure();
-        }
-
         return false;
     }
 
@@ -245,13 +241,22 @@ class FileMoverService extends BaseFileOperator implements FileMover
      */
     protected function generateThumbnailAndCommit(string $imagePath): ?string
     {
-        $result = $this->generateThumbnail($imagePath);
-            
+        $result = ($this->generateThumbnail)($imagePath);
+
         if ($result['success']) {
             // Track thumbnail for potential rollback
             $this->commitMovedFile($imagePath.'_thumb', $result['path']);
 
             return $result['path'];
+        } else {
+            $this->getBreaker()->recordFailure();
+
+            Log::error('Thumbnail generation failed', [
+                'disk' => $this->disk,
+                'source_path' => $imagePath,
+                'destination' => $result['path'] ?? null,
+                'max_attempts' => $this->maxAttempts,
+            ]);
         }
 
         return null;
@@ -263,7 +268,6 @@ class FileMoverService extends BaseFileOperator implements FileMover
     protected function validateCopiedFile(string $destinationPath): void
     {
         if (! $this->fileExists($destinationPath)) {
-            $this->getBreaker()->recordFailure();
             throw new FileValidationException('Copy succeeded but file not found at destination.');
         }
     }
@@ -279,12 +283,12 @@ class FileMoverService extends BaseFileOperator implements FileMover
     /**
      * Handle exceptions caught in the attemptMove() method.
      */
-    protected function handleMoveFailed(string $sourcePath, string $destinationDir, \Throwable $exception): void
+    protected function handleMoveFailed(string $sourcePath, string $destinationPath, \Throwable $exception): void
     {
         Log::error("Failed to move file after {$this->maxAttempts} attempts.", [
             'disk' => $this->disk,
-            'source_path' => $sourcePath,
-            'destination_dir' => $destinationDir,
+            'source' => $sourcePath,
+            'destination' => $destinationPath,
             'max_attempts' => $this->maxAttempts,
             'last_error' => $exception->getMessage(),
         ]);
@@ -297,31 +301,29 @@ class FileMoverService extends BaseFileOperator implements FileMover
      */
     protected function handleMoveRetryFailed(int $attempts, string $exceptionMessage): void
     {
+        $this->getBreaker()->recordFailure();
+
         Log::warning('Move attempt failed.', [
             'attempt' => $attempts,
             'error' => $exceptionMessage,
         ]);
 
         if ($this->getBreaker()->canAttempt()) {
-            if (! empty($this->getMovedFiles())) {
-                try {
-                    $this->attemptUndoMove();
-                } catch (\Throwable $e) {
-                    Log::error('Unexpected exception during undo after move failure.', [
-                        'disk' => $this->disk,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
-            }
-        } else {
             $this->waitBeforeRetry();
         }
     }
 
     protected function handleAllMoveAttemptsFailed(int $attempts, ?\Throwable $exception = null): void
     {
-        if (! $this->getBreaker()->canAttempt()) {
-            $this->getBreaker()->recordFailure();
+        if (! empty($this->getMovedFiles())) {
+            try {
+                $this->attemptUndoMove();
+            } catch (\Throwable $e) {
+                Log::error('Unexpected exception during undo after move failure.', [
+                    'disk' => $this->disk,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         throw $exception ?? new FileMoveException('Move failed without exception');
@@ -336,11 +338,13 @@ class FileMoverService extends BaseFileOperator implements FileMover
         int $attempts,
         \Throwable $exception
     ) {
+        $this->getBreaker()->recordFailure();
+
         Log::warning('Undo attempt failed.', [
             'disk' => $this->disk,
             'attempt' => $attempts,
-            'source_path' => $sourcePath,
-            'destination_path' => $destinationPath,
+            'source' => $sourcePath,
+            'destination' => $destinationPath,
             'error' => $exception->getMessage(),
         ]);
 
@@ -373,8 +377,6 @@ class FileMoverService extends BaseFileOperator implements FileMover
      */
     protected function handleUndosFailed(array $results, bool $throwOnFailure = true): void
     {
-        $this->getBreaker()->recordFailure();
-
         Log::error('File move undo failure.', [
             'disk' => $this->disk,
             'failed' => $results['failures'],

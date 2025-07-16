@@ -11,7 +11,6 @@ use christopheraseidl\AutoFiler\Jobs\ProcessFileOperations;
 use christopheraseidl\AutoFiler\Tests\TestModels\TestModel;
 use christopheraseidl\AutoFiler\ValueObjects\ChangeManifest;
 use christopheraseidl\AutoFiler\ValueObjects\FileOperation;
-use christopheraseidl\AutoFiler\ValueObjects\OperationType;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
@@ -159,14 +158,14 @@ it('rolls back all operations when one fails', function () {
 
     // First operation succeeds
     $this->mover->shouldReceive('move')->once();
-    
+
     // Second operation fails
     $this->deleter->shouldReceive('delete')
         ->once()
         ->andThrow(new \Exception('Delete failed'));
 
     $job = new ProcessFileOperations($manifest);
-    
+
     // Assert exception is thrown
     expect(fn () => $job->handle($this->mover, $this->deleter, $this->scanner))
         ->toThrow(\Exception::class);

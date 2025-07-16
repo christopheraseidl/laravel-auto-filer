@@ -3,19 +3,19 @@
 namespace christopheraseidl\AutoFiler\Tests\ServiceProvider;
 
 use christopheraseidl\AutoFiler\Actions\GenerateThumbnailAction;
-use christopheraseidl\CircuitBreaker\CircuitBreakerFactory;
-use christopheraseidl\CircuitBreaker\Contracts\CircuitBreakerContract;
+use christopheraseidl\AutoFiler\AutoFilerServiceProvider;
 use christopheraseidl\AutoFiler\Contracts\FileDeleter;
 use christopheraseidl\AutoFiler\Contracts\FileMover;
+use christopheraseidl\AutoFiler\Contracts\GenerateThumbnail;
 use christopheraseidl\AutoFiler\Contracts\ManifestBuilder;
 use christopheraseidl\AutoFiler\Contracts\RichTextScanner;
-use christopheraseidl\AutoFiler\AutoFilerServiceProvider;
-use christopheraseidl\AutoFiler\Contracts\GenerateThumbnail;
 use christopheraseidl\AutoFiler\Services\FileDeleterService;
 use christopheraseidl\AutoFiler\Services\FileMoverService;
 use christopheraseidl\AutoFiler\Services\ManifestBuilderService;
 use christopheraseidl\AutoFiler\Services\RichTextScannerService;
 use christopheraseidl\CircuitBreaker\CircuitBreaker;
+use christopheraseidl\CircuitBreaker\CircuitBreakerFactory;
+use christopheraseidl\CircuitBreaker\Contracts\CircuitBreakerContract;
 use Illuminate\Support\Str;
 
 beforeEach(function () {
@@ -84,7 +84,8 @@ it('adds pascal macro when method does not exist', function () {
     $provider->packageBooted();
 
     // Expose macros to public scope
-    $str = new class extends Str {
+    $str = new class extends Str
+    {
         public static function getMacros(): array
         {
             return self::$macros;
@@ -93,7 +94,7 @@ it('adds pascal macro when method does not exist', function () {
 
     $macros = $str->getMacros();
     expect($macros)->toHaveKey('pascal');
-    
+
     $pascalMacro = $macros['pascal'];
 
     expect($pascalMacro('hello_world'))->toBe('HelloWorld');
