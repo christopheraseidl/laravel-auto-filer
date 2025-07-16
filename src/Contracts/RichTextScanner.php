@@ -9,7 +9,7 @@ interface RichTextScanner
     /**
      * Extract file paths from rich text content.
      */
-    public function extractPaths(string $content): Collection;
+    public function extractPaths(?string $content): Collection;
 
     /**
      * Replace file paths in content with new paths.

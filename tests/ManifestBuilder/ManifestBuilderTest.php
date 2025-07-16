@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->scanner = $this->mock(RichTextScanner::class);
+    $this->scanner->shouldReceive('extractPaths')->andReturn(collect());
     $this->service = new ManifestBuilderService($this->scanner);
 
     Storage::fake('public');

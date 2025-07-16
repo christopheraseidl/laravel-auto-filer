@@ -48,9 +48,11 @@ class ManifestBuilderService implements ManifestBuilder
         }
 
         // Model creation/update
-        $operations = collect($this->modelFileAttributes)->flatMap(
-            fn ($subfolder, $attribute) => $this->buildFileOperations($model, $attribute)
-        );
+        $operations = collect($this->modelFileAttributes)
+            ->merge(collect($this->modelRichTextAttributes))
+            ->flatMap(
+                fn ($subfolder, $attribute) => $this->buildFileOperations($model, $attribute)
+            );
 
         return new ChangeManifest($operations);
     }
@@ -134,7 +136,10 @@ class ManifestBuilderService implements ManifestBuilder
         $paths = $this->scanner->extractPaths($content);
         $targetDir = $this->getFileDir($attribute);
 
-        return $paths->map(function ($path) use ($targetDir, $model, $attribute) {
+        return $paths->filter(function ($path) use ($targetDir) {
+            // Filter out paths that already point to the target directory
+            return ! $this->pointsToDestination($path, $targetDir);
+        })->map(function ($path) use ($targetDir, $model, $attribute) {
             $destination = $this->buildUniqueDestinationPath($path, $targetDir);
 
             return FileOperation::moveRichText(
@@ -189,7 +194,7 @@ class ManifestBuilderService implements ManifestBuilder
     protected function isRichTextField(Model $model, string $attribute): bool
     {
         // Define in model via getRichTextAttributes() method
-        return in_array($attribute, $this->modelRichTextAttributes ?? []);
+        return array_key_exists($attribute, $this->modelRichTextAttributes ?? []);
     }
 
     /**
@@ -223,5 +228,16 @@ class ManifestBuilderService implements ManifestBuilder
     protected function usesSoftDeletes(Model $model): bool
     {
         return in_array(SoftDeletes::class, class_uses_recursive($model));
+    }
+
+    /**
+     * Check to see whether the path already points to the destination folder
+     */
+    protected function pointsToDestination(string $path, string $destination): bool
+    {
+        $pathArray = explode('/', $path);
+        array_pop($pathArray);
+
+        return implode('/', $pathArray) === $destination;
     }
 }

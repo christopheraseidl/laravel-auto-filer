@@ -63,7 +63,7 @@ it('records circuit breaker failure on failed deletion', function () {
     Storage::shouldReceive('disk->delete')->andReturnFalse();
 
     $this->circuitBreaker->shouldReceive('canAttempt')->andReturnTrue();
-    $this->circuitBreaker->shouldReceive('recordFailure')->times(4);
+    $this->circuitBreaker->shouldReceive('recordFailure')->times(3);
 
     expect(fn () => $this->service->delete('test-file.txt'))
         ->toThrow(FileDeleteException::class, 'Failed to delete file after 3 attempts.');
@@ -74,7 +74,7 @@ it('throws FileDeleteException on deletion failure', function () {
     Storage::shouldReceive('disk->delete')->andReturnFalse();
 
     $this->circuitBreaker->shouldReceive('canAttempt')->andReturnTrue();
-    $this->circuitBreaker->shouldReceive('recordFailure')->times(4);
+    $this->circuitBreaker->shouldReceive('recordFailure')->times(3);
 
     expect(fn () => $this->service->delete('test-file.txt'))
         ->toThrow(FileDeleteException::class);

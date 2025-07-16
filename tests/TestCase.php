@@ -4,6 +4,7 @@ namespace christopheraseidl\AutoFiler\Tests;
 
 use christopheraseidl\AutoFiler\AutoFilerServiceProvider;
 use christopheraseidl\CircuitBreaker\Laravel\CircuitBreakerServiceProvider;
+use Intervention\Image\Laravel\ServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
@@ -40,6 +41,7 @@ class TestCase extends Orchestra
     {
         return [
             CircuitBreakerServiceProvider::class,
+            ServiceProvider::class,
             AutoFilerServiceProvider::class,
         ];
     }

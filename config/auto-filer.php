@@ -85,6 +85,8 @@ return [
         'application/rtf',
         'text/plain',
         'text/markdown',
+        'video/mp4',
+        'audio/mpeg',
     ],
 
     /*
@@ -106,6 +108,8 @@ return [
         'rtf',
         'txt',
         'md',
+        'mp4',
+        'mp3',
     ],
 
     /*
