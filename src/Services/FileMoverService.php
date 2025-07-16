@@ -87,8 +87,9 @@ class FileMoverService extends BaseFileOperator implements FileMover
             $this->validateCopiedFile($destinationPath);
 
             // Generate thumbnail if enabled and file is an image
+            $thumbnailPath = null;
             if ($this->shouldGenerateThumbnail($destinationPath)) {
-                $this->generateThumbnailAndCommit($destinationPath);
+                $thumbnailPath = $this->generateThumbnailAndCommit($destinationPath);
             }
 
             Storage::disk($this->disk)->delete($sourcePath);
@@ -108,7 +109,12 @@ class FileMoverService extends BaseFileOperator implements FileMover
             $this->uncommitMovedFile($sourcePath);
 
             // TODO: Delete thumbnail, if any
-
+            $this->uncommitMovedFile($sourcePath.'_thumb');
+            if (!is_null($thumbnailPath)) {
+                if ($this->fileExists($thumbnailPath)) {
+                    Storage::disk($this->disk)->delete($thumbnailPath);
+                }
+            }
 
             // Re-throw the exception
             throw $e;
@@ -237,14 +243,18 @@ class FileMoverService extends BaseFileOperator implements FileMover
     /**
      * Generate thumbnail for image file.
      */
-    protected function generateThumbnailAndCommit(string $imagePath): void
+    protected function generateThumbnailAndCommit(string $imagePath): ?string
     {
         $result = $this->generateThumbnail($imagePath);
             
         if ($result['success']) {
             // Track thumbnail for potential rollback
             $this->commitMovedFile($imagePath.'_thumb', $result['path']);
+
+            return $result['path'];
         }
+
+        return null;
     }
 
     /**
