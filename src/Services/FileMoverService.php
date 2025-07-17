@@ -44,12 +44,12 @@ class FileMoverService extends BaseFileOperator implements FileMover
     protected function attemptMove(string $sourcePath, string $destinationPath): string
     {
         try {
-            $results = $this->moveWithRetries($sourcePath, $destinationPath);
+            $result = $this->moveWithRetries($sourcePath, $destinationPath);
         } catch (\Throwable $e) {
             $this->handleMoveFailed($sourcePath, $destinationPath, $e);
         }
 
-        return $results ?? '';
+        return $result ?? '';
     }
 
     /**
@@ -108,7 +108,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
             // Uncommit the now-deleted file
             $this->uncommitMovedFile($sourcePath);
 
-            // TODO: Delete thumbnail, if any
+            // Delete thumbnail, if any
             $this->uncommitMovedFile($sourcePath.'_thumb');
             if (isset($thumbnailPath)) {
                 if ($this->fileExists($thumbnailPath)) {
@@ -197,7 +197,7 @@ class FileMoverService extends BaseFileOperator implements FileMover
      */
     protected function executeUndo(string $sourcePath, string $destinationPath): void
     {
-        if (! $this->fileExists($destinationPath)) {
+        if (! $this->fileExists($destinationPath) && $this->fileExists($sourcePath)) {
             return; // Nothing to undo
         }
 
@@ -277,7 +277,11 @@ class FileMoverService extends BaseFileOperator implements FileMover
      */
     protected function fileExists(string $path): bool
     {
-        return Storage::disk($this->disk)->exists($path) && Storage::disk($this->disk)->size($path) > 0;
+        if (! Storage::disk($this->disk)->exists($path)) {
+            return false;
+        }
+
+        return Storage::disk($this->disk)->size($path) > 0;
     }
 
     /**
@@ -313,6 +317,9 @@ class FileMoverService extends BaseFileOperator implements FileMover
         }
     }
 
+    /**
+     * Handle failure after maximum attempts reached or circuit breaker opens.
+     */
     protected function handleAllMoveAttemptsFailed(int $attempts, ?\Throwable $exception = null): void
     {
         if (! empty($this->getMovedFiles())) {

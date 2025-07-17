@@ -66,7 +66,14 @@ it('handles rollback when destination file missing', function () {
     $movedFiles->setAccessible(true);
     $movedFiles->setValue($this->service, ['source/file.txt' => 'destination/file.txt']);
 
+    // Destination file doesn't exist
     Storage::shouldReceive('disk->exists')->with('destination/file.txt')->andReturnFalse();
+
+    // Source file exists
+    Storage::shouldReceive('disk->exists')->with('source/file.txt')->andReturnTrue();
+    Storage::shouldReceive('disk->size')->andReturn(10);
+
+    Storage::shouldReceive('disk->delete')->with('destination/file.txt')->andReturnTrue();
 
     $this->circuitBreaker->shouldReceive('canAttempt')->andReturnTrue();
     $this->circuitBreaker->shouldReceive('recordSuccess')->once();
@@ -129,6 +136,7 @@ it('throws FileRollbackException on rollback failure', function () {
     $movedFiles->setAccessible(true);
     $movedFiles->setValue($this->service, ['source/file.txt' => 'destination/file.txt']);
 
+    // Mock copy failure from rollback operation
     Storage::shouldReceive('disk->exists')->with('destination/file.txt')->andReturnTrue();
     Storage::shouldReceive('disk->exists')->with('source/file.txt')->andReturnFalse();
     Storage::shouldReceive('disk->copy')->andThrow(new \Exception('Rollback failed'));
@@ -154,8 +162,12 @@ it('handles partial rollback failures', function () {
         'source/file2.txt' => 'destination/file2.txt',
     ]);
 
+    // Mock size; we don't care about this
+    Storage::shouldReceive('disk->size')->andReturn(10);
+
     // First file rollback succeeds
     Storage::shouldReceive('disk->exists')->with('destination/file1.txt')->andReturnFalse();
+    Storage::shouldReceive('disk->exists')->with('source/file1.txt')->andReturnTrue();
 
     // Second file rollback fails
     Storage::shouldReceive('disk->exists')->with('destination/file2.txt')->andReturnTrue();
@@ -177,4 +189,77 @@ it('handles partial rollback failures', function () {
     expect($movedFiles->getValue($this->service))
         ->not->toHaveKey('source/file1.txt')
         ->toHaveKey('source/file2.txt');
+});
+
+it('handles rollback when circuit breaker blocks undo operations', function () {
+    // Set up file tracking
+    $reflection = new \ReflectionClass($this->service);
+    $movedFiles = $reflection->getProperty('movedFiles');
+    $movedFiles->setAccessible(true);
+    $movedFiles->setValue($this->service, ['source/file.txt' => 'destination/file.txt']);
+
+    // Circuit breaker blocks undo operations
+    $this->circuitBreaker->shouldReceive('canAttempt')->andReturnFalse();
+
+    // Call rollback via reflection
+    $method = $reflection->getMethod('attemptUndoMove');
+    $method->setAccessible(true);
+
+    expect(fn () => $method->invoke($this->service))
+        ->toThrow(FileRollbackException::class);
+});
+
+it('throws an exception when restoration of original file fails during rollback', function () {
+    // Mock destination file existence; 1st source file existence check won't run
+    Storage::shouldReceive('disk->exists')
+        ->with('destination/file.txt')
+        ->andReturnTrue();
+
+    // Mock size; we don't care
+    Storage::shouldReceive('disk->size')
+        ->andReturn(10);
+
+    // Mock source file existence alternately to force arrival to end of method
+    $count = 0;
+    Storage::shouldReceive('disk->exists')
+        ->times(2)
+        ->with('source/file.txt')
+        ->andReturnUsing(function () use (&$count) {
+            $count++;
+
+            return $count === 1;
+        });
+
+    // Set up reflection method
+    $reflection = new \ReflectionClass($this->service);
+    $method = $reflection->getMethod('executeUndo');
+    $method->setAccessible(true);
+
+    expect(fn () => $method->invoke($this->service, 'source/file.txt', 'destination/file.txt'))
+        ->toThrow(FileRollbackException::class, 'Failed to restore file to original location.');
+});
+
+it('does not throw on rollback failure when throwOnFailure is false', function () {
+    // Set up file tracking
+    $reflection = new \ReflectionClass($this->service);
+    $movedFiles = $reflection->getProperty('movedFiles');
+    $movedFiles->setAccessible(true);
+    $movedFiles->setValue($this->service, ['source/file.txt' => 'destination/file.txt']);
+
+    // Mock rollback failure
+    Storage::shouldReceive('disk->exists')->with('destination/file.txt')->andReturnTrue();
+    Storage::shouldReceive('disk->exists')->with('source/file.txt')->andReturnFalse();
+    Storage::shouldReceive('disk->copy')->andThrow(new \Exception('Rollback failed'));
+
+    $this->circuitBreaker->shouldReceive('canAttempt')->andReturnTrue();
+    $this->circuitBreaker->shouldReceive('recordFailure')->times(3);
+
+    // Call rollback via reflection with throwOnFailure = false
+    $method = $reflection->getMethod('attemptUndoMove');
+    $method->setAccessible(true);
+
+    $result = $method->invoke($this->service, false);
+
+    expect($result['failures'])->toHaveKey('source/file.txt');
+    expect($result['successes'])->toBeEmpty();
 });

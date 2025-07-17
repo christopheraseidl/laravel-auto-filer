@@ -37,6 +37,22 @@ it('creates move operations for new files', function () {
     expect($operation->attribute)->toBe('avatar');
 });
 
+it('creates move operations for a newly created model', function () {
+    $model = TestModel::create([
+        'id' => 1,
+        'avatar' => 'uploads/temp/avatar.jpg',
+    ]);
+
+    $manifest = $this->service->buildManifest($model, 'created');
+    $operation = $manifest->operations->first();
+
+    expect($operation->source)->toBe('uploads/temp/avatar.jpg');
+    expect($operation->destination)->toBe('test_models/1/images/avatar.jpg');
+    expect($operation->modelClass)->toBe($model::class);
+    expect($operation->modelId)->toBe($model->id);
+    expect($operation->attribute)->toBe('avatar');
+});
+
 it('creates delete operations for removed files', function () {
     $model = new TestModel([
         'id' => 1,
