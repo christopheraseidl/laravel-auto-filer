@@ -11,16 +11,11 @@ use christopheraseidl\AutoFiler\Jobs\ProcessFileOperations;
 use christopheraseidl\AutoFiler\Tests\TestModels\TestModel;
 use christopheraseidl\AutoFiler\ValueObjects\ChangeManifest;
 use christopheraseidl\AutoFiler\ValueObjects\FileOperation;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
-
-uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->mover = $this->mock(FileMover::class);

@@ -32,8 +32,6 @@ class TestCase extends Orchestra
 
     protected function tearDown(): void
     {
-        $this->artisan('migrate:reset');
-
         parent::tearDown();
     }
 
