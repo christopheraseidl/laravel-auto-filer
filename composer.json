@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "christopheraseidl/circuit-breaker": "^0.4.0",
         "illuminate/contracts": "^10.0||^11.11||^12.0",
         "intervention/image-laravel": "^1.5",
