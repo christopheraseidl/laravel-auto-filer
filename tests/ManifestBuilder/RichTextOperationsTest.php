@@ -19,14 +19,21 @@ beforeEach(function () {
 it('creates move operations for rich text files', function () {
     $model = new TestModel([
         'id' => 1,
-        'description' => '<p>Multiple files: <img src="temp/img1.jpg"> <a href="temp/doc.pdf">Doc</a></p>',
     ]);
+
+    $model->description = '<p>Multiple files: <img src="temp/img1.jpg"> <a href="temp/doc.pdf">Doc</a></p>';
 
     $this->scanner->shouldReceive('extractPaths')
         ->once()
+        ->with($model->description)
         ->andReturn(collect(['temp/img1.jpg', 'temp/doc.pdf']));
 
-    $manifest = $this->service->buildManifest($model, 'created');
+    $this->scanner->shouldReceive('extractPaths')
+        ->once()
+        ->with(null)
+        ->andReturn(collect());
+
+    $manifest = $this->service->buildManifest($model, 'updated');
 
     expect($manifest->operations)->toHaveCount(2);
 
@@ -44,18 +51,60 @@ it('creates move operations for rich text files', function () {
     expect($operations[1]->destination)->toBe('test_models/1/files/doc.pdf');
 });
 
+it('creates rich text move operations for a newly created model', function () {
+    $model = TestModel::create([
+        'id' => 1,
+        'description' => '<img src="temp/image.jpg">',
+    ]);
+
+    $this->scanner->shouldReceive('extractPaths')
+        ->once()
+        ->andReturn(collect(['temp/image.jpg']));
+
+    $manifest = $this->service->buildManifest($model, 'created');
+    $operation = $manifest->operations->first();
+
+    $operation = $manifest->operations->first();
+    expect($operation->type)->toBe(OperationType::Move);
+    expect($operation->destination)->toBe('test_models/1/files/image.jpg');
+});
+
+it('creates rich text delete operations for eliminated files', function () {
+    $model = new TestModel([
+        'id' => 1,
+        'description' => '<img src="test_models/1/files/image.jpg">',
+    ]);
+    $model->description = null;
+
+    $this->scanner->shouldReceive('extractPaths')
+        ->once()
+        ->with(null)
+        ->andReturn(collect());
+
+    $this->scanner->shouldReceive('extractPaths')
+        ->once()
+        ->with($model->description)
+        ->andReturn(collect(['test_models/1/files/image.jpg']));
+
+    $manifest = $this->service->buildManifest($model, 'created');
+    $operation = $manifest->operations->first();
+    expect($operation->type)->toBe(OperationType::Delete);
+    expect($operation->source)->toBe('test_models/1/files/image.jpg');
+});
+
 it('handles rich text with no file references', function () {
     $model = new TestModel([
         'id' => 1,
         'description' => '<p>Just plain text content with no files</p>',
     ]);
+    $model->syncOriginal(); // Manually set above value as original
 
     $this->scanner->shouldReceive('extractPaths')
-        ->once()
+        ->twice()
         ->with('<p>Just plain text content with no files</p>')
         ->andReturn(collect());
 
-    $manifest = $this->service->buildManifest($model, 'created');
+    $manifest = $this->service->buildManifest($model, 'updated');
 
     expect($manifest->operations)->toBeEmpty();
 });
@@ -67,11 +116,11 @@ it('handles null rich text content', function () {
     ]);
 
     $this->scanner->shouldReceive('extractPaths')
-        ->once()
+        ->twice()
         ->with(null)
         ->andReturn(collect());
 
-    $manifest = $this->service->buildManifest($model, 'created');
+    $manifest = $this->service->buildManifest($model, 'updated');
 
     expect($manifest->operations)->toBeEmpty();
 });
@@ -81,14 +130,19 @@ it('generates unique paths for rich text files', function () {
 
     $model = new TestModel([
         'id' => 1,
-        'description' => '<img src="temp/image.jpg">',
     ]);
+    $model->description = '<img src="temp/image.jpg">';
 
     $this->scanner->shouldReceive('extractPaths')
         ->once()
         ->andReturn(collect(['temp/image.jpg']));
 
-    $manifest = $this->service->buildManifest($model, 'created');
+    $this->scanner->shouldReceive('extractPaths')
+        ->once()
+        ->with(null)
+        ->andReturn(collect());
+
+    $manifest = $this->service->buildManifest($model, 'updated');
 
     $operation = $manifest->operations->first();
     expect($operation->destination)->toBe('test_models/1/files/image_1.jpg');
@@ -97,16 +151,21 @@ it('generates unique paths for rich text files', function () {
 it('processes both regular and rich text attributes', function () {
     $model = new TestModel([
         'id' => 1,
-        'avatar' => 'temp/avatar.jpg',
-        'description' => '<img src="temp/content_image.jpg">',
     ]);
+    $model->avatar = 'temp/avatar.jpg';
+    $model->description = '<img src="temp/content_image.jpg">';
 
     $this->scanner->shouldReceive('extractPaths')
         ->once()
         ->with('<img src="temp/content_image.jpg">')
         ->andReturn(collect(['temp/content_image.jpg']));
 
-    $manifest = $this->service->buildManifest($model, 'created');
+    $this->scanner->shouldReceive('extractPaths')
+        ->once()
+        ->with(null)
+        ->andReturn(collect());
+
+    $manifest = $this->service->buildManifest($model, 'updated');
 
     expect($manifest->operations)->toHaveCount(2);
 
@@ -126,23 +185,29 @@ it('processes both regular and rich text attributes', function () {
 it('handles complex rich text with multiple file types', function () {
     $model = new TestModel([
         'id' => 1,
-        'description' => '
-            <p>Article with media:</p>
-            <img src="temp/hero.jpg" alt="Hero">
-            <p>Download: <a href="temp/document.pdf">PDF</a></p>
-            <video src="temp/video.mp4"></video>
-        ',
     ]);
+    $model->description = '
+        <p>Article with media:</p>
+        <img src="temp/hero.jpg" alt="Hero">
+        <p>Download: <a href="temp/document.pdf">PDF</a></p>
+        <video src="temp/video.mp4"></video>
+    ';
 
     $this->scanner->shouldReceive('extractPaths')
         ->once()
+        ->with($model->description)
         ->andReturn(collect([
             'temp/hero.jpg',
             'temp/document.pdf',
             'temp/video.mp4',
         ]));
 
-    $manifest = $this->service->buildManifest($model, 'created');
+    $this->scanner->shouldReceive('extractPaths')
+        ->once()
+        ->with(null)
+        ->andReturn(collect());
+
+    $manifest = $this->service->buildManifest($model, 'updated');
 
     expect($manifest->operations)->toHaveCount(3);
 

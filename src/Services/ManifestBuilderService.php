@@ -82,6 +82,9 @@ class ManifestBuilderService implements ManifestBuilder
         $this->modelRichTextAttributes = $model->getRichTextAttributes();
     }
 
+    /**
+     * Build operations for regular file attributes.
+     */
     protected function buildFileOperations(Model $model, string $attribute): Collection
     {
         // Check if this is a rich text field
@@ -132,23 +135,56 @@ class ManifestBuilderService implements ManifestBuilder
      */
     protected function buildRichTextOperations(Model $model, string $attribute): Collection
     {
-        $content = $model->getAttribute($attribute);
-        $paths = $this->scanner->extractPaths($content);
+        $currentContent = $model->getAttribute($attribute);
+        $currentPaths = $this->scanner->extractPaths($currentContent);
         $targetDir = $this->getFileDir($attribute);
 
-        return $paths->filter(function ($path) use ($targetDir) {
-            // Filter out paths that already point to the target directory
-            return ! $this->pointsToDestination($path, $targetDir);
-        })->map(function ($path) use ($targetDir, $model, $attribute) {
-            $destination = $this->buildUniqueDestinationPath($path, $targetDir);
-
-            return FileOperation::moveRichText(
-                $path,
-                $destination,
-                $model,
-                $attribute
+        // If model was just created, all current files are new
+        if ($model->wasRecentlyCreated) {
+            return $currentPaths->filter(function ($path) use ($targetDir) {
+                // Filter out paths that already point to the target directory
+                return ! $this->pointsToDestination($path, $targetDir);
+            })->map(
+                fn ($path) => FileOperation::move(
+                    $path,
+                    $this->buildUniqueDestinationPath($path, $targetDir),
+                    $model,
+                    $attribute
+                )
             );
-        });
+        }
+
+        // For updates, compare original and current content
+        $originalContent = $model->getOriginal($attribute);
+        $originalPaths = $this->scanner->extractPaths($originalContent);
+
+        return collect()
+            ->merge(
+                // New files to move (paths in current but not in original)
+                $currentPaths->diff($originalPaths)
+                    ->filter(function ($path) use ($targetDir) {
+                        return ! $this->pointsToDestination($path, $targetDir);
+                    })
+                    ->map(function ($path) use ($targetDir, $model, $attribute) {
+                        return FileOperation::moveRichText(
+                            $path,
+                            $this->buildUniqueDestinationPath($path, $targetDir),
+                            $model,
+                            $attribute
+                        );
+                    })
+            )
+            ->merge(
+                // Old files to delete (paths in original but not in current)
+                $originalPaths->diff($currentPaths)
+                    ->filter(function ($path) use ($targetDir) {
+                        // Only delete files that are in our target directory
+                        return $this->pointsToDestination($path, $targetDir);
+                    })
+                    ->map(
+                        fn ($path) => FileOperation::delete($path)
+                    )
+            );
     }
 
     /**
