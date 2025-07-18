@@ -13,7 +13,6 @@ use christopheraseidl\AutoFiler\ValueObjects\ChangeManifest;
 use christopheraseidl\AutoFiler\ValueObjects\FileOperation;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 
@@ -253,10 +252,11 @@ it('configures retry timeout to 5 minutes', function () {
     $manifest = new ChangeManifest(collect());
     $job = new ProcessFileOperations($manifest);
 
-    // Freeze time
-    Carbon::setTestNow(now());
+    $now = now();
+    $retryUntil = $job->retryUntil();
 
-    expect($job->retryUntil())->toEqual(now()->addMinutes(5));
+    // Round the difference to account for text execution time
+    expect((int) floor($now->diffInMinutes($retryUntil)))->toBe(5);
 });
 
 it('logs permanent failure', function () {
