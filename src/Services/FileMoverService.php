@@ -74,7 +74,8 @@ class FileMoverService extends BaseFileOperator implements FileMover
         // If we get here, all attempts failed
         $this->handleAllMoveAttemptsFailed($attempts, $lastException);
 
-        return '';
+        // This return statement is unreachable
+        return ''; // @codeCoverageIgnore
     }
 
     /**

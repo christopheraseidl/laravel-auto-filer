@@ -11,6 +11,7 @@ use christopheraseidl\AutoFiler\Jobs\ProcessFileOperations;
 use christopheraseidl\AutoFiler\Tests\TestModels\TestModel;
 use christopheraseidl\AutoFiler\ValueObjects\ChangeManifest;
 use christopheraseidl\AutoFiler\ValueObjects\FileOperation;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\ThrottlesExceptions;
@@ -196,8 +197,8 @@ it('handles exceptions and dispatches failure event', function () {
         ->with('Model Filer: ProcessFileOperations job temporarily failed', ['error' => 'File operation failed']);
 });
 
-it('throws exception when model not found', function () {
-    $operation = FileOperation::move(
+it('throws exception when model not found in move operation', function (string $move) {
+    $operation = FileOperation::$move(
         from: 'temp/file.jpg',
         to: 'images/file.jpg',
         model: new TestModel,
@@ -212,6 +213,21 @@ it('throws exception when model not found', function () {
 
     expect(fn () => $job->handle($this->mover, $this->deleter, $this->scanner))
         ->toThrow(\RuntimeException::class, 'Model not found: '.TestModel::class.'#');
+})->with([
+    'regular move' => 'move',
+    'rich text move' => 'moveRichText',
+]);
+
+it('throws an exception for invalid file operation type', function () {
+    $operation = new class
+    {
+        public $type = 'invalid';
+    };
+
+    $manifest = new ChangeManifest(collect([$operation]));
+    $job = new ProcessFileOperations($manifest);
+    expect(fn () => $job->handle($this->mover, $this->deleter, $this->scanner))
+        ->toThrow(\InvalidArgumentException::class, 'Unknown operation type: invalid');
 });
 
 it('generates unique job ID based on operations', function () {

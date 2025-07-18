@@ -45,11 +45,15 @@ it('identifies manageable paths correctly', function () {
     expect($this->service->isManageablePath('permanent/file.jpg'))->toBeFalse();
 });
 
-it('normalizes paths correctly', function () {
+it('normalizes paths correctly', function (?string $sitePath) {
+    if ($sitePath) {
+        config()->set('app.url', 'myapp.com/site/path');
+    }
+
     $content = '
-        <img src="/storage/uploads/temp/image.jpg">
-        <img src="storage/uploads/temp/image2.jpg">
-        <img src="uploads/temp/image3.jpg">
+        <img src="/'.$sitePath.'storage/uploads/temp/image.jpg">
+        <img src="'.$sitePath.'storage/uploads/temp/image2.jpg">
+        <img src="'.$sitePath.'uploads/temp/image3.jpg">
     ';
 
     $paths = $this->service->extractPaths($content);
@@ -57,7 +61,10 @@ it('normalizes paths correctly', function () {
     expect($paths->toArray())->toContain('uploads/temp/image.jpg');
     expect($paths->toArray())->toContain('uploads/temp/image2.jpg');
     expect($paths->toArray())->toContain('uploads/temp/image3.jpg');
-});
+})->with([
+    'no site path' => null,
+    'site path' => 'site/path/',
+]);
 
 it('updates paths in content with replacements', function () {
     $content = '<p>Check out <img src="uploads/temp/old.jpg"> and <a href="uploads/temp/doc.pdf">this</a></p>';
@@ -224,4 +231,19 @@ it('handles paths with subdirectories', function () {
         'uploads/temp/gallery/2024/january/pic.png',
         'uploads/temp/documents/reports/annual.pdf',
     ]);
+});
+
+it('returns false for external URLs with different hosts', function () {
+    // Set up reflection
+    $reflection = new \ReflectionClass($this->service);
+    $method = $reflection->getMethod('isLocalPath');
+    $method->setAccessible(true);
+
+    // Test with various external URL formats
+    expect($method->invoke($this->service, 'https://external.com/file.jpg'))->toBeFalse();
+    expect($method->invoke($this->service, 'http://another-domain.com/path/to/file.pdf'))->toBeFalse();
+    expect($method->invoke($this->service, '//cdn.example.com/image.png'))->toBeFalse();
+
+    // Also test with subdomains of different hosts
+    expect($method->invoke($this->service, 'https://sub.external.com/file.jpg'))->toBeFalse();
 });

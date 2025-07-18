@@ -6,6 +6,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Support\Arr;
 
 /**
  * Base class for broadcasting events.
@@ -19,8 +20,21 @@ abstract class BaseEvent implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel(config('auto-filer.broadcast_channel', 'default')),
-        ];
+        return $this->getBroadcastChannels();
+    }
+
+    /**
+     * Return an array of configured broadcast channels.
+     */
+    protected function getBroadcastChannels(): array
+    {
+        $channels = Arr::wrap(
+            config('auto-filer.broadcast_channels')
+        );
+
+        return array_map(
+            fn ($channel) => new PrivateChannel($channel),
+            $channels
+        );
     }
 }

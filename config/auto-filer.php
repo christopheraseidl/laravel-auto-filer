@@ -51,7 +51,7 @@ return [
     | The broadcast channel for real-time notifications about file operations.
     | Set to null to disable broadcasting.
     */
-    'broadcast_channel' => 'default',
+    'broadcast_channels' => null,
 
     /*
     |--------------------------------------------------------------------------

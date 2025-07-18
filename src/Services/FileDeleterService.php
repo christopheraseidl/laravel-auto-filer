@@ -21,37 +21,38 @@ class FileDeleterService extends BaseFileOperator implements FileDeleter
             'path' => $path,
         ]);
 
-        return $this->attemptDelete($path);
+        return $this->deleteWithRetries($path);
     }
 
     /**
      * Attempt file deletion with retry logic and circuit breaker protection.
      */
-    private function attemptDelete(string $path): bool
+    protected function deleteWithRetries(string $path): bool
     {
         $lastException = null;
         $attempts = 0;
 
         while ($attempts < $this->maxAttempts && $this->getBreaker()->canAttempt()) {
             try {
-                return $this->performDeletion($path);
+                return $this->executeDeletion($path);
             } catch (\Throwable $e) {
                 $attempts++;
                 $lastException = $e;
 
-                $this->handleProcessDeletionException($path, $attempts, $lastException->getMessage());
+                $this->handleDeletionRetryFailed($path, $attempts, $lastException->getMessage());
             }
         }
 
-        $this->handleDeletionFailure($path, $attempts, $lastException?->getMessage());
+        $this->handleAllDeletionAttemptsFailed($path, $attempts, $lastException?->getMessage());
 
-        return false;
+        // This return statement is unreachable
+        return false; // @codeCoverageIgnore
     }
 
     /**
      * Execute deletion and validate the result.
      */
-    private function performDeletion(string $path): bool
+    protected function executeDeletion(string $path): bool
     {
         $result = $this->deleteDirectoryOrFile($path);
 
@@ -61,7 +62,7 @@ class FileDeleterService extends BaseFileOperator implements FileDeleter
     /**
      * Delete directory or file based on path type.
      */
-    private function deleteDirectoryOrFile(string $path): bool
+    protected function deleteDirectoryOrFile(string $path): bool
     {
         return Storage::disk($this->disk)->directoryExists($path)
             ? Storage::disk($this->disk)->deleteDirectory($path)
@@ -71,7 +72,7 @@ class FileDeleterService extends BaseFileOperator implements FileDeleter
     /**
      * Handle the result of a deletion.
      */
-    private function handleDeletionResult(bool $result): bool
+    protected function handleDeletionResult(bool $result): bool
     {
         if ($result) {
             $this->getBreaker()->recordSuccess();
@@ -87,7 +88,7 @@ class FileDeleterService extends BaseFileOperator implements FileDeleter
     /**
      * Handle caught process deletion exception between retry attempts.
      */
-    private function handleProcessDeletionException(string $path, int $attempts, string $exceptionMessage): void
+    protected function handleDeletionRetryFailed(string $path, int $attempts, string $exceptionMessage): void
     {
         Log::warning("File delete attempt {$attempts} failed.", [
             'disk' => $this->disk,
@@ -107,7 +108,7 @@ class FileDeleterService extends BaseFileOperator implements FileDeleter
     /**
      * Handle process deletion failure.
      */
-    private function handleDeletionFailure(string $path, int $attempts, ?string $exceptionMessage = null): void
+    protected function handleAllDeletionAttemptsFailed(string $path, int $attempts, ?string $exceptionMessage = null): void
     {
         Log::error("File deletion failed after {$attempts} attempts.", [
             'disk' => $this->disk,

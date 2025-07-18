@@ -63,21 +63,24 @@ class RichTextScannerService implements RichTextScanner
      */
     protected function normalizePath(string $path): string
     {
-        // Remove domain and app path prefix
-        $path = parse_url($path, PHP_URL_PATH) ?? $path;
+        $path = ltrim(
+            parse_url($path, PHP_URL_PATH) ?? $path,
+            '/'
+        );
 
-        // Remove the app's base path if it exists
-        $parsedConfig = $this->parseConfigUrl(config('app.url'));
-        $configPath = $parsedConfig['path'] ?? null;
+        $configPath = ltrim(
+            $this->parseConfigUrl(config('app.url'))['path'] ?? '',
+            '/'
+        );
 
         if ($configPath && str_starts_with($path, $configPath)) {
-            $path = substr($path, strlen($configPath));
+            $path = substr($path, strlen($configPath) + 1);
         }
 
-        // Remove storage prefix
-        $path = preg_replace('#^/?storage/#', '', $path);
-
-        return ltrim($path, '/');
+        return ltrim(
+            preg_replace('#^/?storage/#', '', $path),
+            '/'
+        );
     }
 
     /**
@@ -85,22 +88,20 @@ class RichTextScannerService implements RichTextScanner
      */
     protected function isLocalPath(string $path): bool
     {
+        // If it starts with // but has no scheme, add vestigial http: for validation
+        $validationPath = str_starts_with($path, '//') ? "http:$path" : $path;
+
         // Return true for a relative path
-        if (! filter_var($path, FILTER_VALIDATE_URL)) {
+        if (! filter_var($validationPath, FILTER_VALIDATE_URL)) {
             return true;
         }
 
-        $parsedUrl = parse_url($path);
+        $parsedUrl = parse_url($validationPath);
         $parsedConfig = $this->parseConfigUrl(config('app.url'));
 
         // Get hosts from both URLs
         $urlHost = $parsedUrl['host'] ?? null;
         $configHost = $parsedConfig['host'] ?? null;
-
-        // If the path URL doesn't have a host, it's not a full URL
-        if ($urlHost === null) {
-            return true;
-        }
 
         // Return false if hosts are different
         if ($urlHost !== $configHost) {

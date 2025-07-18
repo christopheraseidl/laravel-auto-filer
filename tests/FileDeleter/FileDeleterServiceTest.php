@@ -86,3 +86,23 @@ it('checks circuit breaker before attempting deletion', function () {
     expect(fn () => $this->service->delete('test-file.txt'))
         ->toThrow(\Exception::class);
 });
+
+it('does not wait between retries when circuit breaker is open', function () {
+    // Mock deletion failure
+    Storage::shouldReceive('disk->directoryExists')
+        ->times(3)
+        ->with('test-file.txt')
+        ->andThrow(new \Exception('Storage error'));
+
+    // Mock breaker opening
+    $count = 0;
+    $this->circuitBreaker->shouldReceive('canAttempt')
+        ->andReturnUsing(function () use (&$count) {
+            $count++;
+
+            return $count !== 3; // open on the second check, in failure handler
+        });
+
+    expect(fn () => $this->service->delete('test-file.txt'))
+        ->toThrow(FileDeleteException::class);
+});
