@@ -1,0 +1,18 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+    paths:
+        - src
+        - tests/TestModels/TestModelEmpty.php
+    reportUnmatchedIgnoredErrors: false
+    tmpDir: build/phpstan
+    checkOctaneCompatibility: true
+    checkModelProperties: true
+    bootstrapFiles:
+        - vendor/autoload.php
+    ignoreErrors:
+        - '#Call to an undefined static method .+\\Facades\\.+#'
+        - '#Access to an undefined property .+\\Model.+#'
+        - '#Call to function method_exists\(\) with .Illuminate.+Support.+Str.+ and .pascal. will always evaluate to true\.#'
