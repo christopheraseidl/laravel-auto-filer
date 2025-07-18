@@ -194,7 +194,7 @@ it('handles exceptions and dispatches failure event', function () {
     });
 
     Log::shouldHaveReceived('error')
-        ->with('Model Filer: ProcessFileOperations job temporarily failed', ['error' => 'File operation failed']);
+        ->with('Auto Filer: ProcessFileOperations job temporarily failed', ['error' => 'File operation failed']);
 });
 
 it('throws exception when model not found in move operation', function (string $move) {
@@ -272,7 +272,7 @@ it('logs permanent failure', function () {
     $job->failed($exception);
 
     Log::shouldHaveReceived('error')
-        ->with('Model Filer: ProcessFileOperations job PERMANENTLY failed', [
+        ->with('Auto Filer: ProcessFileOperations job PERMANENTLY failed', [
             'change_manifest' => $manifest->toArray(),
         ]);
 });

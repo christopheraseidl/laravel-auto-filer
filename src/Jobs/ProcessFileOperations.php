@@ -56,7 +56,7 @@ class ProcessFileOperations implements ShouldQueue
                 broadcast(new ProcessingComplete);
             });
         } catch (\Throwable $e) {
-            Log::error('Model Filer: ProcessFileOperations job temporarily failed', [
+            Log::error('Auto Filer: ProcessFileOperations job temporarily failed', [
                 'error' => $e->getMessage(),
             ]);
 
@@ -79,7 +79,7 @@ class ProcessFileOperations implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error('Model Filer: ProcessFileOperations job PERMANENTLY failed', [
+        Log::error('Auto Filer: ProcessFileOperations job PERMANENTLY failed', [
             'change_manifest' => $this->manifest->operations->toArray(),
         ]);
     }
