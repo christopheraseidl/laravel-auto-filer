@@ -36,14 +36,14 @@ return [
     | The queue connection to use for processing file operations. Set to
     | 'sync' to process immediately without queuing.
     */
-    'queue_connection' => 'default',
+    'queue_connection' => null,
 
     /*
     | Queue name
     |
     | The specific queue to use for file operation jobs.
     */
-    'queue' => 'default',
+    'queue' => null,
 
     /*
     | Broadcast channel

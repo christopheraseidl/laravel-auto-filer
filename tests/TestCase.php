@@ -59,18 +59,6 @@ class TestCase extends Orchestra
         ]);
 
         // Force job batches to use the testing connection.
-        config()->set('queue.batching.database', 'testing');
-
-        // Run jobs synchronously.
-        config()->set('queue.default', 'sync');
-        config()->set('queue.connections.sync', [
-            'driver' => 'sync',
-        ]);
-
-        // Don't actually broadcast events.
-        config()->set('broadcasting.default', 'null');
-        config()->set('broadcasting.connections.null', [
-            'driver' => 'null',
-        ]);
+        config()->set('queue.default', 'database');
     }
 }
