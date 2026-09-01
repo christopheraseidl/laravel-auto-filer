@@ -5,7 +5,7 @@ namespace christopheraseidl\AutoFiler\Actions;
 use christopheraseidl\AutoFiler\Contracts\GenerateThumbnail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Interfaces\ImageManagerInterface;
 
 class GenerateThumbnailAction implements GenerateThumbnail
 {
@@ -28,7 +28,7 @@ class GenerateThumbnailAction implements GenerateThumbnail
             $suffix = $options['suffix'] ?? config('auto-filer.thumbnails.suffix', '-thumb');
 
             // Read the image
-            $image = Image::read(
+            $image = app(ImageManagerInterface::class)->decode(
                 Storage::disk($this->disk)->get($imagePath)
             );
 
@@ -41,7 +41,7 @@ class GenerateThumbnailAction implements GenerateThumbnail
             // Save thumbnail
             Storage::disk($this->disk)->put(
                 $thumbPath,
-                $image->encodeByExtension(
+                $image->encodeUsingFileExtension(
                     pathinfo($imagePath, PATHINFO_EXTENSION),
                     quality: $quality
                 )

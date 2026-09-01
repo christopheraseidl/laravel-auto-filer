@@ -3,13 +3,14 @@
 namespace christopheraseidl\AutoFiler\Tests\Helpers;
 
 use Illuminate\Support\Facades\Storage;
+use Mockery\MockInterface;
 
 /**
  * Quickly creates a partial mock of Storage disk for tests.
  */
 trait UsesDiskPartialMock
 {
-    public \Mockery\MockInterface $mockDisk;
+    public MockInterface $mockDisk;
 
     /**
      * Create a partial mock of Storage disk.
