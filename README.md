@@ -15,7 +15,7 @@ Laravel Auto Filer is a simple package that automates file organization for your
 - **Rich text field support**: automatically handles files embedded in rich text content.
 - **Thumbnail generation**: automatic thumbnail creation for images with automatic cleanup.
 - **Circuit breaker protection**: built-in circuit breaker prevents cascading failures.
-- **Laravel 10, 11, and 12 support**: compatible with recent Laravel versions.
+- **Laravel 10-13 support**: compatible with recent Laravel versions.
 
 ## Installation
 
